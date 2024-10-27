@@ -2,6 +2,7 @@ import Link from 'next/link';
 import {
   Home,
   LineChart,
+  MousePointerClickIcon,
   Package,
   Package2,
   PanelLeft,
@@ -86,6 +87,10 @@ function DesktopNav() {
           <Users2 className="h-5 w-5" />
         </NavItem>
 
+        <NavItem href="/predictions" label="Predictions">
+          <MousePointerClickIcon className="h-5 w-5" />
+        </NavItem>
+
         <NavItem href="#" label="Analytics">
           <LineChart className="h-5 w-5" />
         </NavItem>
@@ -153,6 +158,13 @@ function MobileNav() {
           >
             <Users2 className="h-5 w-5" />
             Customers
+          </Link>
+          <Link
+            href="#"
+            className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+          >
+            <MousePointerClickIcon className="h-5 w-5" />
+            Predictions
           </Link>
           <Link
             href="#"
