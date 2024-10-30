@@ -5,8 +5,27 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  TeamName
+} from '@/components/ui/table';
+import { fetchResultsData } from '@/lib/data';
 
-const PredictionsPage = () => {
+const PredictionsPage = async () => {
+  const results = await fetchResultsData();
+
+  const maxGameWeeks = Array.isArray(Object.values(results))
+    ? Object.values(results).reduce(
+        (maxLength, currentArray) => Math.max(maxLength, currentArray.length),
+        0
+      )
+    : 1;
+
   return (
     <Card>
       <CardHeader>
@@ -14,7 +33,36 @@ const PredictionsPage = () => {
         <CardDescription>View your previous results</CardDescription>
       </CardHeader>
 
-      <CardContent></CardContent>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Game</TableHead>
+              {Array.from(Array(maxGameWeeks)).map((_, gameWeek) => (
+                <TableHead
+                  key={`gw-headcell-${gameWeek + 1}`}
+                >{`GW${gameWeek + 1}`}</TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {Object.values(results).map((gameResults, gameIdx) => (
+              <TableRow key={`game-row-${gameResults[0].round_id}`}>
+                <TableCell className="font-medium">{gameIdx + 1}</TableCell>
+                {gameResults.map((prediction, predictionIdx) => (
+                  <TableCell
+                    key={`gw-cell-${gameIdx}-${predictionIdx}`}
+                    className={`hidden md:table-cell bg-${prediction.correct ? 'green' : 'red'}-200`}
+                  >
+                    <TeamName location="Home" prediction={prediction} /> v{' '}
+                    <TeamName location="Away" prediction={prediction} />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
     </Card>
   );
 };
