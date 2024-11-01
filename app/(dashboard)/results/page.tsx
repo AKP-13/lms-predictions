@@ -52,7 +52,7 @@ const PredictionsPage = async () => {
                 {gameResults.map((prediction, predictionIdx) => (
                   <TableCell
                     key={`gw-cell-${gameIdx}-${predictionIdx}`}
-                    className={`table-cell bg-${prediction.correct ? 'green' : 'red'}-200`}
+                    className={`table-cell ${prediction.correct ? 'bg-green-200' : 'bg-red-200'}`}
                   >
                     <TeamName location="Home" prediction={prediction} /> v{' '}
                     <TeamName location="Away" prediction={prediction} />
