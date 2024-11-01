@@ -8,6 +8,7 @@ import {
   PanelLeft,
   Settings,
   ShoppingCart,
+  Table,
   Users2
 } from 'lucide-react';
 
@@ -91,6 +92,10 @@ function DesktopNav() {
           <MousePointerClickIcon className="h-5 w-5" />
         </NavItem>
 
+        <NavItem href="/results" label="Results">
+          <Table className="h-5 w-5" />
+        </NavItem>
+
         <NavItem href="#" label="Analytics">
           <LineChart className="h-5 w-5" />
         </NavItem>
@@ -166,6 +171,14 @@ function MobileNav() {
             <MousePointerClickIcon className="h-5 w-5" />
             Predictions
           </Link>
+          <Link
+            href="/results"
+            className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+          >
+            <Table className="h-5 w-5" />
+            Results
+          </Link>
+
           <Link
             href="#"
             className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
