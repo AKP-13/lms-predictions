@@ -3,7 +3,7 @@ export type TeamLocation = 'Home' | 'Away';
 export type Results = {
   id: number;
   user_id: string;
-  round_id: number;
+  game_id: number;
   team_selected: string;
   team_opposing: string;
   team_selected_location: TeamLocation;

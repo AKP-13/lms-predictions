@@ -47,7 +47,7 @@ const PredictionsPage = async () => {
           </TableHeader>
           <TableBody>
             {Object.values(results).map((gameResults, gameIdx) => (
-              <TableRow key={`game-row-${gameResults[0].round_id}`}>
+              <TableRow key={`game-row-${gameResults[0].game_id}`}>
                 <TableCell className="font-medium">{gameIdx + 1}</TableCell>
                 {gameResults.map((prediction, predictionIdx) => (
                   <TableCell
