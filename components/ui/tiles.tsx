@@ -1,45 +1,87 @@
+import { fetchTileData } from '@/lib/data';
 import {
   ArrowUpWideNarrowIcon,
+  AngryIcon,
   BadgePlusIcon,
   BadgeXIcon,
-  Hash
+  Hash,
+  HouseIcon,
+  SignpostIcon,
+  ThumbsDownIcon
 } from 'lucide-react';
 
 const iconMap = {
-  played: Hash,
-  most_selected: ArrowUpWideNarrowIcon,
-  most_successful: BadgePlusIcon,
-  least_successful: BadgeXIcon
+  gamesPlayed: Hash,
+  mostSelected: ArrowUpWideNarrowIcon,
+  mostSuccessful: BadgePlusIcon,
+  leastSuccessful: BadgeXIcon,
+  bogeyTeam: AngryIcon,
+  homeSuccess: HouseIcon,
+  awaySuccess: SignpostIcon,
+  bogeyRound: ThumbsDownIcon
 };
 
 export default async function TileWrapper() {
-  //   const {
-  //     numberOfInvoices,
-  //     numberOfCustomers,
-  //     totalPaidInvoices,
-  //     totalPendingInvoices
-  //   } = await fetchTileData();
+  const {
+    gamesPlayed,
+    mostSelected,
+    mostSuccessful,
+    leastSuccessful,
+    bogeyTeam,
+    homeSuccess,
+    awaySuccess,
+    bogeyRoundNumber
+  } = await fetchTileData();
 
   return (
     <>
-      <Tile title="Games Played" type="played" value={21} />
       <Tile
-        caption="11 times"
+        caption={gamesPlayed.caption}
+        title="Games Played"
+        type="gamesPlayed"
+        value={gamesPlayed.value}
+      />
+      <Tile
+        caption={mostSelected.caption}
         title="Most Picked Teams"
-        type="most_selected"
-        value="Spurs & Arsenal"
+        type="mostSelected"
+        value={mostSelected.value}
       />
       <Tile
-        caption="90%"
+        caption={mostSuccessful.caption}
         title="Most Successful Team"
-        type="most_successful"
-        value="Liverpool"
+        type="mostSuccessful"
+        value={mostSuccessful.value}
       />
       <Tile
-        caption="50%"
+        caption={leastSuccessful.caption}
         title="Least Successful Team"
-        type="least_successful"
-        value="Chelsea"
+        type="leastSuccessful"
+        value={leastSuccessful.value}
+      />
+      <Tile
+        caption={bogeyTeam.caption}
+        title="Bogey Teams"
+        type="bogeyTeam"
+        value={bogeyTeam.value}
+      />
+      <Tile
+        caption={homeSuccess.caption}
+        title="Home Success"
+        type="homeSuccess"
+        value={homeSuccess.value}
+      />
+      <Tile
+        caption={awaySuccess.caption}
+        title="Away Success"
+        type="awaySuccess"
+        value={awaySuccess.value}
+      />
+      <Tile
+        caption={bogeyRoundNumber.caption}
+        title="Bogey Round"
+        type="bogeyRound"
+        value={bogeyRoundNumber.value}
       />
     </>
   );
@@ -53,7 +95,15 @@ export function Tile({
 }: {
   caption?: string;
   title: string;
-  type: 'played' | 'most_selected' | 'most_successful' | 'least_successful';
+  type:
+    | 'gamesPlayed'
+    | 'mostSelected'
+    | 'mostSuccessful'
+    | 'leastSuccessful'
+    | 'bogeyTeam'
+    | 'homeSuccess'
+    | 'awaySuccess'
+    | 'bogeyRound';
   value: number | string;
 }) {
   const Icon = iconMap[type];
