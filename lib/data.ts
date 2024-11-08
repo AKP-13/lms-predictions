@@ -12,6 +12,8 @@ export async function fetchResultsData() {
         , result_selected
         , correct
         , fpl_gw
+        , team_selected_score
+        , team_opposing_score
     FROM results;
     `;
 

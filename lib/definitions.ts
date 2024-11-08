@@ -10,4 +10,7 @@ export type Results = {
   result_selected: 'Win' | 'Draw';
   correct: boolean;
   fpl_gw: number | null;
+  round_number: number;
+  team_selected_score: number;
+  team_opposing_score: number;
 };

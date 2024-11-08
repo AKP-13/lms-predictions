@@ -124,6 +124,7 @@ const TeamName = ({
       : isHomeTeamPredicted
         ? prediction.team_opposing
         : prediction.team_selected;
+
   return (
     <span
       className={`font-${(location === 'Home' && isHomeTeamPredicted) || (location === 'Away' && isAwayTeamPredicted) ? 'semibold' : 'normal'}`}
@@ -131,6 +132,28 @@ const TeamName = ({
       {teamName}
     </span>
   );
+};
+
+const TeamScore = ({
+  prediction,
+  location
+}: {
+  prediction: Results;
+  location: TeamLocation;
+}) => {
+  const isHomeTeamPredicted = prediction.team_selected_location === 'Home';
+  const isAwayTeamPredicted = prediction.team_selected_location === 'Away';
+
+  const teamScore =
+    location === 'Home'
+      ? isHomeTeamPredicted
+        ? prediction.team_selected_score
+        : prediction.team_opposing_score
+      : isHomeTeamPredicted
+        ? prediction.team_opposing_score
+        : prediction.team_selected_score;
+
+  return <span className="font-thin">{teamScore}</span>;
 };
 
 export {
@@ -142,5 +165,6 @@ export {
   TableRow,
   TableCell,
   TableCaption,
-  TeamName
+  TeamName,
+  TeamScore
 };
