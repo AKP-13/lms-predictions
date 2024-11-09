@@ -1,5 +1,5 @@
 import { sql } from '@vercel/postgres';
-import { Results } from './definitions';
+import { CurrentGameId, CurrentGameResults, Results } from './definitions';
 
 export async function fetchResultsData() {
   try {
@@ -33,6 +33,37 @@ export async function fetchResultsData() {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch results.');
+  }
+}
+
+export async function fetchCurrentGameData() {
+  try {
+    const queryResult = await sql<CurrentGameId>`
+        SELECT
+            MAX(id) AS current_game_id
+        FROM rounds;
+    `;
+
+    const currentGameId = queryResult.rows[0].current_game_id;
+
+    const currentGameResults = await sql<CurrentGameResults>`
+        SELECT
+            team_selected
+            , team_opposing
+            , team_selected_location
+            , result_selected
+            , correct
+            , fpl_gw
+            , team_selected_score
+            , team_opposing_score
+        FROM results
+        WHERE game_id = ${currentGameId};
+    `;
+
+    return currentGameResults.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch current game results.');
   }
 }
 

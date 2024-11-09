@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
-import { Results, TeamLocation } from '@/lib/definitions';
+import { CurrentGameResults, Results, TeamLocation } from '@/lib/definitions';
 
 const Table = React.forwardRef<
   HTMLTableElement,
@@ -110,7 +110,7 @@ const TeamName = ({
   prediction,
   location
 }: {
-  prediction: Results;
+  prediction: Results | CurrentGameResults;
   location: TeamLocation;
 }) => {
   const isHomeTeamPredicted = prediction.team_selected_location === 'Home';
@@ -138,7 +138,7 @@ const TeamScore = ({
   prediction,
   location
 }: {
-  prediction: Results;
+  prediction: Results | CurrentGameResults;
   location: TeamLocation;
 }) => {
   const isHomeTeamPredicted = prediction.team_selected_location === 'Home';

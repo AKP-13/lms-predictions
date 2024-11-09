@@ -2,6 +2,7 @@
 // import { CardsSkeleton } from "@/app/ui/skeletons";
 import TileWrapper from '@/components/ui/tiles';
 import { Metadata } from 'next';
+import CurrentGameResults from './current-game-results';
 
 export const metadata: Metadata = {
   title: 'Dashboard'
@@ -16,6 +17,8 @@ export default async function Page() {
         <TileWrapper />
         {/* </Suspense> */}
       </div>
+
+      <CurrentGameResults />
     </main>
   );
 }
