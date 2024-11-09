@@ -49,13 +49,13 @@ export default async function TileWrapper() {
       />
       <Tile
         caption={mostSuccessful.caption}
-        title="Most Successful Team"
+        title="Most Successful Pick"
         type="mostSuccessful"
         value={mostSuccessful.value}
       />
       <Tile
         caption={leastSuccessful.caption}
-        title="Least Successful Team"
+        title="Least Successful Pick"
         type="leastSuccessful"
         value={leastSuccessful.value}
       />
@@ -67,13 +67,13 @@ export default async function TileWrapper() {
       />
       <Tile
         caption={homeSuccess.caption}
-        title="Home Success"
+        title="Home Pick Success"
         type="homeSuccess"
         value={homeSuccess.value}
       />
       <Tile
         caption={awaySuccess.caption}
-        title="Away Success"
+        title="Away Pick Success"
         type="awaySuccess"
         value={awaySuccess.value}
       />
@@ -118,7 +118,7 @@ export function Tile({
         {value}
       </p>
       {caption && (
-        <p className="truncate rounded-xl px-4 py-4 text-center text-small">
+        <p className="truncate rounded-xl px-4 py-4 text-center text-small italic">
           {caption}
         </p>
       )}
