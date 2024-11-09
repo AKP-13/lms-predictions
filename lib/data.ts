@@ -192,13 +192,13 @@ export async function fetchTileData() {
 
     return {
       gamesPlayed,
+      bogeyRoundNumber,
       mostSelected,
-      mostSuccessful,
-      leastSuccessful,
-      bogeyTeam,
-      homeSuccess,
-      awaySuccess,
-      bogeyRoundNumber
+      mostSuccessful
+      // leastSuccessful,
+      // bogeyTeam,
+      // homeSuccess,
+      // awaySuccess,
     };
   } catch (error) {
     console.error('Database Error:', error);

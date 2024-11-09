@@ -24,13 +24,13 @@ const iconMap = {
 export default async function TileWrapper() {
   const {
     gamesPlayed,
+    bogeyRoundNumber,
     mostSelected,
-    mostSuccessful,
-    leastSuccessful,
-    bogeyTeam,
-    homeSuccess,
-    awaySuccess,
-    bogeyRoundNumber
+    mostSuccessful
+    // leastSuccessful,
+    // bogeyTeam,
+    // homeSuccess,
+    // awaySuccess,
   } = await fetchTileData();
 
   return (
@@ -40,6 +40,12 @@ export default async function TileWrapper() {
         title="Games Played"
         type="gamesPlayed"
         value={gamesPlayed.value}
+      />
+      <Tile
+        caption={bogeyRoundNumber.caption}
+        title="Bogey Round"
+        type="bogeyRound"
+        value={bogeyRoundNumber.value}
       />
       <Tile
         caption={mostSelected.caption}
@@ -53,7 +59,7 @@ export default async function TileWrapper() {
         type="mostSuccessful"
         value={mostSuccessful.value}
       />
-      <Tile
+      {/* <Tile
         caption={leastSuccessful.caption}
         title="Least Successful Pick"
         type="leastSuccessful"
@@ -76,13 +82,7 @@ export default async function TileWrapper() {
         title="Away Pick Success"
         type="awaySuccess"
         value={awaySuccess.value}
-      />
-      <Tile
-        caption={bogeyRoundNumber.caption}
-        title="Bogey Round"
-        type="bogeyRound"
-        value={bogeyRoundNumber.value}
-      />
+      /> */}
     </>
   );
 }
