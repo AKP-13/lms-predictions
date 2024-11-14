@@ -78,7 +78,7 @@ const CurrentGameResults = async () => {
                       >
                         <span>
                           Unfortunetly, {prediction.team_selected} not getting a{' '}
-                          {prediction.result_selected} against{' '}
+                          {prediction.result_selected.toLowerCase()} against{' '}
                           {prediction.team_opposing} means that you're out of
                           this round!
                         </span>
