@@ -3,6 +3,8 @@
 import TileWrapper from '@/components/ui/tiles';
 import { Metadata } from 'next';
 import CurrentGameResults from './current-game-results';
+import CurrentGwFixtures from './current-gw-fixtures';
+import Predictions from './predictions';
 
 export const metadata: Metadata = {
   title: 'Dashboard'
@@ -11,7 +13,6 @@ export const metadata: Metadata = {
 export default async function Page() {
   return (
     <main>
-      <h1 className="mb-4 text-xl md:text-2xl">Dashboard</h1>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {/* <Suspense fallback={<CardsSkeleton />}> */}
         <TileWrapper />
@@ -19,6 +20,16 @@ export default async function Page() {
       </div>
 
       <CurrentGameResults />
+
+      <div style={{ display: 'flex' }}>
+        <div className="w-1/2 mr-3">
+          <CurrentGwFixtures />
+        </div>
+
+        <div className="w-1/2 ml-3">
+          <Predictions />
+        </div>
+      </div>
     </main>
   );
 }
