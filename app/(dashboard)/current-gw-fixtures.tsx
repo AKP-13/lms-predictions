@@ -171,7 +171,7 @@ const CurrentGwFixtures = async () => {
   }));
 
   const thisGw: ThisGw = formattedData.events.find(
-    (gwObj: any) => gwObj.is_current === true
+    (gwObj: any) => gwObj.is_next === true
   );
 
   const thisGwFixtures = formattedFixturesData.filter(
