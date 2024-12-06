@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default async function Page() {
   return (
     <main>
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-4 w-5/12 md:w-full">
         {/* <Suspense fallback={<CardsSkeleton />}> */}
         <TileWrapper />
         {/* </Suspense> */}
@@ -21,12 +21,12 @@ export default async function Page() {
 
       <CurrentGameResults />
 
-      <div style={{ display: 'flex' }}>
-        <div className="w-1/2 mr-3">
+      <div className="block md:flex">
+        <div className="w-5/12 my-8 md:mr-3 md:w-full md:my-0">
           <CurrentGwFixtures />
         </div>
 
-        <div className="w-1/2 ml-3">
+        <div className="w-5/12 my-8 md:ml-3 md:w-full md:my-0">
           <Predictions />
         </div>
       </div>
