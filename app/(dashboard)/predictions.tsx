@@ -75,7 +75,9 @@ const Predictions = () => {
           <Select name="result" id="result" options={results} />
         </div>
 
-        <button type="submit">Submit</button>
+        <button type="submit" disabled style={{ color: 'gray' }}>
+          Submit
+        </button>
       </CardContent>
     </Card>
   );
