@@ -21,7 +21,7 @@ const CurrentGameResults = async () => {
   const currentGameResults = await fetchCurrentGameData();
 
   return (
-    <Card className="rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto w-5/12 md:w-full">
+    <Card className="rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto">
       <CardHeader>
         <CardTitle>Current Game</CardTitle>
         <CardDescription>Your results from this game</CardDescription>

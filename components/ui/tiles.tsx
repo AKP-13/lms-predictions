@@ -117,7 +117,7 @@ export function Tile({
       : 'text-green-400';
 
   return (
-    <div className="rounded-xl bg-white p-2 shadow-sm w-1/2 md:w-full">
+    <div className="rounded-xl bg-white p-2 shadow-sm">
       <div className="flex p-4">
         {Icon ? <Icon className={`h-5 w-5 text-blue-300`} /> : null}
         <h3 className="ml-2 text-sm font-medium">{title}</h3>
