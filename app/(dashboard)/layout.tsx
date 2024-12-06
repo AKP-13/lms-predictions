@@ -50,7 +50,7 @@ export default function DashboardLayout({
             <SearchInput />
             <User />
           </header> */}
-          <main className="grid items-start gap-2 p-4 sm:px-6 sm:py-0 md:gap-4 bg-muted/40">
+          <main className="md:grid items-start gap-2 p-4 sm:px-6 sm:py-0 md:gap-4 bg-muted/40">
             {children}
           </main>
         </div>

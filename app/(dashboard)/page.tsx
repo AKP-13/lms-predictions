@@ -13,11 +13,9 @@ export const metadata: Metadata = {
 export default async function Page() {
   return (
     <main>
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-4">
-        {/* <Suspense fallback={<CardsSkeleton />}> */}
-        <TileWrapper />
-        {/* </Suspense> */}
-      </div>
+      {/* <Suspense fallback={<CardsSkeleton />}> */}
+      <TileWrapper />
+      {/* </Suspense> */}
 
       <CurrentGameResults />
 

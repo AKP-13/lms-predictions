@@ -179,7 +179,7 @@ export async function fetchTileData() {
     };
 
     const mostSelected = {
-      value: data[1].rows.map(({ team_selected }) => team_selected).join(', '),
+      value: data[1].rows[0].team_selected,
       caption: `${data[1].rows[0].selection_count ?? 0} times`
     };
 
@@ -194,7 +194,7 @@ export async function fetchTileData() {
     };
 
     const bogeyTeam = {
-      value: data[3].rows.map(({ team_opposing }) => team_opposing).join(', '),
+      value: data[3].rows[0].team_opposing,
       caption: `${data[3].rows[0].loss_count ?? 0} times`
     };
 

@@ -34,7 +34,7 @@ export default async function TileWrapper() {
   } = await fetchTileData();
 
   return (
-    <>
+    <div className="grid gap-6 grid-cols-4">
       <Tile
         caption={gamesPlayed.caption}
         title="Games Played"
@@ -83,7 +83,7 @@ export default async function TileWrapper() {
         type="awaySuccess"
         value={awaySuccess.value}
       />
-    </>
+    </div>
   );
 }
 
@@ -117,7 +117,7 @@ export function Tile({
       : 'text-green-400';
 
   return (
-    <div className="rounded-xl bg-white p-2 shadow-sm">
+    <div className="rounded-xl bg-white p-2 shadow-sm grid col-span-2 md:col-span-1">
       <div className="flex p-4">
         {Icon ? <Icon className={`h-5 w-5 text-blue-300`} /> : null}
         <h3 className="ml-2 text-sm font-medium">{title}</h3>
