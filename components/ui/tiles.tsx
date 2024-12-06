@@ -26,11 +26,11 @@ export default async function TileWrapper() {
     gamesPlayed,
     bogeyRoundNumber,
     mostSelected,
-    mostSuccessful
-    // leastSuccessful,
-    // bogeyTeam,
-    // homeSuccess,
-    // awaySuccess,
+    mostSuccessful,
+    leastSuccessful,
+    bogeyTeam,
+    homeSuccess,
+    awaySuccess
   } = await fetchTileData();
 
   return (
@@ -59,7 +59,7 @@ export default async function TileWrapper() {
         type="mostSuccessful"
         value={mostSuccessful.value}
       />
-      {/* <Tile
+      <Tile
         caption={leastSuccessful.caption}
         title="Least Successful Pick"
         type="leastSuccessful"
@@ -82,7 +82,7 @@ export default async function TileWrapper() {
         title="Away Pick Success"
         type="awaySuccess"
         value={awaySuccess.value}
-      /> */}
+      />
     </>
   );
 }
@@ -108,17 +108,27 @@ export function Tile({
 }) {
   const Icon = iconMap[type];
 
+  const valueCol =
+    type === 'bogeyRound' ||
+    type === 'leastSuccessful' ||
+    type === 'bogeyTeam' ||
+    type === 'awaySuccess'
+      ? 'text-red-400'
+      : 'text-green-400';
+
   return (
-    <div className="rounded-xl bg-white p-2 shadow-sm">
+    <div className="rounded-xl bg-white p-2 shadow-sm w-1/2 md:w-full">
       <div className="flex p-4">
-        {Icon ? <Icon className="h-5 w-5 text-gray-700" /> : null}
+        {Icon ? <Icon className={`h-5 w-5 text-blue-300`} /> : null}
         <h3 className="ml-2 text-sm font-medium">{title}</h3>
       </div>
-      <p className="truncate rounded-xl px-4 py-8 text-center text-2xl">
+      <p className={`truncate rounded-xl px-4 py-2 text-center text-2xl`}>
         {value}
       </p>
       {caption && (
-        <p className="truncate rounded-xl px-4 py-4 text-center text-small italic">
+        <p
+          className={`truncate rounded-xl px-4 py-4 text-center text-small italic ${valueCol}`}
+        >
           {caption}
         </p>
       )}

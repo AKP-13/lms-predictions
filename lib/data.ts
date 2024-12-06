@@ -44,7 +44,7 @@ export async function fetchCurrentGameData() {
         FROM rounds;
     `;
 
-    const currentGameId = queryResult.rows[0].current_game_id;
+    const currentGameId = queryResult.rows[0].current_game_id - 5;
 
     const currentGameResults = await sql<CurrentGameResults>`
         SELECT
@@ -225,11 +225,11 @@ export async function fetchTileData() {
       gamesPlayed,
       bogeyRoundNumber,
       mostSelected,
-      mostSuccessful
-      // leastSuccessful,
-      // bogeyTeam,
-      // homeSuccess,
-      // awaySuccess,
+      mostSuccessful,
+      leastSuccessful,
+      bogeyTeam,
+      homeSuccess,
+      awaySuccess
     };
   } catch (error) {
     console.error('Database Error:', error);
