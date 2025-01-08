@@ -50,7 +50,9 @@ const CurrentGameResults = async () => {
                       style={{
                         display: 'flex',
                         flexDirection: 'column',
-                        textAlign: 'center'
+                        textAlign: 'center',
+                        minWidth: '9rem',
+                        maxWidth: '9rem'
                       }}
                     >
                       <div>
@@ -73,15 +75,12 @@ const CurrentGameResults = async () => {
                         style={{
                           display: 'flex',
                           flexDirection: 'column',
-                          textAlign: 'center'
+                          textAlign: 'center',
+                          minWidth: '9rem',
+                          maxWidth: '9rem'
                         }}
                       >
-                        <span>
-                          Unfortunetly, {prediction.team_selected} not getting a{' '}
-                          {prediction.result_selected.toLowerCase()} against{' '}
-                          {prediction.team_opposing} means that you're out of
-                          this round!
-                        </span>
+                        <span>You're out ofthis round!</span>
                         <span>
                           You will get an email when the new game starts.
                         </span>
