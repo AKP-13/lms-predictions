@@ -83,7 +83,7 @@ const CurrentGameResults = async () => {
                           this round!
                         </span>
                         <span>
-                          You will get an email when the new round starts.
+                          You will get an email when the new game starts.
                         </span>
                       </div>
                     </TableCell>
