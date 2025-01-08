@@ -38,13 +38,14 @@ export async function fetchResultsData() {
 
 export async function fetchCurrentGameData() {
   try {
-    const queryResult = await sql<CurrentGameId>`
-        SELECT
-            MAX(id) AS current_game_id
-        FROM rounds;
-    `;
+    // const queryResult = await sql<CurrentGameId>`
+    //     SELECT
+    //         MAX(id) AS current_game_id
+    //     FROM rounds;
+    // `;
 
-    const currentGameId = queryResult.rows[0].current_game_id - 5;
+    // const currentGameId = queryResult.rows[0].current_game_id - 5;
+    const currentGameId = 16;
 
     const currentGameResults = await sql<CurrentGameResults>`
         SELECT
