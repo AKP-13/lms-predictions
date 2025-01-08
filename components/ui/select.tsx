@@ -9,6 +9,15 @@ export interface SelectProps
 
 const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
   ({ className, id, name, options, ...props }, ref) => {
+    const disabledOptions = [
+      'Man City',
+      'Spurs',
+      'Arsenal',
+      'Man Utd',
+      'Liverpool',
+      'Newcastle',
+      'Brighton'
+    ];
     return (
       <select
         className={cn(
@@ -21,7 +30,11 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         {...props}
       >
         {options.map((option) => (
-          <option key={option} value={option}>
+          <option
+            key={option}
+            value={option}
+            disabled={disabledOptions.includes(option)}
+          >
             {option}
           </option>
         ))}
