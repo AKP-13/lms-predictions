@@ -4,7 +4,7 @@ import { PartyPopper } from 'lucide-react';
 import TileWrapper from '@/components/ui/tiles';
 import { Metadata } from 'next';
 import CurrentGameResults from './current-game-results';
-import CurrentGwFixtures from './current-gw-fixtures';
+import FixturesResults from './fixtures-results';
 import Predictions from './predictions';
 
 export const metadata: Metadata = {
@@ -44,7 +44,7 @@ export default async function Page() {
 
       <div className="block md:flex">
         <div className="my-8 md:mr-3 w-full md:my-0">
-          <CurrentGwFixtures />
+          <FixturesResults />
         </div>
 
         <div className="my-8 md:ml-3 w-full md:my-0">

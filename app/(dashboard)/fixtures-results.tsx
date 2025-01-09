@@ -153,7 +153,7 @@ type ThisGw = {
   most_vice_captained: number;
 };
 
-const CurrentGwFixtures = async () => {
+const FixturesAndResults = async () => {
   const overallData = await fetch(
     'https://fantasy.premierleague.com/api/bootstrap-static/'
   );
@@ -236,4 +236,4 @@ const CurrentGwFixtures = async () => {
   );
 };
 
-export default CurrentGwFixtures;
+export default FixturesAndResults;
