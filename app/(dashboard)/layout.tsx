@@ -76,17 +76,17 @@ function DesktopNav() {
           <Home className="h-5 w-5" />
         </NavItem>
 
-        <NavItem href="#" label="Predictions">
+        {/* <NavItem href="#" label="Predictions">
           <MousePointerClickIcon className="h-5 w-5" />
-        </NavItem>
+        </NavItem> */}
 
         <NavItem href="/results" label="Results">
           <Table className="h-5 w-5" />
         </NavItem>
 
-        <NavItem href="#" label="Analytics">
+        {/* <NavItem href="#" label="Analytics">
           <LineChart className="h-5 w-5" />
-        </NavItem>
+        </NavItem> */}
       </nav>
       <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
         <Tooltip>
@@ -131,13 +131,13 @@ function MobileNav() {
             <Home className="h-5 w-5" />
             Dashboard
           </Link>
-          <Link
+          {/* <Link
             href="#"
             className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
           >
             <MousePointerClickIcon className="h-5 w-5" />
             Predictions
-          </Link>
+          </Link> */}
           <Link
             href="/results"
             className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
