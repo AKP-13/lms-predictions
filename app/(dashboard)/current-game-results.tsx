@@ -51,8 +51,8 @@ const CurrentGameResults = async () => {
                         display: 'flex',
                         flexDirection: 'column',
                         textAlign: 'center',
-                        minWidth: '9rem',
-                        maxWidth: '9rem'
+                        minWidth: '4rem',
+                        maxWidth: '4rem'
                       }}
                     >
                       <div>
@@ -76,8 +76,8 @@ const CurrentGameResults = async () => {
                           display: 'flex',
                           flexDirection: 'column',
                           textAlign: 'center',
-                          minWidth: '9rem',
-                          maxWidth: '9rem'
+                          minWidth: '4rem',
+                          maxWidth: '7rem'
                         }}
                       >
                         <span>You're out ofthis round!</span>
