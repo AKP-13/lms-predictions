@@ -25,6 +25,10 @@ const CurrentGameResults = async () => {
       <CardHeader>
         <CardTitle>Current Game</CardTitle>
         <CardDescription>Your results from this game</CardDescription>
+        <CardDescription>
+          As you can see this is old data from when I used to make it past round
+          2...
+        </CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -80,7 +84,7 @@ const CurrentGameResults = async () => {
                           maxWidth: '9rem'
                         }}
                       >
-                        <span>You're out ofthis round!</span>
+                        <span>You're out of this round!</span>
                         <span>
                           You will get an email when the new game starts.
                         </span>
