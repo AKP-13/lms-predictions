@@ -6,34 +6,65 @@ import { Metadata } from 'next';
 import CurrentGameResults from './current-game-results';
 import FixturesResults from './fixtures-results';
 import Predictions from './predictions';
+import { fetchResultsData } from '@/lib/data';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  TeamName,
+  TeamScore
+} from '@/components/ui/table';
 
 export const metadata: Metadata = {
   title: 'Dashboard'
 };
 
 export default async function Page() {
+  const results = await fetchResultsData();
+
+  const maxGameWeeks = Array.isArray(Object.values(results))
+    ? Object.values(results).reduce(
+        (maxLength, currentArray) => Math.max(maxLength, currentArray.length),
+        0
+      )
+    : 1;
   return (
     <main>
-      <div className="rounded-xl bg-white p-4 shadow-sm grid col-span-2 md:col-span-1 my-4">
-        <div className="flex p-4">
-          <PartyPopper className={`h-5 w-5 text-blue-300`} />
-          {/* <h3 className="ml-2 text-sm font-medium">{title}</h3> */}
-        </div>
-        <p className="rounded-xl px-4 py-4 text-center text-xl font-light">
-          Welcome! This is a demo version of a tool I've built to help submit
-          LMS predictions, view past results, and analyse performance.
+      <div className="rounded-xl bg-gray-300 p-4 shadow-sm grid col-span-2 md:col-span-1 my-4">
+        <p className="rounded-xl px-4 py-4 text-center text-xl font-light italic">
+          This is a demo version of a tool I'm building to help{' '}
+          <strong className="font-bold">submit LMS predictions</strong>,{' '}
+          <strong className="font-bold">plan my picks</strong>,{' '}
+          <strong className="font-bold">view past results</strong>, and{' '}
+          <strong className="font-bold">analyse performance</strong>*.
         </p>
-        <p className="rounded-xl px-4 py-4 text-center text-xl font-light">
-          Interested in using this tool? Drop me an email at{' '}
+        <p className="hidden md:block rounded-xl px-4 py-4 text-center text-xs font-light italic">
+          *Yes this is my actual data..don't judge my recent results in the
+          Results tab too much!
+        </p>
+        <p className="block md:hidden rounded-xl px-4 py-4 text-center text-xs font-light italic">
+          *Yes this is my actual data..don't judge my recent results at the
+          bottom of this page too much!
+        </p>
+        <p className="rounded-xl px-4 py-4 text-center text-xl font-light italic font-bold">
           <a
             href="mailto:alexlmsapp@icloud.com?subject=Interested%20in%20LMS%20Predictions%20Tool&body=Hi%20Alex,%0D%0A%0D%0AI%20am%20interested%20in%20using%20your%20LMS%20Predictions%20Tool.%20Please%20provide%20more%20information.%0D%0A%0D%0AThank%20you!"
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-500"
           >
-            alexlmsapp@icloud.com
+            Register interest in the full version!
           </a>
-          .
         </p>
       </div>
       {/* <Suspense fallback={<CardsSkeleton />}> */}
@@ -51,6 +82,59 @@ export default async function Page() {
           <Predictions />
         </div>
       </div>
+
+      <Card className="rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto md:hidden">
+        <CardHeader>
+          <CardTitle>Results</CardTitle>
+          <CardDescription>View your previous results</CardDescription>
+        </CardHeader>
+
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Game</TableHead>
+                {Array.from(Array(maxGameWeeks)).map((_, gameWeek) => (
+                  <TableHead
+                    key={`gw-headcell-${gameWeek + 1}`}
+                  >{`Round ${gameWeek + 1}`}</TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {Object.values(results).map((gameResults, gameIdx) => (
+                <TableRow key={`game-row-${gameResults[0].game_id}`}>
+                  <TableCell className="font-medium">{gameIdx + 1}</TableCell>
+                  {gameResults.map((prediction, predictionIdx) => (
+                    <TableCell
+                      key={`gw-cell-${gameIdx}-${predictionIdx}`}
+                      className={`table-cell ${prediction.correct ? 'bg-green-200' : 'bg-red-200'}`}
+                    >
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          textAlign: 'center'
+                        }}
+                      >
+                        <div>
+                          <TeamName location="Home" prediction={prediction} /> v{' '}
+                          <TeamName location="Away" prediction={prediction} />
+                        </div>
+                        <div>
+                          <TeamScore location="Home" prediction={prediction} />{' '}
+                          <span className="font-thin">v</span>{' '}
+                          <TeamScore location="Away" prediction={prediction} />
+                        </div>
+                      </div>
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </main>
   );
 }
