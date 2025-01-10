@@ -56,7 +56,7 @@ export default async function Page() {
           *Yes this is my actual data..don't judge my recent results at the
           bottom of this page too much!
         </p>
-        <p className="rounded-xl px-4 py-4 text-center text-xl font-light italic font-bold">
+        <p className="rounded-xl px-4 py-4 text-center text-xl italic font-bold">
           <a
             href="mailto:alexlmsapp@icloud.com?subject=Interested%20in%20LMS%20Predictions%20Tool&body=Hi%20Alex,%0D%0A%0D%0AI%20am%20interested%20in%20using%20your%20LMS%20Predictions%20Tool.%20Please%20provide%20more%20information.%0D%0A%0D%0AThank%20you!"
             target="_blank"
