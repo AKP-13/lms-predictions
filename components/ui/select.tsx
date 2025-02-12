@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { cn } from '@/lib/utils';
+import { cn, disabledOptions } from '@/lib/utils';
 
 export interface SelectProps
   extends React.SelectHTMLAttributes<HTMLSelectElement> {
@@ -9,15 +9,6 @@ export interface SelectProps
 
 const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
   ({ className, id, name, options, ...props }, ref) => {
-    const disabledOptions = [
-      'Man City',
-      'Spurs',
-      'Arsenal',
-      'Man Utd',
-      'Liverpool',
-      'Newcastle',
-      'Brighton'
-    ];
     return (
       <select
         className={cn(

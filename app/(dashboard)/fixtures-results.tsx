@@ -14,6 +14,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { TeamName } from './predictions';
+import { disabledOptions } from '@/lib/utils';
 
 type Team = {
   code: number;
@@ -195,24 +196,44 @@ const FixturesAndResults = async () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {thisGwFixtures.map((fixture) => (
-              <TableRow key={fixture.code}>
-                <TableCell className="table-cell">
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      textAlign: 'center'
-                    }}
-                  >
-                    <span>
-                      {teamsArr[fixture.team_h - 1].name} v{' '}
-                      {teamsArr[fixture.team_a - 1].name}
-                    </span>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+            {thisGwFixtures.map((fixture) => {
+              const homeTeam = teamsArr[fixture.team_h - 1].name;
+              const awayTeam = teamsArr[fixture.team_a - 1].name;
+
+              const isHomeTeamDisabled = disabledOptions.includes(homeTeam);
+              const isAwayTeamDisabled = disabledOptions.includes(awayTeam);
+              return (
+                <TableRow key={fixture.code}>
+                  <TableCell className="table-cell">
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        textAlign: 'center'
+                      }}
+                    >
+                      <span>
+                        <span
+                          style={{
+                            color: isHomeTeamDisabled ? 'darkgrey' : 'black'
+                          }}
+                        >
+                          {homeTeam}
+                        </span>{' '}
+                        v{' '}
+                        <span
+                          style={{
+                            color: isAwayTeamDisabled ? 'darkgrey' : 'black'
+                          }}
+                        >
+                          {awayTeam}
+                        </span>
+                      </span>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </CardContent>
