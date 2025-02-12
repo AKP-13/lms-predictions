@@ -42,13 +42,13 @@ export default async function Page() {
     <main>
       <div className="rounded-xl bg-gray-300 p-4 shadow-sm grid col-span-2 md:col-span-1 my-4">
         <p className="rounded-xl px-4 py-4 text-center text-xl font-light italic">
-          This is a demo version of a tool I'm building to help{' '}
+          The all-in-one LMS tool that allows you to{' '}
           <strong className="font-bold">submit LMS predictions</strong>,{' '}
-          <strong className="font-bold">plan my picks</strong>,{' '}
-          <strong className="font-bold">view past results</strong>, and{' '}
+          <strong className="font-bold">plan picks</strong>,{' '}
+          <strong className="font-bold">view results</strong>, and{' '}
           <strong className="font-bold">analyse performance</strong>*.
         </p>
-        <p className="hidden md:block rounded-xl px-4 py-4 text-center text-xs font-light italic">
+        <p className="hidden md:block rounded-xl px-4 py-0 text-center text-xs font-light italic">
           *Yes this is my actual data..don't judge my recent results in the
           Results tab too much!
         </p>
@@ -56,14 +56,14 @@ export default async function Page() {
           *Yes this is my actual data..don't judge my recent results at the
           bottom of this page too much!
         </p>
-        <p className="rounded-xl px-4 py-4 text-center text-xl italic font-bold">
+        <p className="rounded-xl text-center text-4xl italic font-bold  p-[4rem]">
           <a
             href="mailto:alexlmsapp@icloud.com?subject=Interested%20in%20LMS%20Predictions%20Tool&body=Hi%20Alex,%0D%0A%0D%0AI%20am%20interested%20in%20using%20your%20LMS%20Predictions%20Tool.%20Please%20provide%20more%20information.%0D%0A%0D%0AThank%20you!"
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-500"
           >
-            Register interest in the full version!
+            Join the waitlist!
           </a>
         </p>
       </div>
