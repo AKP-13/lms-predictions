@@ -178,9 +178,6 @@ const FixturesAndResults = async () => {
     (fixtureObj) => fixtureObj.event === thisGw.id
   );
 
-  const firstFiveFixtures = thisGwFixtures.slice(0, 5);
-  const secondFiveFixtures = thisGwFixtures.slice(5, 10);
-
   return (
     <Card className="rounded-xl bg-white p-2 shadow-sm ">
       <CardHeader>
@@ -192,12 +189,13 @@ const FixturesAndResults = async () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{thisGw.name}</TableHead>
-              <TableHead></TableHead>
+              <TableHead className="text-center font-bold bg-[lightgrey]">
+                {thisGw.name}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {firstFiveFixtures.map((fixture, idx) => (
+            {thisGwFixtures.map((fixture) => (
               <TableRow key={fixture.code}>
                 <TableCell className="table-cell">
                   <div
@@ -210,20 +208,6 @@ const FixturesAndResults = async () => {
                     <span>
                       {teamsArr[fixture.team_h - 1].name} v{' '}
                       {teamsArr[fixture.team_a - 1].name}
-                    </span>
-                  </div>
-                </TableCell>
-                <TableCell className="table-cell">
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      textAlign: 'center'
-                    }}
-                  >
-                    <span>
-                      {teamsArr[secondFiveFixtures[idx].team_h - 1].name} v{' '}
-                      {teamsArr[secondFiveFixtures[idx].team_a - 1].name}
                     </span>
                   </div>
                 </TableCell>
