@@ -1,10 +1,7 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
+'use client';
+
+import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -13,32 +10,6 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { TeamName } from './predictions';
-import { disabledOptions } from '@/lib/utils';
-
-type Team = {
-  code: number;
-  draw: number;
-  form: null;
-  id: number;
-  loss: number;
-  name: TeamName;
-  played: number;
-  points: number;
-  position: number;
-  short_name: string;
-  strength: number;
-  team_division: null;
-  unavailable: boolean;
-  win: number;
-  strength_overall_home: number;
-  strength_overall_away: number;
-  strength_attack_home: number;
-  strength_attack_away: number;
-  strength_defence_home: number;
-  strength_defence_away: number;
-  pulse_id: number;
-};
 
 type StatsObj = {
   value: number;
@@ -59,175 +30,236 @@ type FixturesData = {
   team_a_score: number;
   team_h: number;
   team_h_score: number;
-  stats: (
-    | {
-        identifier: 'goals_scored';
-        a: [];
-        h: StatsObj[];
-      }
-    | {
-        identifier: 'assists';
-        a: [];
-        h: StatsObj[];
-      }
-    | {
-        identifier: 'own_goals';
-        a: StatsObj[];
-        h: StatsObj[];
-      }
-    | {
-        identifier: 'penalties_saved';
-        a: StatsObj[];
-        h: StatsObj[];
-      }
-    | {
-        identifier: 'penalties_missed';
-        a: StatsObj[];
-        h: StatsObj[];
-      }
-    | {
-        identifier: 'yellow_cards';
-        a: StatsObj[];
-        h: StatsObj[];
-      }
-    | {
-        identifier: 'red_cards';
-        a: StatsObj[];
-        h: StatsObj[];
-      }
-    | {
-        identifier: 'saves';
-        a: StatsObj[];
-        h: StatsObj[];
-      }
-    | {
-        identifier: 'bonus';
-        a: [];
-        h: StatsObj[];
-      }
-    | {
-        identifier: 'bps';
-        a: StatsObj[];
-        h: StatsObj[];
-      }
-  )[];
+  stats:
+    | any
+    | (
+        | {
+            identifier: 'goals_scored';
+            a: StatsObj[];
+            h: StatsObj[];
+          }
+        | {
+            identifier: 'assists';
+            a: [];
+            h: StatsObj[];
+          }
+        | {
+            identifier: 'own_goals';
+            a: StatsObj[];
+            h: StatsObj[];
+          }
+        | {
+            identifier: 'penalties_saved';
+            a: StatsObj[];
+            h: StatsObj[];
+          }
+        | {
+            identifier: 'penalties_missed';
+            a: StatsObj[];
+            h: StatsObj[];
+          }
+        | {
+            identifier: 'yellow_cards';
+            a: StatsObj[];
+            h: StatsObj[];
+          }
+        | {
+            identifier: 'red_cards';
+            a: StatsObj[];
+            h: StatsObj[];
+          }
+        | {
+            identifier: 'saves';
+            a: StatsObj[];
+            h: StatsObj[];
+          }
+        | {
+            identifier: 'bonus';
+            a: StatsObj[];
+            h: StatsObj[];
+          }
+        | {
+            identifier: 'bps';
+            a: StatsObj[];
+            h: StatsObj[];
+          }
+      )[];
   team_h_difficulty: number;
   team_a_difficulty: number;
   pulse_id: number;
 };
 
-type ChipName = 'bboost' | 'freehit' | 'wildcard' | '3xc';
+const FixturesAndResults = ({ fixtures }: { fixtures: FixturesData[] }) => {
+  const [selectedGameWeekId, setSelectedGameWeekId] = useState(29);
 
-type ChipPlay = {
-  chip_name: ChipName;
-  num_played: number;
-};
-
-type ThisGw = {
-  id: number;
-  name: string;
-  deadline_time: string;
-  release_time: null;
-  average_entry_score: number;
-  finished: boolean;
-  data_checked: boolean;
-  highest_scoring_entry: number;
-  deadline_time_epoch: number;
-  deadline_time_game_offset: number;
-  highest_score: number;
-  is_previous: boolean;
-  is_current: boolean;
-  is_next: boolean;
-  cup_leagues_created: boolean;
-  h2h_ko_matches_created: boolean;
-  ranked_count: number;
-  chip_plays: ChipPlay[];
-  most_selected: number;
-  most_transferred_in: number;
-  top_element: number;
-  top_element_info: {
-    id: number;
-    points: number;
-  };
-  transfers_made: number;
-  most_captained: number;
-  most_vice_captained: number;
-};
-
-const FixturesAndResults = async () => {
-  const overallData = await fetch(
-    'https://fantasy.premierleague.com/api/bootstrap-static/'
-  );
-  const formattedData = await overallData.json();
-
-  const fixturesData = await fetch(
-    'https://fantasy.premierleague.com/api/fixtures'
-  );
-  const formattedFixturesData: FixturesData[] = await fixturesData.json();
-
-  const teamsArr = formattedData.teams.map((team: Team) => ({
-    id: team.id,
-    name: team.name,
-    short_name: team.short_name
-  }));
-
-  const thisGw: ThisGw = formattedData.events.find(
-    (gwObj: any) => gwObj.is_next === true
+  const fixturesForSelectedGameweek = fixtures.filter(
+    (f) => f.event === selectedGameWeekId
   );
 
-  const thisGwFixtures = formattedFixturesData.filter(
-    (fixtureObj) => fixtureObj.event === thisGw.id
-  );
+  console.log('fixturesForSelectedGameweek', fixturesForSelectedGameweek);
+
+  const teamsArr = [
+    {
+      id: 1,
+      name: 'Arsenal',
+      short_name: 'ARS'
+    },
+    {
+      id: 2,
+      name: 'Aston Villa',
+      short_name: 'AVL'
+    },
+    {
+      id: 3,
+      name: 'Bournemouth',
+      short_name: 'BOU'
+    },
+    {
+      id: 4,
+      name: 'Brentford',
+      short_name: 'BRE'
+    },
+    {
+      id: 5,
+      name: 'Brighton',
+      short_name: 'BHA'
+    },
+    {
+      id: 6,
+      name: 'Chelsea',
+      short_name: 'CHE'
+    },
+    {
+      id: 7,
+      name: 'Crystal Palace',
+      short_name: 'CRY'
+    },
+    {
+      id: 8,
+      name: 'Everton',
+      short_name: 'EVE'
+    },
+    {
+      id: 9,
+      name: 'Fulham',
+      short_name: 'FUL'
+    },
+    {
+      id: 10,
+      name: 'Ipswich',
+      short_name: 'IPS'
+    },
+    {
+      id: 11,
+      name: 'Leicester',
+      short_name: 'LEI'
+    },
+    {
+      id: 12,
+      name: 'Liverpool',
+      short_name: 'LIV'
+    },
+    {
+      id: 13,
+      name: 'Man City',
+      short_name: 'MCI'
+    },
+    {
+      id: 14,
+      name: 'Man Utd',
+      short_name: 'MUN'
+    },
+    {
+      id: 15,
+      name: 'Newcastle',
+      short_name: 'NEW'
+    },
+    {
+      id: 16,
+      name: "Nott'm Forest",
+      short_name: 'NFO'
+    },
+    {
+      id: 17,
+      name: 'Southampton',
+      short_name: 'SOU'
+    },
+    {
+      id: 18,
+      name: 'Spurs',
+      short_name: 'TOT'
+    },
+    {
+      id: 19,
+      name: 'West Ham',
+      short_name: 'WHU'
+    },
+    {
+      id: 20,
+      name: 'Wolves',
+      short_name: 'WOL'
+    }
+  ];
 
   return (
     <Card className="rounded-xl bg-white p-2 shadow-sm ">
       <CardHeader>
         <CardTitle>Fixtures</CardTitle>
-        <CardDescription>The fixtures for this round</CardDescription>
       </CardHeader>
 
       <CardContent>
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead className="text-center font-bold bg-[lightgrey]">
-                {thisGw.name}
+            <TableRow
+              style={{ display: 'flex', justifyContent: 'space-between' }}
+            >
+              <TableHead
+                role="button"
+                onClick={() =>
+                  setSelectedGameWeekId((prevState) => prevState - 1)
+                }
+                style={{ flex: 1, textAlign: 'left', alignContent: 'center' }}
+              >
+                Previous
+              </TableHead>
+              <TableHead
+                className="text-center font-bold bg-[lightgrey]"
+                style={{ flex: 1, textAlign: 'center', alignContent: 'center' }}
+              >
+                Gameweek {selectedGameWeekId}
+              </TableHead>
+              <TableHead
+                role="button"
+                onClick={() =>
+                  setSelectedGameWeekId((prevState) => prevState + 1)
+                }
+                style={{ flex: 1, textAlign: 'right', alignContent: 'center' }}
+              >
+                Next
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {thisGwFixtures.map((fixture) => {
+            {fixturesForSelectedGameweek.map((fixture) => {
               const homeTeam = teamsArr[fixture.team_h - 1].name;
               const awayTeam = teamsArr[fixture.team_a - 1].name;
 
-              const isHomeTeamDisabled = disabledOptions.includes(homeTeam);
-              const isAwayTeamDisabled = disabledOptions.includes(awayTeam);
               return (
                 <TableRow key={fixture.code}>
                   <TableCell className="table-cell">
                     <div
                       style={{
                         display: 'flex',
-                        flexDirection: 'column',
+                        justifyContent: 'space-between',
                         textAlign: 'center'
                       }}
                     >
-                      <span>
-                        <span
-                          style={{
-                            color: isHomeTeamDisabled ? 'darkgrey' : 'black'
-                          }}
-                        >
-                          {homeTeam}
-                        </span>{' '}
-                        v{' '}
-                        <span
-                          style={{
-                            color: isAwayTeamDisabled ? 'darkgrey' : 'black'
-                          }}
-                        >
-                          {awayTeam}
-                        </span>
+                      <span style={{ flex: 1, textAlign: 'right' }}>
+                        {homeTeam}
+                      </span>
+                      <span style={{ flex: 0.5, textAlign: 'center' }}>v</span>
+                      <span style={{ flex: 1, textAlign: 'left' }}>
+                        {awayTeam}
                       </span>
                     </div>
                   </TableCell>

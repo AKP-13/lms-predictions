@@ -32,12 +32,21 @@ export const metadata: Metadata = {
 export default async function Page() {
   const results = await fetchResultsData();
 
+  const fixturesData = await fetch(
+    'https://fantasy.premierleague.com/api/fixtures'
+  );
+
+  const fixtures = await fixturesData.json();
+
+  console.log('fixtures', fixtures);
+
   const maxGameWeeks = Array.isArray(Object.values(results))
     ? Object.values(results).reduce(
         (maxLength, currentArray) => Math.max(maxLength, currentArray.length),
         0
       )
     : 1;
+
   return (
     <main>
       <div className="rounded-xl bg-gray-300 p-4 shadow-sm grid col-span-2 md:col-span-1 my-4">
@@ -75,7 +84,7 @@ export default async function Page() {
 
       <div className="block md:flex">
         <div className="my-8 md:mr-3 w-full md:my-0">
-          <FixturesResults />
+          <FixturesResults fixtures={fixtures} />
         </div>
 
         <div className="my-8 md:ml-3 w-full md:my-0">
