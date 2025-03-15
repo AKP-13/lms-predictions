@@ -60,8 +60,10 @@ const FixturesAndResults = ({ fixtures }: { fixtures: FixturesData[] }) => {
           </TableHeader>
           <TableBody>
             {fixturesForSelectedGameweek.map((fixture) => {
-              const homeTeam = teamsArr[fixture.team_h - 1].name;
-              const awayTeam = teamsArr[fixture.team_a - 1].name;
+              const { name: homeTeamName, id: homeTeamId } =
+                teamsArr[fixture.team_h - 1];
+              const { name: awayTeamName, id: awayTeamId } =
+                teamsArr[fixture.team_a - 1];
 
               const isStarted = fixture.started;
               const isFinished = fixture.finished;
@@ -69,25 +71,12 @@ const FixturesAndResults = ({ fixtures }: { fixtures: FixturesData[] }) => {
               return (
                 <TableRow key={fixture.code}>
                   <TableCell className="table-cell">
-                    <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        textAlign: 'center',
-                        alignItems: 'center'
-                      }}
-                    >
-                      <span style={{ flex: 1, textAlign: 'right' }}>
-                        {homeTeam}
-                      </span>
+                    <div className="flex justify-between text-center items-center">
+                      <span className="flex-1 text-right">{homeTeamName}</span>
                       <div
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          flex: 0.5,
-                          textAlign: 'center',
-                          fontWeight: isStarted ? 'bold' : 'normal'
-                        }}
+                        className={`flex flex-col flex-[0.5] text-center ${
+                          isStarted ? 'font-bold' : 'font-normal'
+                        }`}
                       >
                         {isStarted && !isFinished && (
                           <span>Live {fixture.minutes}'</span>
@@ -98,9 +87,7 @@ const FixturesAndResults = ({ fixtures }: { fixtures: FixturesData[] }) => {
                           {isStarted || isFinished ? fixture.team_a_score : ''}
                         </span>
                       </div>
-                      <span style={{ flex: 1, textAlign: 'left' }}>
-                        {awayTeam}
-                      </span>
+                      <span className="flex-1 text-left">{awayTeamName}</span>
                     </div>
                   </TableCell>
                 </TableRow>
