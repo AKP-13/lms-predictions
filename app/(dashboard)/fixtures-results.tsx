@@ -12,12 +12,19 @@ import {
 } from '@/components/ui/table';
 import { FixturesData } from '@/lib/definitions';
 import { teamsArr } from '@/lib/constants';
+import { TeamForm } from '@/components/TeamForm';
 
-const FixturesAndResults = ({ fixtures }: { fixtures: FixturesData[] }) => {
-  const [selectedGameWeekId, setSelectedGameWeekId] = useState(29);
+const FixturesAndResults = ({
+  fixtures,
+  currentGwNumber
+}: {
+  fixtures: FixturesData[];
+  currentGwNumber: number;
+}) => {
+  const [selectedGw, setSelectedGw] = useState(currentGwNumber);
 
   const fixturesForSelectedGameweek = fixtures.filter(
-    (f) => f.event === selectedGameWeekId
+    (f) => f.event === selectedGw
   );
 
   return (
@@ -34,9 +41,7 @@ const FixturesAndResults = ({ fixtures }: { fixtures: FixturesData[] }) => {
             >
               <TableHead
                 role="button"
-                onClick={() =>
-                  setSelectedGameWeekId((prevState) => prevState - 1)
-                }
+                onClick={() => setSelectedGw((prevState) => prevState - 1)}
                 style={{ flex: 1, textAlign: 'left', alignContent: 'center' }}
               >
                 Previous
@@ -45,13 +50,11 @@ const FixturesAndResults = ({ fixtures }: { fixtures: FixturesData[] }) => {
                 className="text-center font-bold bg-[lightgrey]"
                 style={{ flex: 2, textAlign: 'center', alignContent: 'center' }}
               >
-                Gameweek {selectedGameWeekId}
+                Gameweek {selectedGw}
               </TableHead>
               <TableHead
                 role="button"
-                onClick={() =>
-                  setSelectedGameWeekId((prevState) => prevState + 1)
-                }
+                onClick={() => setSelectedGw((prevState) => prevState + 1)}
                 style={{ flex: 1, textAlign: 'right', alignContent: 'center' }}
               >
                 Next
@@ -69,25 +72,65 @@ const FixturesAndResults = ({ fixtures }: { fixtures: FixturesData[] }) => {
               const isFinished = fixture.finished;
 
               return (
-                <TableRow key={fixture.code}>
-                  <TableCell className="table-cell">
-                    <div className="flex justify-between text-center items-center">
-                      <span className="flex-1 text-right">{homeTeamName}</span>
-                      <div
-                        className={`flex flex-col flex-[0.5] text-center ${
-                          isStarted ? 'font-bold' : 'font-normal'
-                        }`}
-                      >
-                        {isStarted && !isFinished && (
-                          <span>Live {fixture.minutes}'</span>
+                <TableRow
+                  key={fixture.code}
+                  className="border-b border-gray-100 last:border-0"
+                >
+                  <TableCell className="table-cell w-full px-2">
+                    <div className="grid grid-cols-12 items-center gap-2">
+                      {/* Left section - Home team */}
+                      <div className="col-span-5 flex flex-col xl:flex-row items-center gap-2">
+                        {selectedGw <= currentGwNumber && (
+                          <div className="flex-shrink-0 order-last xl:order-first w-full xl:w-auto text-left">
+                            <TeamForm
+                              teamId={homeTeamId}
+                              fixtures={fixtures}
+                              selectedGw={selectedGw}
+                            />
+                          </div>
                         )}
-                        <span>
-                          {isStarted || isFinished ? fixture.team_h_score : ''}{' '}
-                          v{' '}
-                          {isStarted || isFinished ? fixture.team_a_score : ''}
+                        <span className="flex-1 text-center xl:text-right">
+                          {homeTeamName}
                         </span>
                       </div>
-                      <span className="flex-1 text-left">{awayTeamName}</span>
+
+                      {/* Center section - Score */}
+                      <div className="col-span-2 flex flex-col items-center justify-center">
+                        <div
+                          className={`min-w-[80px] text-center ${
+                            isStarted ? 'font-bold' : 'font-normal'
+                          }`}
+                        >
+                          {isStarted && !isFinished && (
+                            <div>Live {fixture.minutes}'</div>
+                          )}
+                          <div>
+                            {isStarted || isFinished
+                              ? fixture.team_h_score
+                              : ''}{' '}
+                            v{' '}
+                            {isStarted || isFinished
+                              ? fixture.team_a_score
+                              : ''}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right section - Away team */}
+                      <div className="col-span-5 flex flex-col xl:flex-row items-center gap-2">
+                        <span className="flex-1 text-center xl:text-left">
+                          {awayTeamName}
+                        </span>
+                        {selectedGw <= currentGwNumber && (
+                          <div className="flex-shrink-0 order-last w-full xl:w-auto text-right">
+                            <TeamForm
+                              teamId={awayTeamId}
+                              fixtures={fixtures}
+                              selectedGw={selectedGw}
+                            />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </TableCell>
                 </TableRow>
