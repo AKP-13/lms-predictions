@@ -11,15 +11,17 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { FixturesData } from '@/lib/definitions';
-import { teamsArr } from '@/lib/constants';
 import { TeamForm } from '@/components/TeamForm';
+import { TeamsArr } from './page';
 
 const FixturesAndResults = ({
   fixtures,
-  currentGwNumber
+  currentGwNumber,
+  teamsArr
 }: {
   fixtures: FixturesData[];
   currentGwNumber: number;
+  teamsArr: TeamsArr;
 }) => {
   const [selectedGw, setSelectedGw] = useState(currentGwNumber);
 

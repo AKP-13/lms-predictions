@@ -25,6 +25,12 @@ import {
   TeamScore
 } from '@/components/ui/table';
 
+export type TeamsArr = {
+  id: number;
+  name: string;
+  short_name: string;
+}[];
+
 export const metadata: Metadata = {
   title: 'Dashboard'
 };
@@ -102,14 +108,40 @@ export default async function Page() {
     game_config: any;
     game_settings: any;
     phases: any;
-    teams: any;
+    teams: {
+      code: number;
+      draw: number;
+      form: any;
+      id: number;
+      loss: number;
+      name: string;
+      played: number;
+      points: number;
+      position: number;
+      pulse_id: number;
+      short_name: string;
+      strength: number;
+      strength_attack_away: number;
+      strength_attack_home: number;
+      strength_defence_away: number;
+      strength_defence_home: number;
+      strength_overall_away: number;
+      strength_overall_home: number;
+      team_division: null;
+      unavailable: boolean;
+      win: number;
+    }[];
     total_players: any;
   } = await overallData.json();
 
-  console.log('formattedData', formattedData);
-
   const currentGwNumber =
-    formattedData.events.find((obj) => obj.is_current === true)?.id || 0;
+    formattedData.events.find((obj) => obj.is_current === true)?.id || 1;
+
+  const teamsArr: TeamsArr = formattedData.teams.map((team) => ({
+    id: team.id,
+    name: team.name,
+    short_name: team.short_name
+  }));
 
   const maxGameWeeks = Array.isArray(Object.values(results))
     ? Object.values(results).reduce(
@@ -158,6 +190,7 @@ export default async function Page() {
           <FixturesResults
             fixtures={fixtures}
             currentGwNumber={currentGwNumber}
+            teamsArr={teamsArr}
           />
         </div>
 

@@ -13,18 +13,18 @@ export type TeamName =
   | 'Bournemouth'
   | 'Brentford'
   | 'Brighton'
+  | 'Burnely'
   | 'Chelsea'
   | 'Crystal Palace'
   | 'Fulham'
-  | 'Ipswich'
-  | 'Leicester'
+  | 'Leeds'
   | 'Liverpool'
   | 'Man City'
   | 'Man Utd'
   | 'Newcastle'
   | 'Nottingham Forest'
-  | 'Southampton'
   | 'Spurs'
+  | 'Sunderland'
   | 'West Ham'
   | 'Wolves';
 
@@ -36,18 +36,18 @@ const teams: TeamName[] = [
   'Bournemouth',
   'Brentford',
   'Brighton',
+  'Burnely',
   'Chelsea',
   'Crystal Palace',
   'Fulham',
-  'Ipswich',
-  'Leicester',
+  'Leeds',
   'Liverpool',
   'Man City',
   'Man Utd',
   'Newcastle',
   'Nottingham Forest',
-  'Southampton',
   'Spurs',
+  'Sunderland',
   'West Ham',
   'Wolves'
 ];
