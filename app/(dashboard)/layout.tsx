@@ -33,6 +33,8 @@ import { VercelLogo } from '@/components/icons';
 import Providers from './providers';
 import { NavItem } from './nav-item';
 import { SearchInput } from './search';
+import { auth } from '@/lib/auth';
+import AuthButtons from './auth-buttons';
 
 export default function DashboardLayout({
   children
@@ -60,7 +62,8 @@ export default function DashboardLayout({
   );
 }
 
-function DesktopNav() {
+async function DesktopNav() {
+  const session = await auth();
   return (
     <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
       <nav className="flex flex-col items-center gap-4 px-2 sm:py-5">
@@ -101,6 +104,8 @@ function DesktopNav() {
           </TooltipTrigger>
           <TooltipContent side="right">Settings</TooltipContent>
         </Tooltip>
+
+        <AuthButtons />
       </nav>
     </aside>
   );

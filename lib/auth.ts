@@ -16,7 +16,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
       Resend({
         // If your environment variable is named differently than default
         apiKey: process.env.AUTH_RESEND_KEY,
-        from: 'noreply@lmsiq.co.uk'
+        from: 'noreply@lmsiq.co.uk',
+        name: 'Email'
       })
     ],
     pages: {
