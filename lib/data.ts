@@ -217,7 +217,7 @@ export async function fetchTileData({
 
     const gamesPlayed = {
       value: data[0].rows.length > 0 ? data[0].rows[0].games_played : 0,
-      caption: `Furthest round: ${data[0].rows[0].length > 0 ? data[0].rows[0].furthest_round : 0}`
+      caption: `Furthest round: ${data[0].rows.length > 0 ? data[0].rows[0].furthest_round : 0}`
     };
 
     const mostSelected = {
