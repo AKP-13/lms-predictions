@@ -9,6 +9,7 @@ import {
   SignpostIcon,
   ThumbsDownIcon
 } from 'lucide-react';
+import { auth } from '@/lib/auth';
 
 const iconMap = {
   gamesPlayed: Hash,
@@ -22,6 +23,8 @@ const iconMap = {
 };
 
 export default async function TileWrapper() {
+  const session = await auth();
+
   const {
     gamesPlayed,
     bogeyRoundNumber,
@@ -31,7 +34,7 @@ export default async function TileWrapper() {
     bogeyTeam,
     homeSuccess,
     awaySuccess
-  } = await fetchTileData();
+  } = await fetchTileData({ userId: session?.user?.id });
 
   return (
     <div className="grid gap-6 grid-cols-4">

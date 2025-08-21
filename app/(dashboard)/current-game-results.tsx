@@ -15,10 +15,14 @@ import {
   TeamName,
   TeamScore
 } from '@/components/ui/table';
+import { auth } from '@/lib/auth';
 import { fetchCurrentGameData } from '@/lib/data';
 
 const CurrentGameResults = async () => {
-  const currentGameResults = await fetchCurrentGameData();
+  const session = await auth();
+  const currentGameResults = await fetchCurrentGameData({
+    userId: session?.user?.id
+  });
 
   return (
     <Card className="rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto">

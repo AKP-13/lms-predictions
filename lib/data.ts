@@ -1,9 +1,14 @@
 import { sql } from '@vercel/postgres';
 import { CurrentGameId, CurrentGameResults, Results } from './definitions';
 
-export async function fetchResultsData() {
+export async function fetchResultsData({
+  userId
+}: {
+  userId?: string | undefined;
+}) {
   try {
-    const data = await sql<Results>`
+    const data = await sql.query<Results>(
+      `
     SELECT
         game_id
         , team_selected
@@ -14,8 +19,11 @@ export async function fetchResultsData() {
         , fpl_gw
         , team_selected_score
         , team_opposing_score
-    FROM results;
-    `;
+    FROM results
+    WHERE user_id = ($1);
+    `,
+      [userId]
+    );
 
     const groupedData: Record<number, Results[]> = data.rows.reduce(
       (acc, current) => {
@@ -36,18 +44,22 @@ export async function fetchResultsData() {
   }
 }
 
-export async function fetchCurrentGameData() {
+export async function fetchCurrentGameData({
+  userId
+}: {
+  userId?: string | undefined;
+}) {
   try {
-    // const queryResult = await sql<CurrentGameId>`
-    //     SELECT
-    //         MAX(id) AS current_game_id
-    //     FROM rounds;
-    // `;
+    const queryResult = await sql<CurrentGameId>`
+        SELECT
+            MAX(id) AS current_game_id
+        FROM rounds;
+    `;
 
-    // const currentGameId = queryResult.rows[0].current_game_id - 5;
-    const currentGameId = 16;
+    const currentGameId = queryResult.rows[0].current_game_id - 5;
 
-    const currentGameResults = await sql<CurrentGameResults>`
+    const currentGameResults = await sql.query<CurrentGameResults>(
+      `
         SELECT
             team_selected
             , team_opposing
@@ -58,8 +70,11 @@ export async function fetchCurrentGameData() {
             , team_selected_score
             , team_opposing_score
         FROM results
-        WHERE game_id = ${currentGameId};
-    `;
+        WHERE game_id = ${currentGameId}
+        AND user_id = ($1);
+    `,
+      [userId]
+    );
 
     return currentGameResults.rows;
   } catch (error) {
@@ -68,22 +83,29 @@ export async function fetchCurrentGameData() {
   }
 }
 
-export async function fetchTileData() {
+export async function fetchTileData({
+  userId
+}: {
+  userId?: string | undefined;
+}) {
   try {
-    // You can probably combine these into a single SQL query
-    // However, we are intentionally splitting them to demonstrate
-    // how to initialize multiple queries in parallel with JS.
-    const gamesPlayedQuery = sql`
+    const gamesPlayedQuery = sql.query(
+      `
         SELECT 
             CAST(COUNT(DISTINCT game_id) AS INT) AS games_played
             , MAX(round_number) AS furthest_round
-        FROM results;
-    `;
-    const mostSelectedQuery = sql`
+        FROM results
+        WHERE user_id = ($1);
+    `,
+      [userId]
+    );
+    const mostSelectedQuery = sql.query(
+      `
         SELECT
             team_selected,
             CAST(COUNT(team_selected) AS INT) AS selection_count
         FROM results
+        WHERE user_id = ($1)
         GROUP BY team_selected
         HAVING COUNT(team_selected) = (
             SELECT MAX(selection_count)
@@ -91,12 +113,16 @@ export async function fetchTileData() {
                 SELECT 
                     COUNT(team_selected) AS selection_count
                 FROM results
+                WHERE user_id = ($1)
                 GROUP BY team_selected
             )
         )
         ORDER BY selection_count DESC;
-    `;
-    const teamSuccessRatesSql = sql`
+    `,
+      [userId]
+    );
+    const teamSuccessRatesSql = sql.query(
+      `
         WITH results AS (
             SELECT
                 r.team_selected
@@ -104,6 +130,7 @@ export async function fetchTileData() {
                 , CAST(SUM(CASE WHEN r.correct IS TRUE THEN 1 ELSE 0 END) AS NUMERIC) AS times_correct
                 , CAST(SUM(CASE WHEN r.correct IS FALSE THEN 1 ELSE 0 END) AS NUMERIC) AS times_incorrect
             FROM results r
+            WHERE user_id = ($1)
             GROUP BY 1
             ORDER BY team_selected
         )
@@ -114,14 +141,18 @@ export async function fetchTileData() {
         FROM results
         WHERE times_selected >= 3
         ORDER BY perc_correct DESC;
-    `;
-    const bogeyTeamSql = sql`
+    `,
+      [userId]
+    );
+    const bogeyTeamSql = sql.query(
+      `
         WITH loss_counts AS (
             SELECT
                 team_opposing
                 , COUNT(team_opposing) AS loss_count
             FROM results
-            WHERE correct = FALSE
+            WHERE user_id = ($1)
+                AND correct = FALSE
             GROUP BY team_opposing
         )
 
@@ -134,23 +165,31 @@ export async function fetchTileData() {
                 MAX(loss_count) 
             FROM loss_counts
         );
-    `;
-    const homeAndAwaySuccessSql = sql`
+    `,
+      [userId]
+    );
+    const homeAndAwaySuccessSql = sql.query(
+      `
         SELECT 
             team_selected_location,
             SUM(CASE WHEN correct = TRUE THEN 1 ELSE 0 END) AS correct_count,
             COUNT(*) AS total_count,
             100 * SUM(CASE WHEN correct = TRUE THEN 1 ELSE 0 END) / COUNT(*) AS success_percentage
         FROM results
+        WHERE user_id = ($1)
         GROUP BY team_selected_location;
-    `;
-    const bogeyRoundNumberSql = sql`
+    `,
+      [userId]
+    );
+    const bogeyRoundNumberSql = sql.query(
+      `
         WITH knocked_out_counts AS (
             SELECT
                 DISTINCT round_number
                 , COUNT(*) AS times_knocked_out
             FROM results
-            WHERE correct = FALSE
+            WHERE user_id = ($1)
+                AND correct = FALSE
             GROUP BY round_number
         )
 
@@ -163,7 +202,9 @@ export async function fetchTileData() {
                 MAX(times_knocked_out)
             FROM knocked_out_counts
         );
-    `;
+    `,
+      [userId]
+    );
 
     const data = await Promise.all([
       gamesPlayedQuery,
@@ -174,29 +215,44 @@ export async function fetchTileData() {
       bogeyRoundNumberSql
     ]);
 
+    console.log('data', data);
+
     const gamesPlayed = {
-      value: data[0].rows[0].games_played ?? 0,
-      caption: `Furthest round: ${data[0].rows[0].furthest_round ?? 0}`
+      value: data[0].rows.length > 0 ? data[0].rows[0].games_played : 0,
+      caption: `Furthest round: ${data[0].rows[0].length > 0 ? data[0].rows[0].furthest_round : 0}`
     };
 
     const mostSelected = {
-      value: data[1].rows[0].team_selected,
-      caption: `${data[1].rows[0].selection_count ?? 0} times`
+      value: data[1].rows.length > 0 ? data[1].rows[0].team_selected : 'N/A',
+      caption:
+        data[1].rows.length > 0
+          ? `${data[1].rows[0].selection_count} times`
+          : 'N/A'
     };
 
     const mostSuccessful = {
-      value: data[2].rows[0].team_selected,
-      caption: `${data[2].rows[0].perc_correct}% success rate`
+      value: data[2].rows.length > 0 ? data[2].rows[0].team_selected : 'N/A',
+      caption:
+        data[2].rows.length > 0
+          ? `${data[2].rows[0].perc_correct}% success rate`
+          : 'N/A'
     };
 
     const leastSuccessful = {
-      value: data[2].rows[data[2].rows.length - 1].team_selected,
-      caption: `${data[2].rows[data[2].rows.length - 1].perc_correct}% success rate`
+      value:
+        data[2].rows.length > 0
+          ? data[2].rows[data[2].rows.length - 1].team_selected
+          : 'N/A',
+      caption:
+        data[2].rows.length > 0
+          ? `${data[2].rows[data[2].rows.length - 1].perc_correct}% success rate`
+          : 'N/A'
     };
 
     const bogeyTeam = {
-      value: data[3].rows[0].team_opposing,
-      caption: `${data[3].rows[0].loss_count ?? 0} times`
+      value: data[3].rows.length > 0 ? data[3].rows[0].team_opposing : 'N/A',
+      caption:
+        data[3].rows.length > 0 ? `${data[3].rows[0].loss_count} times` : 'N/A'
     };
 
     const homeObjIdx = data[4].rows.findIndex(
@@ -208,18 +264,36 @@ export async function fetchTileData() {
     );
 
     const homeSuccess = {
-      value: `${data[4].rows[homeObjIdx]?.success_percentage}%`,
-      caption: `${data[4].rows[homeObjIdx].correct_count} / ${data[4].rows[homeObjIdx].total_count} picks`
+      value:
+        data[4].rows.length > 0
+          ? `${data[4].rows[homeObjIdx]?.success_percentage}%`
+          : 'N/A',
+      caption:
+        data[4].rows.length > 0
+          ? `${data[4].rows[homeObjIdx].correct_count} / ${data[4].rows[homeObjIdx].total_count} picks`
+          : 'N/A'
     };
 
     const awaySuccess = {
-      value: `${data[4].rows[awayObjIdx]?.success_percentage}%`,
-      caption: `${data[4].rows[awayObjIdx].correct_count} / ${data[4].rows[awayObjIdx].total_count} picks`
+      value:
+        data[4].rows.length > 0
+          ? `${data[4].rows[awayObjIdx]?.success_percentage}%`
+          : 'N/A',
+      caption:
+        data[4].rows.length > 0
+          ? `${data[4].rows[awayObjIdx].correct_count} / ${data[4].rows[awayObjIdx].total_count} picks`
+          : 'N/A'
     };
 
     const bogeyRoundNumber = {
-      value: `Round${data[5].rows.length > 1 ? 's' : ''} ${data[5].rows.map(({ round_number }) => round_number).join(', ')}`,
-      caption: `${data[5].rows[0].times_knocked_out ?? 0} times`
+      value:
+        data[5].rows.length > 0
+          ? `Round${data[5].rows.length > 1 ? 's' : ''} ${data[5].rows.map(({ round_number }) => round_number).join(', ')}`
+          : 'N/A',
+      caption:
+        data[5].rows.length > 0
+          ? `${data[5].rows[0].times_knocked_out ?? 0} times`
+          : 'N/A'
     };
 
     return {

@@ -15,10 +15,12 @@ import {
   TeamName,
   TeamScore
 } from '@/components/ui/table';
+import { auth } from '@/lib/auth';
 import { fetchResultsData } from '@/lib/data';
 
 const PredictionsPage = async () => {
-  const results = await fetchResultsData();
+  const session = await auth();
+  const results = await fetchResultsData({ userId: session?.user?.id });
 
   const maxGameWeeks = Array.isArray(Object.values(results))
     ? Object.values(results).reduce(

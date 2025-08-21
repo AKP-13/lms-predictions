@@ -24,6 +24,7 @@ import {
   TeamName,
   TeamScore
 } from '@/components/ui/table';
+import { auth } from '@/lib/auth';
 
 export type TeamsArr = {
   id: number;
@@ -36,7 +37,8 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const results = await fetchResultsData();
+  const session = await auth();
+  const results = await fetchResultsData({ userId: session?.user?.id });
 
   const fixturesData = await fetch(
     'https://fantasy.premierleague.com/api/fixtures'
