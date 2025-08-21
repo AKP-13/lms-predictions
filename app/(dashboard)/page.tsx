@@ -164,7 +164,7 @@ export default async function Page() {
           <strong className="font-bold">submit LMS predictions</strong>,{' '}
           <strong className="font-bold">plan picks</strong>,{' '}
           <strong className="font-bold">view results</strong>, and{' '}
-          <strong className="font-bold">analyse performance</strong>*.
+          <strong className="font-bold">analyse performance</strong>.
         </p>
       </div>
       {/* <Suspense fallback={<CardsSkeleton />}> */}
