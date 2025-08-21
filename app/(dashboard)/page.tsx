@@ -162,14 +162,6 @@ export default async function Page() {
           <strong className="font-bold">view results</strong>, and{' '}
           <strong className="font-bold">analyse performance</strong>*.
         </p>
-        <p className="hidden md:block rounded-xl px-4 py-0 text-center text-xs font-light italic">
-          *Yes this is my actual data..don't judge my recent results in the
-          Results tab too much!
-        </p>
-        <p className="block md:hidden rounded-xl px-4 py-4 text-center text-xs font-light italic">
-          *Yes this is my actual data..don't judge my recent results at the
-          bottom of this page too much!
-        </p>
         <p className="rounded-xl text-center text-4xl italic font-bold  p-[4rem]">
           <a
             href="mailto:alexlmsapp@icloud.com?subject=Interested%20in%20LMS%20Predictions%20Tool&body=Hi%20Alex,%0D%0A%0D%0AI%20am%20interested%20in%20using%20your%20LMS%20Predictions%20Tool.%20Please%20provide%20more%20information.%0D%0A%0D%0AThank%20you!"
