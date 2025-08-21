@@ -56,7 +56,7 @@ export async function fetchCurrentGameData({
         FROM rounds;
     `;
 
-    const currentGameId = queryResult.rows[0].current_game_id - 5;
+    const currentGameId = queryResult.rows[0].current_game_id;
 
     const currentGameResults = await sql.query<CurrentGameResults>(
       `
@@ -70,10 +70,10 @@ export async function fetchCurrentGameData({
             , team_selected_score
             , team_opposing_score
         FROM results
-        WHERE game_id = ${currentGameId}
+        WHERE game_id = ($2)
         AND user_id = ($1);
     `,
-      [userId]
+      [userId, currentGameId]
     );
 
     return currentGameResults.rows;
