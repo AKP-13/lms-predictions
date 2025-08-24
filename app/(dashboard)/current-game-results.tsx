@@ -32,48 +32,33 @@ const CurrentGameResults = async () => {
       </CardHeader>
 
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {currentGameResults.map((_, round) => (
-                <TableHead
-                  key={`gw-headcell-${round + 1}`}
-                >{`Round ${round + 1}`}</TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow>
-              {currentGameResults.map((prediction, gameIdx) => (
-                <>
-                  <TableCell
-                    key={`gw-cell-${gameIdx}`}
-                    className={`table-cell ${prediction.correct ? 'bg-green-200' : 'bg-red-200'}`}
-                  >
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        textAlign: 'center',
-                        minWidth: '4rem',
-                        maxWidth: '9rem'
-                      }}
-                    >
-                      <div>
-                        <TeamName location="Home" prediction={prediction} /> v{' '}
-                        <TeamName location="Away" prediction={prediction} />
-                      </div>
-                      <div>
-                        <TeamScore location="Home" prediction={prediction} />{' '}
-                        <span className="font-thin">v</span>{' '}
-                        <TeamScore location="Away" prediction={prediction} />
-                      </div>
-                    </div>
-                  </TableCell>
-                  {prediction.correct === false && (
+        {session === null ? (
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <a
+              style={{ color: 'blue', fontWeight: 600, textAlign: 'center' }}
+              href="/api/auth/signin"
+            >
+              Sign in to get started
+            </a>
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {currentGameResults.map((_, round) => (
+                  <TableHead
+                    key={`gw-headcell-${round + 1}`}
+                  >{`Round ${round + 1}`}</TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                {currentGameResults.map((prediction, gameIdx) => (
+                  <>
                     <TableCell
-                      key={`gw-cell-lost-${gameIdx}`}
-                      className="table-cell"
+                      key={`gw-cell-${gameIdx}`}
+                      className={`table-cell ${prediction.correct ? 'bg-green-200' : 'bg-red-200'}`}
                     >
                       <div
                         style={{
@@ -84,18 +69,44 @@ const CurrentGameResults = async () => {
                           maxWidth: '9rem'
                         }}
                       >
-                        <span>You're out of this round!</span>
-                        <span>
-                          You will get an email when the new game starts.
-                        </span>
+                        <div>
+                          <TeamName location="Home" prediction={prediction} /> v{' '}
+                          <TeamName location="Away" prediction={prediction} />
+                        </div>
+                        <div>
+                          <TeamScore location="Home" prediction={prediction} />{' '}
+                          <span className="font-thin">v</span>{' '}
+                          <TeamScore location="Away" prediction={prediction} />
+                        </div>
                       </div>
                     </TableCell>
-                  )}
-                </>
-              ))}
-            </TableRow>
-          </TableBody>
-        </Table>
+                    {prediction.correct === false && (
+                      <TableCell
+                        key={`gw-cell-lost-${gameIdx}`}
+                        className="table-cell"
+                      >
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            textAlign: 'center',
+                            minWidth: '4rem',
+                            maxWidth: '9rem'
+                          }}
+                        >
+                          <span>You're out of this round!</span>
+                          <span>
+                            You will get an email when the new game starts.
+                          </span>
+                        </div>
+                      </TableCell>
+                    )}
+                  </>
+                ))}
+              </TableRow>
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   );
