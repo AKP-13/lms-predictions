@@ -23,6 +23,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
     pages: {
       newUser: '/' // redirects on login
     },
+    session: {
+      maxAge: 60 * 60 * 24 // 1 day in seconds
+    },
     callbacks: {
       async redirect({ url, baseUrl }) {
         // Always redirect to homepage after sign-in
