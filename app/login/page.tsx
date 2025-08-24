@@ -14,9 +14,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>
-            This demo uses GitHub for authentication.
-          </CardDescription>
+          <CardDescription>Sign in</CardDescription>
         </CardHeader>
         <CardFooter>
           <form
@@ -29,6 +27,17 @@ export default function LoginPage() {
             className="w-full"
           >
             <Button className="w-full">Sign in with GitHub</Button>
+          </form>
+        </CardFooter>
+        <CardFooter>
+          <form
+            action={async (formData) => {
+              'use server';
+              await signIn('resend', formData);
+            }}
+          >
+            <input type="text" name="email" placeholder="Email" />
+            <button type="submit">Signin with Resend</button>
           </form>
         </CardFooter>
       </Card>

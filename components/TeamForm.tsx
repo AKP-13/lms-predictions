@@ -5,15 +5,17 @@ const TeamForm = ({
   fixtures,
   selectedGw
 }: {
-  fixtures: FixturesData[];
+  fixtures: FixturesData[] | 'The game is being updated';
   teamId: number;
   selectedGw: number;
 }) => {
-  const filteredFixtures = fixtures.filter(
-    (fixture) =>
-      fixture.event < selectedGw &&
-      (fixture.team_a === teamId || fixture.team_h === teamId)
-  );
+  const filteredFixtures = Array.isArray(fixtures)
+    ? fixtures.filter(
+        (fixture) =>
+          fixture.event < selectedGw &&
+          (fixture.team_a === teamId || fixture.team_h === teamId)
+      )
+    : [];
 
   const resultsArr = filteredFixtures.reduce(
     (acc: ('W' | 'D' | 'L')[], curr) => {

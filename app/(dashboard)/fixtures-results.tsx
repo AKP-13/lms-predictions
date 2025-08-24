@@ -19,15 +19,15 @@ const FixturesAndResults = ({
   currentGwNumber,
   teamsArr
 }: {
-  fixtures: FixturesData[];
+  fixtures: FixturesData[] | 'The game is being updated';
   currentGwNumber: number;
   teamsArr: TeamsArr;
 }) => {
   const [selectedGw, setSelectedGw] = useState(currentGwNumber);
 
-  const fixturesForSelectedGameweek = fixtures.filter(
-    (f) => f.event === selectedGw
-  );
+  const fixturesForSelectedGameweek = Array.isArray(fixtures)
+    ? fixtures.filter((f) => f.event === selectedGw)
+    : [];
 
   return (
     <Card className="rounded-xl bg-white p-2 shadow-sm ">
