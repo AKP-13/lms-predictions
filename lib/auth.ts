@@ -11,8 +11,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
   return {
     adapter: NeonAdapter(pool),
     providers: [
-      GitHub,
-      Google,
+      //   GitHub,
+      //   Google,
       Resend({
         // If your environment variable is named differently than default
         apiKey: process.env.AUTH_RESEND_KEY,
