@@ -217,7 +217,10 @@ export async function fetchTileData({
 
     const gamesPlayed = {
       value: data[0].rows.length > 0 ? data[0].rows[0].games_played : 0,
-      caption: `Furthest round: ${data[0].rows.length > 0 ? data[0].rows[0].furthest_round : 0}`
+      caption:
+        data[0].rows.length > 0
+          ? `Furthest round: ${data[0].rows[0].furthest_round}`
+          : 'Join a league to start playing!'
     };
 
     const mostSelected = {
@@ -233,7 +236,7 @@ export async function fetchTileData({
       caption:
         data[2].rows.length > 0
           ? `${data[2].rows[0].perc_correct}% success rate`
-          : 'N/A'
+          : 'More data required'
     };
 
     const leastSuccessful = {
@@ -244,13 +247,15 @@ export async function fetchTileData({
       caption:
         data[2].rows.length > 0
           ? `${data[2].rows[data[2].rows.length - 1].perc_correct}% success rate`
-          : 'N/A'
+          : 'More data required'
     };
 
     const bogeyTeam = {
       value: data[3].rows.length > 0 ? data[3].rows[0].team_opposing : 'N/A',
       caption:
-        data[3].rows.length > 0 ? `${data[3].rows[0].loss_count} times` : 'N/A'
+        data[3].rows.length > 0
+          ? `${data[3].rows[0].loss_count} times`
+          : 'More data required'
     };
 
     const homeObjIdx = data[4].rows.findIndex(
@@ -269,7 +274,7 @@ export async function fetchTileData({
       caption:
         data[4].rows.length > 0 && homeObjIdx > -1
           ? `${data[4].rows[homeObjIdx].correct_count} / ${data[4].rows[homeObjIdx].total_count} picks`
-          : 'N/A'
+          : 'No successful home picks'
     };
 
     const awaySuccess = {
@@ -280,7 +285,7 @@ export async function fetchTileData({
       caption:
         data[4].rows.length > 0 && awayObjIdx > -1
           ? `${data[4].rows[awayObjIdx].correct_count} / ${data[4].rows[awayObjIdx].total_count} picks`
-          : 'N/A'
+          : 'No successful away picks'
     };
 
     const bogeyRoundNumber = {
@@ -291,7 +296,7 @@ export async function fetchTileData({
       caption:
         data[5].rows.length > 0
           ? `${data[5].rows[0].times_knocked_out ?? 0} times`
-          : 'N/A'
+          : 'Yet to be knocked out!'
     };
 
     return {
