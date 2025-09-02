@@ -10,7 +10,7 @@ export async function fetchResultsData({
     const data = await sql.query<Results>(
       `
     SELECT
-        round_id
+        game_id
         , team_selected
         , team_opposing
         , team_selected_location
@@ -27,11 +27,11 @@ export async function fetchResultsData({
 
     const groupedData: Record<number, Results[]> = data.rows.reduce(
       (acc, current) => {
-        const { round_id } = current;
-        if (!acc[round_id]) {
-          acc[round_id] = [];
+        const { game_id } = current;
+        if (!acc[game_id]) {
+          acc[game_id] = [];
         }
-        acc[round_id].push(current);
+        acc[game_id].push(current);
         return acc;
       },
       {} as Record<number, Results[]>
@@ -70,7 +70,7 @@ export async function fetchCurrentGameData({
             , team_selected_score
             , team_opposing_score
         FROM results
-        WHERE round_id = ($2)
+        WHERE game_id = ($2)
         AND user_id = ($1);
     `,
       [userId, currentGameId]
@@ -92,7 +92,7 @@ export async function fetchTileData({
     const gamesPlayedQuery = sql.query(
       `
         SELECT 
-            CAST(COUNT(DISTINCT round_id) AS INT) AS games_played
+            CAST(COUNT(DISTINCT game_id) AS INT) AS games_played
             , MAX(round_number) AS furthest_round
         FROM results
         WHERE user_id = ($1);
