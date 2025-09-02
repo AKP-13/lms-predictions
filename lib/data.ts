@@ -263,22 +263,22 @@ export async function fetchTileData({
 
     const homeSuccess = {
       value:
-        data[4].rows.length > 0
+        data[4].rows.length > 0 && homeObjIdx > -1
           ? `${data[4].rows[homeObjIdx]?.success_percentage}%`
           : 'N/A',
       caption:
-        data[4].rows.length > 0
+        data[4].rows.length > 0 && homeObjIdx > -1
           ? `${data[4].rows[homeObjIdx].correct_count} / ${data[4].rows[homeObjIdx].total_count} picks`
           : 'N/A'
     };
 
     const awaySuccess = {
       value:
-        data[4].rows.length > 0
+        data[4].rows.length > 0 && awayObjIdx > -1
           ? `${data[4].rows[awayObjIdx]?.success_percentage}%`
           : 'N/A',
       caption:
-        data[4].rows.length > 0
+        data[4].rows.length > 0 && awayObjIdx > -1
           ? `${data[4].rows[awayObjIdx].correct_count} / ${data[4].rows[awayObjIdx].total_count} picks`
           : 'N/A'
     };
