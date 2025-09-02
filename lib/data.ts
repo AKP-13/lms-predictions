@@ -227,7 +227,7 @@ export async function fetchTileData({
       value: data[1].rows.length > 0 ? data[1].rows[0].team_selected : 'N/A',
       caption:
         data[1].rows.length > 0
-          ? `${data[1].rows[0].selection_count} times`
+          ? `${data[1].rows[0].selection_count} time${data[1].rows[0].selection_count > 1 ? 's' : ''}`
           : 'N/A'
     };
 
@@ -255,7 +255,7 @@ export async function fetchTileData({
       caption:
         data[3].rows.length > 0
           ? `${data[3].rows[0].loss_count} times`
-          : 'More data required'
+          : 'Yet to be knocked out!'
     };
 
     const homeObjIdx = data[4].rows.findIndex(

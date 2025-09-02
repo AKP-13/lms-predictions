@@ -52,7 +52,7 @@ export default async function TileWrapper() {
       />
       <Tile
         caption={mostSelected.caption}
-        title="Most Picked Teams"
+        title="Most picked team"
         type="mostSelected"
         value={mostSelected.value}
       />
@@ -70,7 +70,7 @@ export default async function TileWrapper() {
       />
       <Tile
         caption={bogeyTeam.caption}
-        title="Bogey Teams"
+        title="Bogey Team"
         type="bogeyTeam"
         value={bogeyTeam.value}
       />
