@@ -45,6 +45,7 @@ const FixturesResults = ({
                 style={{ flex: 1, textAlign: 'left', alignContent: 'center' }}
               >
                 <button
+                  aria-label="Previous Gameweek"
                   disabled={selectedGw === 1}
                   onClick={() => setSelectedGw((prevState) => prevState - 1)}
                   style={{ height: '100%', width: '100%', textAlign: 'left' }}
@@ -62,6 +63,7 @@ const FixturesResults = ({
                 style={{ flex: 1, textAlign: 'right', alignContent: 'center' }}
               >
                 <button
+                  aria-label="Next Gameweek"
                   disabled={selectedGw === 38}
                   onClick={() => setSelectedGw((prevState) => prevState + 1)}
                   style={{ height: '100%', width: '100%', textAlign: 'right' }}
