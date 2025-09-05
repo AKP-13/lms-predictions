@@ -14,7 +14,7 @@ import { FixturesData } from '@/lib/definitions';
 import { TeamForm } from '@/components/TeamForm';
 import { TeamsArr } from './page';
 
-const FixturesAndResults = ({
+const FixturesResults = ({
   fixtures,
   currentGwNumber,
   teamsArr
@@ -42,11 +42,15 @@ const FixturesAndResults = ({
               style={{ display: 'flex', justifyContent: 'space-between' }}
             >
               <TableHead
-                role="button"
-                onClick={() => setSelectedGw((prevState) => prevState - 1)}
                 style={{ flex: 1, textAlign: 'left', alignContent: 'center' }}
               >
-                Previous
+                <button
+                  disabled={selectedGw === 1}
+                  onClick={() => setSelectedGw((prevState) => prevState - 1)}
+                  style={{ height: '100%', width: '100%', textAlign: 'left' }}
+                >
+                  Previous
+                </button>
               </TableHead>
               <TableHead
                 className="text-center font-bold bg-[lightgrey]"
@@ -55,11 +59,15 @@ const FixturesAndResults = ({
                 Gameweek {selectedGw}
               </TableHead>
               <TableHead
-                role="button"
-                onClick={() => setSelectedGw((prevState) => prevState + 1)}
                 style={{ flex: 1, textAlign: 'right', alignContent: 'center' }}
               >
-                Next
+                <button
+                  disabled={selectedGw === 38}
+                  onClick={() => setSelectedGw((prevState) => prevState + 1)}
+                  style={{ height: '100%', width: '100%', textAlign: 'right' }}
+                >
+                  Next
+                </button>
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -145,4 +153,4 @@ const FixturesAndResults = ({
   );
 };
 
-export default FixturesAndResults;
+export default FixturesResults;
