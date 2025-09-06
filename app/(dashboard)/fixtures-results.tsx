@@ -13,6 +13,7 @@ import {
 import { FixturesData } from '@/lib/definitions';
 import { TeamForm } from '@/components/TeamForm';
 import { TeamsArr } from './page';
+import { MAX_GW, MIN_GW } from '@/lib/constants';
 
 const FixturesResults = ({
   fixtures,
@@ -46,9 +47,14 @@ const FixturesResults = ({
               >
                 <button
                   aria-label="Previous Gameweek"
-                  disabled={selectedGw === 1}
+                  disabled={selectedGw === MIN_GW}
                   onClick={() => setSelectedGw((prevState) => prevState - 1)}
-                  style={{ height: '100%', width: '100%', textAlign: 'left' }}
+                  style={{
+                    height: '100%',
+                    width: '100%',
+                    textAlign: 'left',
+                    cursor: selectedGw === MIN_GW ? 'not-allowed' : 'pointer'
+                  }}
                 >
                   Previous
                 </button>
@@ -64,9 +70,14 @@ const FixturesResults = ({
               >
                 <button
                   aria-label="Next Gameweek"
-                  disabled={selectedGw === 38}
+                  disabled={selectedGw === MAX_GW}
                   onClick={() => setSelectedGw((prevState) => prevState + 1)}
-                  style={{ height: '100%', width: '100%', textAlign: 'right' }}
+                  style={{
+                    height: '100%',
+                    width: '100%',
+                    textAlign: 'right',
+                    cursor: selectedGw === MAX_GW ? 'not-allowed' : 'pointer'
+                  }}
                 >
                   Next
                 </button>

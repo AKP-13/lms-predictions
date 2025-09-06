@@ -25,6 +25,7 @@ import {
   TeamScore
 } from '@/components/ui/table';
 import { auth } from '@/lib/auth';
+import { MIN_GW } from '@/lib/constants';
 
 export type TeamsArr = {
   id: number;
@@ -137,7 +138,7 @@ export default async function Page() {
   } = await overallData.json();
 
   const currentGwNumber =
-    formattedData.events.find((obj) => obj.is_current === true)?.id || 1;
+    formattedData.events.find((obj) => obj.is_current === true)?.id || MIN_GW;
 
   const teamsArr: TeamsArr = formattedData.teams.map((team) => ({
     id: team.id,
