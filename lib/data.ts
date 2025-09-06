@@ -52,7 +52,7 @@ export async function fetchCurrentGameData({
   userId?: string | undefined;
 }) {
   try {
-    const leagueIdQuery = await sql.query<{ league_id: number }>(
+    const leagueIdQuery = await sql.query<{ league_id: number | undefined }>(
       `
         SELECT
             league_id
@@ -62,11 +62,7 @@ export async function fetchCurrentGameData({
       [userId]
     );
 
-    if (leagueIdQuery.rows.length === 0) {
-      throw new Error('User is not part of any leagues.');
-    }
-
-    const leagueId = leagueIdQuery.rows[0].league_id;
+    const leagueId = leagueIdQuery?.rows?.[0]?.league_id;
 
     const queryResult = await sql.query<CurrentGameId>(
       `
