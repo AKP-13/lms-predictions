@@ -22,9 +22,11 @@ const outcome: Result[] = ['Win', 'Draw'];
 const Predictions = async ({ results, teamsArr }: Props) => {
   const session = await auth();
 
-  const previousPicksArr: string[] = Object.values(results)?.[
-    Object.values(results)?.length - 1
-  ]?.map((val) => val?.team_selected);
+  // Find the latest gameweek by key (maximum number)
+  const gameweekNumbers = Object.keys(results).map(Number);
+  const latestGameweek = Math.max(...gameweekNumbers);
+  const previousPicksArr =
+    results[latestGameweek]?.map((val) => val?.team_selected) ?? [];
 
   const teams = teamsArr.map(({ name }) => name);
 
