@@ -1,11 +1,32 @@
 export type TeamLocation = 'Home' | 'Away';
 
+export type FPLTeamName =
+  | 'Arsenal'
+  | 'Aston Villa'
+  | 'Bournemouth'
+  | 'Brentford'
+  | 'Brighton'
+  | 'Burnely'
+  | 'Chelsea'
+  | 'Crystal Palace'
+  | 'Fulham'
+  | 'Leeds'
+  | 'Liverpool'
+  | 'Man City'
+  | 'Man Utd'
+  | 'Newcastle'
+  | "Nott'm Forest"
+  | 'Spurs'
+  | 'Sunderland'
+  | 'West Ham'
+  | 'Wolves';
+
 export type Results = {
   id: number;
   user_id: string;
   game_id: number;
-  team_selected: string;
-  team_opposing: string;
+  team_selected: FPLTeamName;
+  team_opposing: FPLTeamName;
   team_selected_location: TeamLocation;
   result_selected: 'Win' | 'Draw';
   correct: boolean;
@@ -18,8 +39,8 @@ export type Results = {
 export type CurrentGameResults = {
   id: number;
   user_id: string;
-  team_selected: string;
-  team_opposing: string;
+  team_selected: FPLTeamName;
+  team_opposing: FPLTeamName;
   team_selected_location: TeamLocation;
   result_selected: 'Win' | 'Draw';
   correct: boolean;
@@ -71,25 +92,3 @@ export type FixturesData = {
   team_a_difficulty: number;
   pulse_id: number;
 };
-
-export type Team =
-  | 'Arsenal'
-  | 'Aston Villa'
-  | 'Bournemouth'
-  | 'Brentford'
-  | 'Brighton'
-  | 'Chelsea'
-  | 'Crystal Palace'
-  | 'Everton'
-  | 'Fulham'
-  | 'Ipswich'
-  | 'Leicester'
-  | 'Liverpool'
-  | 'Man City'
-  | 'Man Utd'
-  | 'Newcastle'
-  | "Nott'm Forest"
-  | 'Southampton'
-  | 'Spurs'
-  | 'West Ham'
-  | 'Wolves';

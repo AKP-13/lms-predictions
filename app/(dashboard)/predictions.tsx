@@ -7,6 +7,8 @@ import {
 } from '@/components/ui/card';
 import { Select } from '@/components/ui/select';
 import { auth } from '@/lib/auth';
+import { TeamsArr } from './page';
+import { Results } from '@/lib/definitions';
 
 export type TeamName =
   | 'Arsenal'
@@ -31,32 +33,22 @@ export type TeamName =
 
 type Result = 'Win' | 'Draw';
 
-const teams: TeamName[] = [
-  'Arsenal',
-  'Aston Villa',
-  'Bournemouth',
-  'Brentford',
-  'Brighton',
-  'Burnely',
-  'Chelsea',
-  'Crystal Palace',
-  'Fulham',
-  'Leeds',
-  'Liverpool',
-  'Man City',
-  'Man Utd',
-  'Newcastle',
-  'Nottingham Forest',
-  'Spurs',
-  'Sunderland',
-  'West Ham',
-  'Wolves'
-];
+type Props = {
+  results: Record<number, Results[]>;
+  teamsArr: TeamsArr;
+};
 
-const results: Result[] = ['Win', 'Draw'];
+const outcome: Result[] = ['Win', 'Draw'];
 
-const Predictions = async () => {
+const Predictions = async ({ results, teamsArr }: Props) => {
   const session = await auth();
+
+  const previousPicksArr: string[] = Object.values(results)?.[
+    Object.values(results)?.length - 1
+  ]?.map((val) => val?.team_selected);
+
+  const teams = teamsArr.map(({ name }) => name);
+
   return (
     <Card className="rounded-xl bg-white p-2 shadow-sm">
       <CardHeader>
@@ -80,12 +72,17 @@ const Predictions = async () => {
           <>
             <div className="my-4">
               <label htmlFor="team">Choose a team:</label>
-              <Select name="team" id="team" options={teams} />
+              <Select
+                name="team"
+                id="team"
+                options={teams}
+                disabledOptions={previousPicksArr}
+              />
             </div>
 
             <div className="my-4">
               <label htmlFor="result">Choose a result:</label>
-              <Select name="result" id="result" options={results} />
+              <Select name="result" id="result" options={outcome} />
             </div>
 
             <button type="submit" disabled style={{ color: 'gray' }}>
