@@ -11,6 +11,7 @@ export async function fetchResultsData({
       `
     SELECT
         game_id
+        , round_number
         , team_selected
         , team_opposing
         , team_selected_location
@@ -20,7 +21,8 @@ export async function fetchResultsData({
         , team_selected_score
         , team_opposing_score
     FROM results
-    WHERE user_id = ($1);
+    WHERE user_id = ($1)
+    ORDER BY game_id, round_number ASC;
     `,
       [userId]
     );
@@ -50,11 +52,31 @@ export async function fetchCurrentGameData({
   userId?: string | undefined;
 }) {
   try {
-    const queryResult = await sql<CurrentGameId>`
+    const leagueIdQuery = await sql.query<{ league_id: number }>(
+      `
         SELECT
-            MAX(id) AS current_game_id
-        FROM games;
-    `;
+            league_id
+        FROM user_leagues
+        WHERE user_id = ($1);
+      `,
+      [userId]
+    );
+
+    if (leagueIdQuery.rows.length === 0) {
+      throw new Error('User is not part of any leagues.');
+    }
+
+    const leagueId = leagueIdQuery.rows[0].league_id;
+
+    const queryResult = await sql.query<CurrentGameId>(
+      `
+      SELECT
+        MAX(id) AS current_game_id
+      FROM games
+      WHERE league_id = ($1);
+    `,
+      [leagueId]
+    );
 
     const currentGameId = queryResult.rows[0].current_game_id;
 
@@ -67,13 +89,16 @@ export async function fetchCurrentGameData({
             , result_selected
             , correct
             , fpl_gw
+            , round_number
             , team_selected_score
             , team_opposing_score
         FROM results
         WHERE game_id = ($2)
-        AND user_id = ($1);
+            AND user_id = ($1)
+            AND league_id = ($3)
+        ORDER BY round_number ASC;
     `,
-      [userId, currentGameId]
+      [userId, currentGameId, leagueId]
     );
 
     return currentGameResults.rows;
