@@ -94,7 +94,7 @@ const CurrentGameResults = async () => {
                             maxWidth: '9rem'
                           }}
                         >
-                          <span>You're out of this round!</span>
+                          <span>You're out of this game!</span>
                           <span>
                             You will get an email when the new game starts.
                           </span>

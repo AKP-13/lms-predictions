@@ -13,8 +13,9 @@ import {
 import { FixturesData } from '@/lib/definitions';
 import { TeamForm } from '@/components/TeamForm';
 import { TeamsArr } from './page';
+import { MAX_GW, MIN_GW } from '@/lib/constants';
 
-const FixturesAndResults = ({
+const FixturesResults = ({
   fixtures,
   currentGwNumber,
   teamsArr
@@ -42,11 +43,21 @@ const FixturesAndResults = ({
               style={{ display: 'flex', justifyContent: 'space-between' }}
             >
               <TableHead
-                role="button"
-                onClick={() => setSelectedGw((prevState) => prevState - 1)}
                 style={{ flex: 1, textAlign: 'left', alignContent: 'center' }}
               >
-                Previous
+                <button
+                  aria-label="Previous Gameweek"
+                  disabled={selectedGw === MIN_GW}
+                  onClick={() => setSelectedGw((prevState) => prevState - 1)}
+                  style={{
+                    height: '100%',
+                    width: '100%',
+                    textAlign: 'left',
+                    cursor: selectedGw === MIN_GW ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  Previous
+                </button>
               </TableHead>
               <TableHead
                 className="text-center font-bold bg-[lightgrey]"
@@ -55,11 +66,21 @@ const FixturesAndResults = ({
                 Gameweek {selectedGw}
               </TableHead>
               <TableHead
-                role="button"
-                onClick={() => setSelectedGw((prevState) => prevState + 1)}
                 style={{ flex: 1, textAlign: 'right', alignContent: 'center' }}
               >
-                Next
+                <button
+                  aria-label="Next Gameweek"
+                  disabled={selectedGw === MAX_GW}
+                  onClick={() => setSelectedGw((prevState) => prevState + 1)}
+                  style={{
+                    height: '100%',
+                    width: '100%',
+                    textAlign: 'right',
+                    cursor: selectedGw === MAX_GW ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  Next
+                </button>
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -145,4 +166,4 @@ const FixturesAndResults = ({
   );
 };
 
-export default FixturesAndResults;
+export default FixturesResults;
