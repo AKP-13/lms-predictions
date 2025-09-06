@@ -6,7 +6,7 @@ export type FPLTeamName =
   | 'Bournemouth'
   | 'Brentford'
   | 'Brighton'
-  | 'Burnely'
+  | 'Burnley'
   | 'Chelsea'
   | 'Crystal Palace'
   | 'Fulham'
