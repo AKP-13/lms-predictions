@@ -10,27 +10,6 @@ import { auth } from '@/lib/auth';
 import { TeamsArr } from './page';
 import { Results } from '@/lib/definitions';
 
-export type TeamName =
-  | 'Arsenal'
-  | 'Aston Villa'
-  | 'Bournemouth'
-  | 'Brentford'
-  | 'Brighton'
-  | 'Burnely'
-  | 'Chelsea'
-  | 'Crystal Palace'
-  | 'Fulham'
-  | 'Leeds'
-  | 'Liverpool'
-  | 'Man City'
-  | 'Man Utd'
-  | 'Newcastle'
-  | 'Nottingham Forest'
-  | 'Spurs'
-  | 'Sunderland'
-  | 'West Ham'
-  | 'Wolves';
-
 type Result = 'Win' | 'Draw';
 
 type Props = {
