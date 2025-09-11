@@ -1,5 +1,3 @@
-// import { Suspense } from "react";
-// import { CardsSkeleton } from "@/app/ui/skeletons";
 import { PartyPopper } from 'lucide-react';
 import TileWrapper from '@/components/ui/tiles';
 import { Metadata } from 'next';
@@ -171,13 +169,18 @@ export default async function Page() {
           <strong className="font-bold">analyse performance</strong>.
         </p>
       </div>
-      {/* <Suspense fallback={<CardsSkeleton />}> */}
 
       {session === null ? '' : <TileWrapper />}
 
-      {/* </Suspense> */}
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-4">
+        <div className="my-8 md:mr-3 w-full md:my-0 grid md:col-span-3">
+          <CurrentGameResults />
+        </div>
 
-      <CurrentGameResults />
+        <div className="my-8 w-full md:my-0 md:col-span-1">
+          <Predictions teamsArr={teamsArr} results={results} />
+        </div>
+      </div>
 
       <div className="block md:flex">
         <div className="my-8 md:mr-3 w-full md:my-0">
@@ -186,10 +189,6 @@ export default async function Page() {
             currentGwNumber={currentGwNumber}
             teamsArr={teamsArr}
           />
-        </div>
-
-        <div className="my-8 md:ml-3 w-full md:my-0">
-          <Predictions teamsArr={teamsArr} results={results} />
         </div>
       </div>
 

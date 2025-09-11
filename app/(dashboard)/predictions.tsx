@@ -9,15 +9,16 @@ import { Select } from '@/components/ui/select';
 import { auth } from '@/lib/auth';
 import { TeamsArr } from './page';
 import { Results } from '@/lib/definitions';
+import { Button } from '@/components/ui/button';
 
-type Result = 'Win' | 'Draw';
+type Outcome = 'Win' | 'Draw';
 
 type Props = {
   results: Record<number, Results[]>;
   teamsArr: TeamsArr;
 };
 
-const outcome: Result[] = ['Win', 'Draw'];
+const outcome: Outcome[] = ['Win', 'Draw'];
 
 const Predictions = async ({ results, teamsArr }: Props) => {
   const session = await auth();
@@ -31,9 +32,9 @@ const Predictions = async ({ results, teamsArr }: Props) => {
   const teams = teamsArr.map(({ name }) => name);
 
   return (
-    <Card className="rounded-xl bg-white p-2 shadow-sm">
+    <Card className="rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto">
       <CardHeader>
-        <CardTitle>Predictions</CardTitle>
+        <CardTitle>Prediction</CardTitle>
         <CardDescription>
           Make your prediction for this gameweek
         </CardDescription>
@@ -50,26 +51,32 @@ const Predictions = async ({ results, teamsArr }: Props) => {
             </a>
           </div>
         ) : (
-          <>
-            <div className="my-4">
-              <label htmlFor="team">Choose a team:</label>
-              <Select
-                name="team"
-                id="team"
-                options={teams}
-                disabledOptions={previousPicksArr}
-              />
+          <div className="flex flex-col">
+            <div className="flex">
+              <div className="my-4 mr-2 flex flex-col items-center w-full">
+                <label htmlFor="team">Team</label>
+                <Select
+                  name="team"
+                  id="team"
+                  options={teams}
+                  disabledOptions={previousPicksArr}
+                  style={{ width: '100%' }}
+                />
+              </div>
+
+              <div className="my-4 ml-2 flex flex-col items-center w-full">
+                <label htmlFor="outcome">Outcome</label>
+                <Select
+                  name="outcome"
+                  id="outcome"
+                  options={outcome}
+                  style={{ width: '100%' }}
+                />
+              </div>
             </div>
 
-            <div className="my-4">
-              <label htmlFor="result">Choose a result:</label>
-              <Select name="result" id="result" options={outcome} />
-            </div>
-
-            <button type="submit" disabled style={{ color: 'gray' }}>
-              Submit
-            </button>
-          </>
+            <Button type="submit">Submit Prediction</Button>
+          </div>
         )}
       </CardContent>
     </Card>
