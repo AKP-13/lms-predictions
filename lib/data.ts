@@ -152,6 +152,7 @@ export async function fetchTileData({
                 , CAST(SUM(CASE WHEN r.correct IS FALSE THEN 1 ELSE 0 END) AS NUMERIC) AS times_incorrect
             FROM results r
             WHERE user_id = ($1)
+                AND correct IS NOT NULL
             GROUP BY 1
             ORDER BY team_selected
         )
@@ -198,6 +199,7 @@ export async function fetchTileData({
             100 * SUM(CASE WHEN correct = TRUE THEN 1 ELSE 0 END) / COUNT(*) AS success_percentage
         FROM results
         WHERE user_id = ($1)
+            AND correct IS NOT NULL
         GROUP BY team_selected_location;
     `,
       [userId]
