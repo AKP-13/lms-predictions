@@ -58,7 +58,7 @@ const CurrentGameResults = async () => {
                   <>
                     <TableCell
                       key={`gw-cell-${gameIdx}`}
-                      className={`table-cell ${prediction.correct ? 'bg-green-200' : 'bg-red-200'}`}
+                      className={`table-cell ${prediction.correct === true ? 'bg-green-200' : prediction.correct === false ? 'bg-red-200' : 'bg-gray-200'}`}
                     >
                       <div
                         style={{
@@ -73,11 +73,21 @@ const CurrentGameResults = async () => {
                           <TeamName location="Home" prediction={prediction} /> v{' '}
                           <TeamName location="Away" prediction={prediction} />
                         </div>
-                        <div>
-                          <TeamScore location="Home" prediction={prediction} />{' '}
-                          <span className="font-thin">v</span>{' '}
-                          <TeamScore location="Away" prediction={prediction} />
-                        </div>
+                        {prediction.correct === null ? (
+                          'Pending...'
+                        ) : (
+                          <div>
+                            <TeamScore
+                              location="Home"
+                              prediction={prediction}
+                            />{' '}
+                            <span className="font-thin">v</span>{' '}
+                            <TeamScore
+                              location="Away"
+                              prediction={prediction}
+                            />
+                          </div>
+                        )}
                       </div>
                     </TableCell>
                     {prediction.correct === false && (
