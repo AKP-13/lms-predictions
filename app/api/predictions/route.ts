@@ -83,7 +83,7 @@ export async function POST(request: Request) {
       await resend.emails.send({
         from: 'Last Player Standing <noreply@lmsiq.co.uk>',
         to: [userEmail],
-        bcc: ['alexlmsapp@icloud.com'],
+        bcc: [process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS || ''],
         subject: 'Prediction Submitted',
         html: `
             <h2>Your prediction for Round ${round_number} has been submitted!</h2>
@@ -94,7 +94,7 @@ export async function POST(request: Request) {
             <li><strong>Location:</strong> ${team_selected_location}</li>
             </ul>
 
-            <p>If you need to change your prediction, please email <a href="mailto:alexlmsapp@icloud.com">alexlmsapp@icloud.com</a></p>
+            <p>If you need to change your prediction, please email <a href="mailto:${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS}">${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS}</a></p>
             `
       });
 

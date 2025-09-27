@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 const LandingPage = async () => {
   const emailSubject = 'LMSIQ Waitlist';
   const emailBody = "Hi, I'd like to join the LMSIQ waitlist!";
-  const mailtoLink = `mailto:alexlmsapp@icloud.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+  const mailtoLink = `mailto:${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8 min-h-screen">

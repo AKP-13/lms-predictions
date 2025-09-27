@@ -94,7 +94,7 @@ const CurrentGameResults = ({
                         </div>
                         {prediction.correct === null ? (
                           <a
-                            href={`mailto:alexlmsapp@icloud.com?subject=Last%20Player%20Standing%20Prediction%20&body=I%20would%20like%20to%20edit%20my%20prediction%20to...`}
+                            href={`mailto:${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS}?subject=Last%20Player%20Standing%20Prediction%20&body=I%20would%20like%20to%20edit%20my%20prediction%20to...`}
                             style={{
                               color: 'blue',
                               textDecoration: 'underline',

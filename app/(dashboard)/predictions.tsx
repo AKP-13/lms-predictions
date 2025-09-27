@@ -123,7 +123,7 @@ const Predictions = ({
       });
       if (!res.ok) {
         throw new Error(
-          'Failed to submit prediction. Please email it to alexlmsapp@icloud.com instead.'
+          `Failed to submit prediction. Please email it to ${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS} instead.`
         );
       }
       setSuccess(true);
@@ -221,7 +221,7 @@ const Predictions = ({
                 </strong>{' '}
                 If this doesn't look right, please email your prediction{' '}
                 <a
-                  href={`mailto:alexlmsapp@icloud.com?subject=Last%20Player%20Standing%20Prediction%20Week%20${selectedTeamFixture ? selectedTeamFixture.event : 'Undefined'}&body=My%20prediction%20this%20week%20is...`}
+                  href={`mailto:${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS}?subject=Last%20Player%20Standing%20Prediction%20Week%20${selectedTeamFixture ? selectedTeamFixture.event : 'Undefined'}&body=My%20prediction%20this%20week%20is...`}
                   style={{ color: 'blue', textDecoration: 'underline' }}
                 >
                   here
