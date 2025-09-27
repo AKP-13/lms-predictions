@@ -209,11 +209,9 @@ const Predictions = ({
             {selectedTeam !== 'Select' && selectedOutcome !== 'Select' && (
               <div className="my-2">
                 Are you sure you want to predict a
-                {selectedTeam[0].toLowerCase() === 'a' ||
-                selectedTeam[0].toLowerCase() === 'e' ||
-                selectedTeam[0].toLowerCase() === 'i' ||
-                selectedTeam[0].toLowerCase() === 'o' ||
-                selectedTeam[0].toLowerCase() === 'u'
+                {['a', 'e', 'i', 'o', 'u'].includes(
+                  selectedTeam[0].toLowerCase()
+                )
                   ? 'n'
                   : ''}{' '}
                 <strong>
