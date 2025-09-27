@@ -337,3 +337,33 @@ export async function fetchTileData({
     throw new Error('Failed to fetch card data.');
   }
 }
+
+export async function fetchLeagueInfo({
+  userId
+}: {
+  userId?: string | undefined;
+}) {
+  try {
+    const leagueIdQuery = await sql.query<{ league_name: string | undefined }>(
+      `
+        SELECT
+            league_name
+        FROM leagues
+        WHERE id = (
+            SELECT
+                league_id
+            FROM user_leagues
+            WHERE user_id = ($1)
+        );
+      `,
+      [userId]
+    );
+
+    const leagueName = leagueIdQuery?.rows?.[0]?.league_name;
+
+    return leagueName;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch current game results.');
+  }
+}
