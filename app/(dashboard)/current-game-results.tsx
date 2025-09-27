@@ -23,7 +23,7 @@ const CurrentGameResults = ({
   leagueInfo,
   refreshTrigger
 }: {
-  leagueInfo: null | string;
+  leagueInfo: null | string | { error: string };
   refreshTrigger: number;
 }) => {
   const { data: session } = useSession();
@@ -35,7 +35,7 @@ const CurrentGameResults = ({
     <Card className="rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto">
       <CardHeader>
         <CardTitle>
-          Current Game{leagueInfo ? ` - ${leagueInfo}` : ''}
+          Current Game{typeof leagueInfo === 'string' ? ` - ${leagueInfo}` : ''}
         </CardTitle>
         <CardDescription>
           {`Your results from this game ${currentGameResults.length === 0 ? 'will be displayed here.' : ''}`}
