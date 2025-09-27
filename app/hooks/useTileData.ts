@@ -19,7 +19,7 @@ const useTileData = ({ refreshTrigger }: { refreshTrigger: number }) => {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoadingTileData(true);
-      const res = await fetch('api/tileData');
+      const res = await fetch('/api/tileData');
       const data = await res.json();
 
       if (!data.error) {
