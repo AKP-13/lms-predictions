@@ -2,18 +2,18 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 
 const useLeagueInfo = () => {
-  const [leagueInfo, setLeagueInfo] = useState<any>(null);
-  const [isLoadingLeagueInfo, setIsLoadingLeagueInfo] = useState(false);
+  const [leagueName, setLeagueName] = useState<string | null>(null);
+  const [isLoadingLeagueName, setIsLoadingLeagueName] = useState(false);
 
   const { data: session } = useSession();
 
   useEffect(() => {
     async function fetchLeagueInfo() {
-      setIsLoadingLeagueInfo(true);
+      setIsLoadingLeagueName(true);
       const res = await fetch('/api/league-info');
       const data = await res.json();
-      setLeagueInfo(data);
-      setIsLoadingLeagueInfo(false);
+      setLeagueName(data);
+      setIsLoadingLeagueName(false);
     }
 
     if (session) {
@@ -21,7 +21,7 @@ const useLeagueInfo = () => {
     }
   }, [session]);
 
-  return { leagueInfo, isLoadingLeagueInfo };
+  return { leagueName, isLoadingLeagueName };
 };
 
 export default useLeagueInfo;

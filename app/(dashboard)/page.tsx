@@ -44,7 +44,7 @@ const Page = () => {
 
   const { fixtures, isLoadingFixtures } = useFixtures();
   const { fplData, isLoadingFplData } = useFplData();
-  const { leagueInfo, isLoadingLeagueInfo } = useLeagueInfo();
+  const { leagueName, isLoadingLeagueName } = useLeagueInfo();
 
   const currentGwNumber = fplData
     ? fplData.events.find((obj) => obj.is_current === true)?.id || MIN_GW
@@ -92,7 +92,7 @@ const Page = () => {
         <div className="my-8 md:mr-3 w-full md:my-0 grid md:col-span-3">
           <CurrentGameResults
             refreshTrigger={refreshTrigger}
-            leagueInfo={leagueInfo}
+            leagueName={leagueName}
           />
         </div>
 

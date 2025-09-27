@@ -20,10 +20,10 @@ import { useSession } from 'next-auth/react';
 import { Fragment } from 'react';
 
 const CurrentGameResults = ({
-  leagueInfo,
+  leagueName,
   refreshTrigger
 }: {
-  leagueInfo: null | string | { error: string };
+  leagueName: null | string | { error: string };
   refreshTrigger: number;
 }) => {
   const { data: session } = useSession();
@@ -35,7 +35,12 @@ const CurrentGameResults = ({
     <Card className="rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto">
       <CardHeader>
         <CardTitle>
-          Current Game{typeof leagueInfo === 'string' ? ` - ${leagueInfo}` : ''}
+          Current Game
+          {typeof leagueName === 'string' ? (
+            <span style={{ fontStyle: 'italic' }}> - {leagueName}</span>
+          ) : (
+            ''
+          )}
         </CardTitle>
         <CardDescription>
           {`Your results from this game ${currentGameResults.length === 0 ? 'will be displayed here.' : ''}`}
@@ -52,7 +57,7 @@ const CurrentGameResults = ({
               Sign in to get started
             </a>
           </div>
-        ) : leagueInfo === null ? (
+        ) : leagueName === null ? (
           'Join a league to get started.'
         ) : currentGameResults.length === 0 ? (
           'Submit a prediction to begin seeing results here.'
