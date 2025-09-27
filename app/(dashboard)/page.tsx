@@ -63,13 +63,13 @@ const Page = () => {
     : [];
 
   const maxGameWeeks = isLoadingResults
-    ? Array.isArray(Object.values(results))
+    ? 1
+    : Array.isArray(Object.values(results))
       ? Object.values(results).reduce(
           (maxLength, currentArray) => Math.max(maxLength, currentArray.length),
           0
         )
-      : 1
-    : 1;
+      : 1;
 
   return (
     <main>
