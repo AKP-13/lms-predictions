@@ -364,6 +364,6 @@ export async function fetchLeagueInfo({
     return leagueName;
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch current game results.');
+    throw new Error('Failed to fetch league info.');
   }
 }
