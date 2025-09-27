@@ -86,10 +86,12 @@ const FixturesResults = ({
           </TableHeader>
           <TableBody>
             {fixturesForSelectedGameweek.map((fixture) => {
-              const { name: homeTeamName, id: homeTeamId } =
-                teamsArr[fixture.team_h - 1];
-              const { name: awayTeamName, id: awayTeamId } =
-                teamsArr[fixture.team_a - 1];
+              const { name: homeTeamName, id: homeTeamId } = teamsArr?.[
+                fixture?.team_h - 1
+              ] || { name: 'Unknown', id: 0 };
+              const { name: awayTeamName, id: awayTeamId } = teamsArr?.[
+                fixture?.team_a - 1
+              ] || { name: 'Unknown', id: 0 };
 
               const isStarted = fixture.started;
               const isFinished = fixture.finished;
