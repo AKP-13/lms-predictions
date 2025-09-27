@@ -152,6 +152,7 @@ export async function fetchTileData({
                 , CAST(SUM(CASE WHEN r.correct IS FALSE THEN 1 ELSE 0 END) AS NUMERIC) AS times_incorrect
             FROM results r
             WHERE user_id = ($1)
+                AND correct IS NOT NULL
             GROUP BY 1
             ORDER BY team_selected
         )
@@ -198,6 +199,7 @@ export async function fetchTileData({
             100 * SUM(CASE WHEN correct = TRUE THEN 1 ELSE 0 END) / COUNT(*) AS success_percentage
         FROM results
         WHERE user_id = ($1)
+            AND correct IS NOT NULL
         GROUP BY team_selected_location;
     `,
       [userId]
@@ -333,5 +335,35 @@ export async function fetchTileData({
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch card data.');
+  }
+}
+
+export async function fetchLeagueInfo({
+  userId
+}: {
+  userId?: string | undefined;
+}) {
+  try {
+    const leagueIdQuery = await sql.query<{ league_name: string | undefined }>(
+      `
+        SELECT
+            league_name
+        FROM leagues
+        WHERE id = (
+            SELECT
+                league_id
+            FROM user_leagues
+            WHERE user_id = ($1)
+        );
+      `,
+      [userId]
+    );
+
+    const leagueName = leagueIdQuery?.rows?.[0]?.league_name;
+
+    return leagueName;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch league info.');
   }
 }

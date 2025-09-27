@@ -1,3 +1,6 @@
+'use client';
+
+import { Dispatch, SetStateAction, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -6,36 +9,148 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import { Select } from '@/components/ui/select';
-import { auth } from '@/lib/auth';
 import { TeamsArr } from './page';
-import { Results } from '@/lib/definitions';
+import { FixturesData, Results } from '@/lib/definitions';
+import { Button } from '@/components/ui/button';
+import { Session } from 'next-auth';
 
-type Result = 'Win' | 'Draw';
+type Outcome = 'Win' | 'Draw';
 
 type Props = {
   results: Record<number, Results[]>;
   teamsArr: TeamsArr;
+  session: Session | null;
+  predictionWeekFixtures: FixturesData[];
+  setRefreshTrigger: Dispatch<SetStateAction<number>>;
 };
 
-const outcome: Result[] = ['Win', 'Draw'];
+const returnIsPastSubmissionDeadline = ({
+  predictionWeekFixtures
+}: {
+  predictionWeekFixtures: FixturesData[];
+}) => {
+  const currentDate = new Date().getTime();
 
-const Predictions = async ({ results, teamsArr }: Props) => {
-  const session = await auth();
+  if (predictionWeekFixtures.length === 0) {
+    return false;
+  }
 
+  const firstFixtureDate = predictionWeekFixtures[0]?.kickoff_time;
+  const submissionDeadlineTimestamp =
+    new Date(firstFixtureDate).getTime() - 12 * 60 * 60 * 1000; // 12 hours before first fixture
+
+  return currentDate > submissionDeadlineTimestamp;
+};
+
+const Predictions = ({
+  results,
+  teamsArr,
+  session,
+  predictionWeekFixtures,
+  setRefreshTrigger
+}: Props) => {
   // Find the latest gameweek by key (maximum number)
   const gameweekNumbers = Object.keys(results).map(Number);
   const latestGameweek = Math.max(...gameweekNumbers);
   const previousPicksArr =
     results[latestGameweek]?.map((val) => val?.team_selected) ?? [];
 
+  const isPastSubmissionDeadline = returnIsPastSubmissionDeadline({
+    predictionWeekFixtures
+  });
+
+  const isEliminated = results[latestGameweek]?.some(
+    (val) => val.correct === false
+  );
+
+  const isPending = results[latestGameweek]?.some(
+    (val) => val.correct === null
+  );
+
   const teams = teamsArr.map(({ name }) => name);
+  const outcomes: Outcome[] = ['Win', 'Draw'];
+
+  const [selectedTeam, setSelectedTeam] = useState<string>('Select');
+  const [selectedOutcome, setSelectedOutcome] = useState<Outcome | 'Select'>(
+    'Select'
+  );
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  const selectedTeamFixture = predictionWeekFixtures?.find(
+    (fixture) =>
+      fixture.team_a ===
+        teamsArr.find((team) => team.name === selectedTeam)?.id ||
+      fixture.team_h === teamsArr.find((team) => team.name === selectedTeam)?.id
+  );
+
+  const opposingTeamId =
+    selectedTeamFixture?.team_a ===
+    teamsArr.find((team) => team.name === selectedTeam)?.id
+      ? selectedTeamFixture?.team_h
+      : selectedTeamFixture?.team_a;
+
+  const opposingTeamName = teamsArr.find(
+    (team) => team.id === opposingTeamId
+  )?.name;
+
+  const selectedTeamLocation =
+    selectedTeamFixture?.team_a ===
+    teamsArr.find((team) => team.name === selectedTeam)?.id
+      ? 'Away'
+      : 'Home';
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+    try {
+      const res = await fetch('/api/predictions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          team_selected: selectedTeam,
+          team_opposing: opposingTeamName,
+          team_selected_location: selectedTeamLocation,
+          result_selected: selectedOutcome,
+          fpl_gw: selectedTeamFixture?.event,
+          round_number: previousPicksArr.length + 1
+        })
+      });
+      if (!res.ok) {
+        throw new Error(
+          `Failed to submit prediction. Please email it to ${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS} instead.`
+        );
+      }
+      setSuccess(true);
+      setSelectedTeam('Select');
+      setSelectedOutcome('Select');
+      setRefreshTrigger((prev) => prev + 1);
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <Card className="rounded-xl bg-white p-2 shadow-sm">
+    <Card className="rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto">
       <CardHeader>
-        <CardTitle>Predictions</CardTitle>
-        <CardDescription>
-          Make your prediction for this gameweek
+        <CardTitle>Prediction</CardTitle>
+        <CardDescription
+          className={isPastSubmissionDeadline ? 'text-red-500' : ''}
+        >
+          {isEliminated
+            ? 'You are unable to make a prediction as you have been eliminated.'
+            : isPending
+              ? 'Prediction submitted. Good luck!'
+              : isPastSubmissionDeadline
+                ? 'The submission deadline has passed for this gameweek.'
+                : 'Submit your prediction for this gameweek.'}
         </CardDescription>
       </CardHeader>
 
@@ -50,26 +165,88 @@ const Predictions = async ({ results, teamsArr }: Props) => {
             </a>
           </div>
         ) : (
-          <>
-            <div className="my-4">
-              <label htmlFor="team">Choose a team:</label>
-              <Select
-                name="team"
-                id="team"
-                options={teams}
-                disabledOptions={previousPicksArr}
-              />
+          <form className="flex flex-col" onSubmit={handleSubmit}>
+            <div className="flex">
+              <div className="my-4 mr-2 flex flex-col items-center w-full">
+                <label htmlFor="team">Team</label>
+                <Select
+                  name="team"
+                  id="team"
+                  options={['Select', ...teams]}
+                  disabledOptions={['Select', ...previousPicksArr]}
+                  style={{ width: '100%' }}
+                  value={selectedTeam}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                    setSelectedTeam(e.target.value);
+                    setError(null);
+                  }}
+                  disabled={
+                    isEliminated || isPending || isPastSubmissionDeadline
+                  }
+                />
+              </div>
+
+              <div className="my-4 ml-2 flex flex-col items-center w-full">
+                <label htmlFor="outcome">Outcome</label>
+                <Select
+                  name="outcome"
+                  id="outcome"
+                  options={['Select', ...outcomes]}
+                  style={{ width: '100%' }}
+                  value={selectedOutcome}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                    setSelectedOutcome(e.target.value as Outcome);
+                    setError(null);
+                  }}
+                  disabledOptions={['Select']}
+                  disabled={
+                    isEliminated || isPending || isPastSubmissionDeadline
+                  }
+                />
+              </div>
             </div>
 
-            <div className="my-4">
-              <label htmlFor="result">Choose a result:</label>
-              <Select name="result" id="result" options={outcome} />
-            </div>
-
-            <button type="submit" disabled style={{ color: 'gray' }}>
-              Submit
-            </button>
-          </>
+            {selectedTeam !== 'Select' && selectedOutcome !== 'Select' && (
+              <div className="my-2">
+                Are you sure you want to predict a
+                {['a', 'e', 'i', 'o', 'u'].includes(
+                  selectedTeam[0].toLowerCase()
+                )
+                  ? 'n'
+                  : ''}{' '}
+                <strong>
+                  {selectedTeam} {selectedOutcome.toLowerCase()} vs{' '}
+                  {opposingTeamName}
+                  {selectedTeamLocation === 'Home' ? ' at home' : ' away'}?
+                </strong>{' '}
+                If this doesn't look right, please email your prediction{' '}
+                <a
+                  href={`mailto:${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS}?subject=Last%20Player%20Standing%20Prediction%20Week%20${selectedTeamFixture ? selectedTeamFixture.event : 'Undefined'}&body=My%20prediction%20this%20week%20is...`}
+                  style={{ color: 'blue', textDecoration: 'underline' }}
+                >
+                  here
+                </a>
+                .
+              </div>
+            )}
+            <Button
+              type="submit"
+              disabled={
+                loading ||
+                selectedTeam === 'Select' ||
+                selectedOutcome === 'Select' ||
+                isEliminated ||
+                isPending ||
+                isPastSubmissionDeadline
+              }
+            >
+              {loading ? 'Submitting...' : 'Submit'}
+            </Button>
+            {error && <div className="text-red-500 mt-2">{error}</div>}
+            {success && (
+              <div className="text-green-500 mt-2">Prediction submitted!</div>
+            )}
+          </form>
         )}
       </CardContent>
     </Card>

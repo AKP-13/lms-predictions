@@ -1,4 +1,4 @@
-import { fetchTileData } from '@/lib/data';
+import useTileData from 'app/hooks/useTileData';
 import {
   ArrowUpWideNarrowIcon,
   AngryIcon,
@@ -6,10 +6,10 @@ import {
   BadgeXIcon,
   Hash,
   HouseIcon,
+  Loader,
   SignpostIcon,
   ThumbsDownIcon
 } from 'lucide-react';
-import { auth } from '@/lib/auth';
 
 const iconMap = {
   gamesPlayed: Hash,
@@ -19,72 +19,131 @@ const iconMap = {
   bogeyTeam: AngryIcon,
   homeSuccess: HouseIcon,
   awaySuccess: SignpostIcon,
-  bogeyRound: ThumbsDownIcon
+  bogeyRound: ThumbsDownIcon,
+  loading: Loader
 };
 
-export default async function TileWrapper() {
-  const session = await auth();
-
+export default function TileWrapper({
+  refreshTrigger
+}: {
+  refreshTrigger: number;
+}) {
   const {
-    gamesPlayed,
-    bogeyRoundNumber,
-    mostSelected,
-    mostSuccessful,
-    leastSuccessful,
-    bogeyTeam,
-    homeSuccess,
-    awaySuccess
-  } = await fetchTileData({ userId: session?.user?.id });
+    data: {
+      gamesPlayed,
+      bogeyRoundNumber,
+      mostSelected,
+      mostSuccessful,
+      leastSuccessful,
+      bogeyTeam,
+      homeSuccess,
+      awaySuccess
+    },
+    isLoading
+  } = useTileData({ refreshTrigger });
 
-  return (
+  return gamesPlayed.value === 0 ? (
+    <div className="grid gap-6 grid-cols-4">
+      <Tile
+        caption="Insufficient data"
+        title="Games Played"
+        type="gamesPlayed"
+        value={isLoading ? '...' : gamesPlayed.value}
+        isLoading={isLoading}
+      />
+      <Tile
+        caption="Insufficient data"
+        title="Most picked team"
+        type="mostSelected"
+        value={isLoading ? '...' : mostSelected.value}
+        isLoading={isLoading}
+      />
+      <Tile
+        caption="Insufficient data"
+        title="Bogey Round"
+        type="bogeyRound"
+        value={isLoading ? '...' : bogeyRoundNumber.value}
+        isLoading={isLoading}
+      />
+      <Tile
+        caption="Insufficient data"
+        title="Bogey Team"
+        type="bogeyTeam"
+        value={isLoading ? '...' : bogeyTeam.value}
+        isLoading={isLoading}
+      />
+    </div>
+  ) : (
     <div className="grid gap-6 grid-cols-4">
       <Tile
         caption={gamesPlayed.caption}
         title="Games Played"
         type="gamesPlayed"
-        value={gamesPlayed.value}
+        value={isLoading ? '...' : gamesPlayed.value}
+        variant="success"
+        isLoading={isLoading}
       />
       <Tile
         caption={bogeyRoundNumber.caption}
         title="Bogey Round"
         type="bogeyRound"
-        value={bogeyRoundNumber.value}
+        value={isLoading ? '...' : bogeyRoundNumber.value}
+        variant={
+          bogeyRoundNumber.caption === 'Yet to be knocked out!'
+            ? 'success'
+            : 'error'
+        }
+        isLoading={isLoading}
       />
       <Tile
         caption={mostSelected.caption}
         title="Most picked team"
         type="mostSelected"
-        value={mostSelected.value}
+        value={isLoading ? '...' : mostSelected.value}
+        variant="success"
+        isLoading={isLoading}
       />
       <Tile
         caption={mostSuccessful.caption}
         title="Most Successful Pick"
         type="mostSuccessful"
-        value={mostSuccessful.value}
+        value={isLoading ? '...' : mostSuccessful.value}
+        variant="success"
+        isLoading={isLoading}
       />
       <Tile
         caption={leastSuccessful.caption}
         title="Least Successful Pick"
         type="leastSuccessful"
-        value={leastSuccessful.value}
+        value={isLoading ? '...' : leastSuccessful.value}
+        variant="error"
+        isLoading={isLoading}
       />
       <Tile
         caption={bogeyTeam.caption}
         title="Bogey Team"
         type="bogeyTeam"
-        value={bogeyTeam.value}
+        value={isLoading ? '...' : bogeyTeam.value}
+        variant={
+          bogeyTeam.caption === 'Yet to be knocked out!' ? 'success' : 'error'
+        }
+        isLoading={isLoading}
       />
       <Tile
         caption={homeSuccess.caption}
         title="Home Pick Success"
         type="homeSuccess"
-        value={homeSuccess.value}
+        value={isLoading ? '...' : homeSuccess.value}
+        variant={homeSuccess.value === 'N/A' ? 'error' : 'success'}
+        isLoading={isLoading}
       />
       <Tile
         caption={awaySuccess.caption}
         title="Away Pick Success"
         type="awaySuccess"
-        value={awaySuccess.value}
+        value={isLoading ? '...' : awaySuccess.value}
+        variant={awaySuccess.value === 'N/A' ? 'error' : 'success'}
+        isLoading={isLoading}
       />
     </div>
   );
@@ -92,11 +151,14 @@ export default async function TileWrapper() {
 
 export function Tile({
   caption,
+  isLoading,
   title,
   type,
-  value
+  value,
+  variant = 'default'
 }: {
   caption?: string;
+  isLoading: boolean;
   title: string;
   type:
     | 'gamesPlayed'
@@ -108,18 +170,20 @@ export function Tile({
     | 'awaySuccess'
     | 'bogeyRound';
   value: number | string;
+  variant?: 'success' | 'error' | 'default';
 }) {
-  const Icon = iconMap[type];
+  const Icon = iconMap[isLoading ? 'loading' : type];
 
-  const valueCol =
-    type === 'bogeyRound' ||
-    type === 'leastSuccessful' ||
-    type === 'bogeyTeam' ||
-    type === 'awaySuccess'
+  const color =
+    variant === 'error'
       ? 'text-red-400'
-      : 'text-green-400';
+      : variant === 'success'
+        ? 'text-green-400'
+        : 'text-gray-400';
 
-  return (
+  return isLoading ? (
+    <SkeletonTile />
+  ) : (
     <div className="rounded-xl bg-white p-2 shadow-sm grid col-span-2 md:col-span-1">
       <div className="flex p-4">
         {Icon ? <Icon className={`h-5 w-5 text-blue-300`} /> : null}
@@ -130,7 +194,7 @@ export function Tile({
       </p>
       {caption && (
         <p
-          className={`truncate rounded-xl px-4 py-4 text-center text-small italic ${valueCol}`}
+          className={`truncate rounded-xl px-4 py-4 text-center text-small italic ${color}`}
         >
           {caption}
         </p>
@@ -138,3 +202,17 @@ export function Tile({
     </div>
   );
 }
+
+const SkeletonTile = () => {
+  const Icon = iconMap['loading'];
+  return (
+    <div className="rounded-xl bg-white p-2 shadow-sm grid col-span-2 md:col-span-1 animate-pulse">
+      <div className="flex p-4">
+        <Icon className={`h-5 w-5 text-blue-300 animate-spin`} />
+        <div className="ml-2 h-4 w-24 bg-gray-300 rounded" />
+      </div>
+      <div className="h-8 w-3/4 bg-gray-300 rounded mx-auto my-2" />
+      <div className="h-4 w-1/2 bg-gray-200 rounded mx-auto my-2" />
+    </div>
+  );
+};

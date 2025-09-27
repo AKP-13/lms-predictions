@@ -1,12 +1,10 @@
-// import { Suspense } from "react";
-// import { CardsSkeleton } from "@/app/ui/skeletons";
-import { PartyPopper } from 'lucide-react';
+'use client';
+
+import { useState } from 'react';
 import TileWrapper from '@/components/ui/tiles';
-import { Metadata } from 'next';
 import CurrentGameResults from './current-game-results';
 import FixturesResults from './fixtures-results';
 import Predictions from './predictions';
-import { fetchResultsData } from '@/lib/data';
 import {
   Card,
   CardContent,
@@ -24,9 +22,13 @@ import {
   TeamName,
   TeamScore
 } from '@/components/ui/table';
-import { auth } from '@/lib/auth';
 import { MIN_GW } from '@/lib/constants';
 import { FPLTeamName } from '@/lib/definitions';
+import { useSession } from 'next-auth/react';
+import useResults from 'app/hooks/useResults';
+import useFixtures from 'app/hooks/useFixtures';
+import useFplData from 'app/hooks/useFplData';
+import useLeagueInfo from 'app/hooks/useLeagueInfo';
 
 export type TeamsArr = {
   id: number;
@@ -34,150 +36,76 @@ export type TeamsArr = {
   short_name: string;
 }[];
 
-export const metadata: Metadata = {
-  title: 'Dashboard'
-};
+const Page = () => {
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-type FormattedData = {
-  chips: any;
-  element_stats: any;
-  element_types: any;
-  elements: any;
-  events: {
-    id: number;
-    name: string;
-    deadline_time: string;
-    release_time: null;
-    average_entry_score: number;
-    finished: boolean;
-    data_checked: boolean;
-    highest_scoring_entry: number;
-    deadline_time_epoch: number;
-    deadline_time_game_offset: 0;
-    highest_score: number;
-    is_previous: boolean;
-    is_current: boolean;
-    is_next: boolean;
-    cup_leagues_created: boolean;
-    h2h_ko_matches_created: boolean;
-    can_enter: boolean;
-    can_manage: boolean;
-    released: boolean;
-    ranked_count: number;
-    overrides: {
-      rules: {};
-      scoring: {};
-      element_types: [];
-      pick_multiplier: null;
-    };
-    chip_plays: [
-      {
-        chip_name: 'bboost';
-        num_played: number;
-      },
-      {
-        chip_name: '3xc';
-        num_played: number;
-      }
-    ];
-    most_selected: number;
-    most_transferred_in: number;
-    top_element: number;
-    top_element_info: {
-      id: number;
-      points: number;
-    };
-    transfers_made: number;
-    most_captained: number;
-    most_vice_captained: number;
-  }[];
-  game_config: any;
-  game_settings: any;
-  phases: any;
-  teams: {
-    code: number;
-    draw: number;
-    form: any;
-    id: number;
-    loss: number;
-    name: FPLTeamName;
-    played: number;
-    points: number;
-    position: number;
-    pulse_id: number;
-    short_name: string;
-    strength: number;
-    strength_attack_away: number;
-    strength_attack_home: number;
-    strength_defence_away: number;
-    strength_defence_home: number;
-    strength_overall_away: number;
-    strength_overall_home: number;
-    team_division: null;
-    unavailable: boolean;
-    win: number;
-  }[];
-  total_players: any;
-};
+  const { data: session } = useSession();
+  const { results, isLoadingResults } = useResults({ refreshTrigger });
 
-export default async function Page() {
-  const session = await auth();
-  const results = await fetchResultsData({ userId: session?.user?.id });
+  const { fixtures, isLoadingFixtures } = useFixtures();
+  const { fplData, isLoadingFplData } = useFplData();
+  const { leagueName, isLoadingLeagueName } = useLeagueInfo();
 
-  const fixturesData = await fetch(
-    'https://fantasy.premierleague.com/api/fixtures'
+  const currentGwNumber = fplData
+    ? fplData.events.find((obj) => obj.is_current === true)?.id || MIN_GW
+    : MIN_GW;
+
+  const predictionWeekFixtures = fixtures?.filter(
+    (fixture) => fixture.event === currentGwNumber + 1
   );
 
-  const fixtures = await fixturesData.json();
+  const teamsArr: TeamsArr = fplData
+    ? fplData.teams.map(({ id, name, short_name }) => ({
+        id,
+        name,
+        short_name
+      }))
+    : [];
 
-  const overallData = await fetch(
-    'https://fantasy.premierleague.com/api/bootstrap-static/',
-    {
-      cache: 'no-store',
-      next: { revalidate: 0 }
-    }
-  );
-
-  const formattedData: FormattedData = await overallData.json();
-
-  const currentGwNumber =
-    formattedData.events.find((obj) => obj.is_current === true)?.id || MIN_GW;
-
-  const teamsArr: TeamsArr = formattedData.teams.map((team) => ({
-    id: team.id,
-    name: team.name,
-    short_name: team.short_name
-  }));
-
-  const maxGameWeeks = Array.isArray(Object.values(results))
-    ? Object.values(results).reduce(
-        (maxLength, currentArray) => Math.max(maxLength, currentArray.length),
-        0
-      )
-    : 1;
+  const maxGameWeeks = isLoadingResults
+    ? 1
+    : Array.isArray(Object.values(results))
+      ? Object.values(results).reduce(
+          (maxLength, currentArray) => Math.max(maxLength, currentArray.length),
+          0
+        )
+      : 1;
 
   return (
     <main>
       <div className="rounded-xl bg-gray-300 p-4 shadow-sm grid col-span-2 md:col-span-1 my-4">
         <h1 className="text-4xl font-bold text-center mb-2 flex items-center justify-center gap-2">
-          LMSIQ
+          LPSIQ
         </h1>
 
         <p className="rounded-xl px-4 py-4 text-center text-xl font-light italic">
-          The all-in-one LMS tool that allows you to{' '}
-          <strong className="font-bold">submit LMS predictions</strong>,{' '}
+          <strong className="font-bold">Submit predictions</strong>,{' '}
           <strong className="font-bold">plan picks</strong>,{' '}
           <strong className="font-bold">view results</strong>, and{' '}
           <strong className="font-bold">analyse performance</strong>.
         </p>
       </div>
-      {/* <Suspense fallback={<CardsSkeleton />}> */}
 
-      {session === null ? '' : <TileWrapper />}
+      {session === null ? '' : <TileWrapper refreshTrigger={refreshTrigger} />}
 
-      {/* </Suspense> */}
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-4">
+        <div className="my-8 md:mr-3 w-full md:my-0 grid md:col-span-3">
+          <CurrentGameResults
+            refreshTrigger={refreshTrigger}
+            leagueName={leagueName}
+          />
+        </div>
 
-      <CurrentGameResults />
+        <div className="my-8 w-full md:my-0 md:col-span-1">
+          <Predictions
+            session={session}
+            teamsArr={teamsArr}
+            results={results}
+            predictionWeekFixtures={predictionWeekFixtures}
+            setRefreshTrigger={setRefreshTrigger}
+          />
+        </div>
+      </div>
 
       <div className="block md:flex">
         <div className="my-8 md:mr-3 w-full md:my-0">
@@ -185,11 +113,8 @@ export default async function Page() {
             fixtures={fixtures}
             currentGwNumber={currentGwNumber}
             teamsArr={teamsArr}
+            isLoading={isLoadingFixtures}
           />
-        </div>
-
-        <div className="my-8 md:ml-3 w-full md:my-0">
-          <Predictions teamsArr={teamsArr} results={results} />
         </div>
       </div>
 
@@ -265,4 +190,6 @@ export default async function Page() {
       </Card>
     </main>
   );
-}
+};
+
+export default Page;
