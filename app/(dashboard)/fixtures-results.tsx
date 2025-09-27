@@ -16,10 +16,12 @@ import { TeamsArr } from './page';
 import { MAX_GW, MIN_GW } from '@/lib/constants';
 
 const FixturesResults = ({
+  isLoading,
   fixtures,
   currentGwNumber,
   teamsArr
 }: {
+  isLoading: boolean;
   fixtures: FixturesData[] | 'The game is being updated';
   currentGwNumber: number;
   teamsArr: TeamsArr;
@@ -31,7 +33,9 @@ const FixturesResults = ({
     : [];
 
   return (
-    <Card className="rounded-xl bg-white p-2 shadow-sm ">
+    <Card
+      className={`rounded-xl bg-white p-2 shadow-sm ${isLoading ? 'animate-pulse' : ''}`}
+    >
       <CardHeader>
         <CardTitle>Fixtures</CardTitle>
       </CardHeader>

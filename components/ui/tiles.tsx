@@ -6,6 +6,7 @@ import {
   BadgeXIcon,
   Hash,
   HouseIcon,
+  Loader,
   SignpostIcon,
   ThumbsDownIcon
 } from 'lucide-react';
@@ -18,7 +19,8 @@ const iconMap = {
   bogeyTeam: AngryIcon,
   homeSuccess: HouseIcon,
   awaySuccess: SignpostIcon,
-  bogeyRound: ThumbsDownIcon
+  bogeyRound: ThumbsDownIcon,
+  loading: Loader
 };
 
 export default function TileWrapper({
@@ -47,24 +49,28 @@ export default function TileWrapper({
         title="Games Played"
         type="gamesPlayed"
         value={isLoading ? '...' : gamesPlayed.value}
+        isLoading={isLoading}
       />
       <Tile
         caption="Insufficient data"
         title="Most picked team"
         type="mostSelected"
         value={isLoading ? '...' : mostSelected.value}
+        isLoading={isLoading}
       />
       <Tile
         caption="Insufficient data"
         title="Bogey Round"
         type="bogeyRound"
         value={isLoading ? '...' : bogeyRoundNumber.value}
+        isLoading={isLoading}
       />
       <Tile
         caption="Insufficient data"
         title="Bogey Team"
         type="bogeyTeam"
         value={isLoading ? '...' : bogeyTeam.value}
+        isLoading={isLoading}
       />
     </div>
   ) : (
@@ -75,6 +81,7 @@ export default function TileWrapper({
         type="gamesPlayed"
         value={isLoading ? '...' : gamesPlayed.value}
         variant="success"
+        isLoading={isLoading}
       />
       <Tile
         caption={bogeyRoundNumber.caption}
@@ -86,6 +93,7 @@ export default function TileWrapper({
             ? 'success'
             : 'error'
         }
+        isLoading={isLoading}
       />
       <Tile
         caption={mostSelected.caption}
@@ -93,6 +101,7 @@ export default function TileWrapper({
         type="mostSelected"
         value={isLoading ? '...' : mostSelected.value}
         variant="success"
+        isLoading={isLoading}
       />
       <Tile
         caption={mostSuccessful.caption}
@@ -100,6 +109,7 @@ export default function TileWrapper({
         type="mostSuccessful"
         value={isLoading ? '...' : mostSuccessful.value}
         variant="success"
+        isLoading={isLoading}
       />
       <Tile
         caption={leastSuccessful.caption}
@@ -107,6 +117,7 @@ export default function TileWrapper({
         type="leastSuccessful"
         value={isLoading ? '...' : leastSuccessful.value}
         variant="error"
+        isLoading={isLoading}
       />
       <Tile
         caption={bogeyTeam.caption}
@@ -116,6 +127,7 @@ export default function TileWrapper({
         variant={
           bogeyTeam.caption === 'Yet to be knocked out!' ? 'success' : 'error'
         }
+        isLoading={isLoading}
       />
       <Tile
         caption={homeSuccess.caption}
@@ -123,6 +135,7 @@ export default function TileWrapper({
         type="homeSuccess"
         value={isLoading ? '...' : homeSuccess.value}
         variant={homeSuccess.value === 'N/A' ? 'error' : 'success'}
+        isLoading={isLoading}
       />
       <Tile
         caption={awaySuccess.caption}
@@ -130,6 +143,7 @@ export default function TileWrapper({
         type="awaySuccess"
         value={isLoading ? '...' : awaySuccess.value}
         variant={awaySuccess.value === 'N/A' ? 'error' : 'success'}
+        isLoading={isLoading}
       />
     </div>
   );
@@ -137,12 +151,14 @@ export default function TileWrapper({
 
 export function Tile({
   caption,
+  isLoading,
   title,
   type,
   value,
   variant = 'default'
 }: {
   caption?: string;
+  isLoading: boolean;
   title: string;
   type:
     | 'gamesPlayed'
@@ -156,7 +172,7 @@ export function Tile({
   value: number | string;
   variant?: 'success' | 'error' | 'default';
 }) {
-  const Icon = iconMap[type];
+  const Icon = iconMap[isLoading ? 'loading' : type];
 
   const color =
     variant === 'error'
@@ -165,7 +181,9 @@ export function Tile({
         ? 'text-green-400'
         : 'text-gray-400';
 
-  return (
+  return isLoading ? (
+    <SkeletonTile />
+  ) : (
     <div className="rounded-xl bg-white p-2 shadow-sm grid col-span-2 md:col-span-1">
       <div className="flex p-4">
         {Icon ? <Icon className={`h-5 w-5 text-blue-300`} /> : null}
@@ -184,3 +202,17 @@ export function Tile({
     </div>
   );
 }
+
+const SkeletonTile = () => {
+  const Icon = iconMap['loading'];
+  return (
+    <div className="rounded-xl bg-white p-2 shadow-sm grid col-span-2 md:col-span-1 animate-pulse">
+      <div className="flex p-4">
+        <Icon className={`h-5 w-5 text-blue-300 animate-spin`} />
+        <div className="ml-2 h-4 w-24 bg-gray-300 rounded" />
+      </div>
+      <div className="h-8 w-3/4 bg-gray-300 rounded mx-auto my-2" />
+      <div className="h-4 w-1/2 bg-gray-200 rounded mx-auto my-2" />
+    </div>
+  );
+};

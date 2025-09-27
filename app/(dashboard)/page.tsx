@@ -113,6 +113,7 @@ const Page = () => {
             fixtures={fixtures}
             currentGwNumber={currentGwNumber}
             teamsArr={teamsArr}
+            isLoading={isLoadingFixtures}
           />
         </div>
       </div>
