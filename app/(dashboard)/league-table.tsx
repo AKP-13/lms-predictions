@@ -148,9 +148,7 @@ const buildLeagueTable = (
   // Sort by points, then goal difference, then goals scored
   tableArr.sort((a, b) => {
     if (b.points !== a.points) return b.points - a.points;
-    const gdA = a.goalsScored - a.goalsConceded;
-    const gdB = b.goalsScored - b.goalsConceded;
-    if (gdB !== gdA) return gdB - gdA;
+    if (b.goalDiff !== a.goalDiff) return b.goalDiff - a.goalDiff;
     return b.goalsScored - a.goalsScored;
   });
 
