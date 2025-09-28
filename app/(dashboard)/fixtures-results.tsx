@@ -119,7 +119,8 @@ const FixturesResults = ({
                 ] || { name: 'Unknown', id: 0 };
 
                 const isStarted = fixture.started;
-                const isFinished = fixture.finished;
+                const isFinished =
+                  fixture.finished || fixture.finished_provisional;
 
                 return (
                   <TableRow

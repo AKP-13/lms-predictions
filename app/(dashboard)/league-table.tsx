@@ -90,7 +90,7 @@ const buildLeagueTable = (
   });
 
   fixtures.forEach((fixture) => {
-    if (!fixture.finished) return;
+    if (!fixture.finished && !fixture.finished_provisional) return;
 
     const home = table[fixture.team_h];
     const away = table[fixture.team_a];
