@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/table';
 import { FixturesData, FPLTeamName } from '@/lib/definitions';
 import { TeamsArr } from './page';
-import { CircleCheck, CircleMinus, CircleX } from 'lucide-react';
+import { CircleCheck, CircleMinus, CircleX, Loader } from 'lucide-react';
 
 type LeagueTableRow = {
   position: number;
@@ -136,17 +136,22 @@ const buildLeagueTable = (
 
 const LeagueTable = ({
   fixtures,
+  isLoading,
   teamsArr
 }: {
   fixtures: FixturesData[];
+  isLoading: boolean;
   teamsArr: TeamsArr;
 }) => {
   const leagueTable = buildLeagueTable(fixtures, teamsArr);
 
   return (
-    <Card className="rounded-xl bg-white p-2 shadow-sm">
-      <CardHeader>
+    <Card
+      className={`rounded-xl bg-white p-2 shadow-sm ${isLoading ? 'animate-pulse' : ''}`}
+    >
+      <CardHeader className="flex flex-row items-center">
         <CardTitle>League Table</CardTitle>
+        {isLoading && <Loader className="animate-spin mx-2" />}
       </CardHeader>
 
       <CardContent>
@@ -207,114 +212,181 @@ const LeagueTable = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {leagueTable.map((row) => (
-              <TableRow
-                key={row.teamName}
-                className="border-b border-gray-100 last:border-0"
-              >
-                <TableCell
-                  className={`text-center px-1 py-1 md:p-4 ${row.position === 1 ? 'bg-blue-400' : row.position <= 4 ? 'bg-blue-200' : row.position === 5 ? 'bg-orange-200' : row.position >= 18 ? 'bg-red-200' : ''}`}
-                >
-                  {row.position}
-                </TableCell>
-                <TableCell className="table-cell md:hidden text-center px-1 py-1 md:p-4">
-                  {row.teamNameShort}
-                </TableCell>
-                <TableCell className="hidden md:table-cell text-center px-1 py-1 md:p-4">
-                  {row.teamName}
-                </TableCell>
-                <TableCell className="text-center px-1 py-1 md:p-4">
-                  {row.matchesPlayed}
-                </TableCell>
-                <TableCell className="text-center px-1 py-1 md:p-4">
-                  {row.wins}
-                </TableCell>
-                <TableCell className="text-center px-1 py-1 md:p-4">
-                  {row.draws}
-                </TableCell>
-                <TableCell className="text-center px-1 py-1 md:p-4">
-                  {row.losses}
-                </TableCell>
-                <TableCell className="text-center px-1 py-1 md:p-4">
-                  {row.goalsScored}
-                </TableCell>
-                <TableCell className="text-center px-1 py-1 md:p-4">
-                  {row.goalsConceded}
-                </TableCell>
-                <TableCell className="text-center px-1 py-1 md:p-4">
-                  {row.goalsScored - row.goalsConceded}
-                </TableCell>
-                <TableCell className="text-center px-1 py-1 md:p-4">
-                  {row.points}
-                </TableCell>
-                <TableCell className="text-center px-1 py-1 md:p-4">
-                  <div
-                    style={{
-                      display: 'flex',
-                      gap: 6,
-                      justifyContent: 'center'
-                    }}
+            {isLoading
+              ? Array.from({ length: 20 }).map((_, idx) => (
+                  <TableRow
+                    key={idx}
+                    className="border-b border-gray-100 last:border-0 animate-pulse"
                   >
-                    {row.form.map((result, idx) => {
-                      const color =
-                        result === 'W'
-                          ? '#4CAF50'
-                          : result === 'D'
-                            ? '#B0B0B0'
-                            : '#F44336';
-                      const isMostRecent = idx === row.form.length - 1;
-                      const icon =
-                        result === 'W' ? (
-                          <CircleCheck
-                            color={color}
-                            size={20}
-                            strokeWidth={0.75}
+                    {/* Position */}
+                    <TableCell className="text-center px-1 py-1 md:p-4">
+                      <div className="h-5 w-5 mx-auto rounded bg-gray-200 shimmer" />
+                    </TableCell>
+                    {/* Team Short (mobile) */}
+                    <TableCell className="table-cell md:hidden text-center px-1 py-1 md:p-4">
+                      <div className="h-5 w-10 mx-auto rounded bg-gray-200 shimmer" />
+                    </TableCell>
+                    {/* Team Name (desktop) */}
+                    <TableCell className="hidden md:table-cell text-center px-1 py-1 md:p-4">
+                      <div className="h-5 w-24 mx-auto rounded bg-gray-200 shimmer" />
+                    </TableCell>
+                    {/* Played */}
+                    <TableCell className="text-center px-1 py-1 md:p-4">
+                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 shimmer" />
+                    </TableCell>
+                    {/* Won */}
+                    <TableCell className="text-center px-1 py-1 md:p-4">
+                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 shimmer" />
+                    </TableCell>
+                    {/* Drawn */}
+                    <TableCell className="text-center px-1 py-1 md:p-4">
+                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 shimmer" />
+                    </TableCell>
+                    {/* Lost */}
+                    <TableCell className="text-center px-1 py-1 md:p-4">
+                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 shimmer" />
+                    </TableCell>
+                    {/* Scored */}
+                    <TableCell className="text-center px-1 py-1 md:p-4">
+                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 shimmer" />
+                    </TableCell>
+                    {/* Conceded */}
+                    <TableCell className="text-center px-1 py-1 md:p-4">
+                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 shimmer" />
+                    </TableCell>
+                    {/* Goal Diff */}
+                    <TableCell className="text-center px-1 py-1 md:p-4">
+                      <div className="h-5 w-10 mx-auto rounded bg-gray-200 shimmer" />
+                    </TableCell>
+                    {/* Points */}
+                    <TableCell className="text-center px-1 py-1 md:p-4">
+                      <div className="h-5 w-10 mx-auto rounded bg-gray-200 shimmer" />
+                    </TableCell>
+                    {/* Form */}
+                    <TableCell className="text-center px-1 py-1 md:p-4">
+                      <div className="flex gap-1 justify-center">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <div
+                            key={i}
+                            className="h-5 w-5 rounded-full bg-gray-200 shimmer"
                           />
-                        ) : result === 'D' ? (
-                          <CircleMinus
-                            color={color}
-                            size={20}
-                            strokeWidth={0.75}
-                          />
-                        ) : (
-                          <CircleX color={color} size={20} strokeWidth={1} />
-                        );
-                      return isMostRecent ? (
-                        <span
-                          key={idx}
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: 20,
-                            height: 20,
-                            borderRadius: '50%',
-                            border: `1px solid ${color}`,
-                            boxSizing: 'border-box',
-                            background: '#fff'
-                          }}
-                        >
-                          {icon}
-                        </span>
-                      ) : (
-                        <span
-                          key={idx}
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: 20,
-                            height: 20
-                          }}
-                        >
-                          {icon}
-                        </span>
-                      );
-                    })}
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+                        ))}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              : leagueTable.map((row) => (
+                  <TableRow
+                    key={row.teamName}
+                    className="border-b border-gray-100 last:border-0"
+                  >
+                    <TableCell
+                      className={`text-center px-1 py-1 md:p-4 ${row.position === 1 ? 'bg-blue-400' : row.position <= 4 ? 'bg-blue-200' : row.position === 5 ? 'bg-orange-200' : row.position >= 18 ? 'bg-red-200' : ''}`}
+                    >
+                      {row.position}
+                    </TableCell>
+                    <TableCell className="table-cell md:hidden text-center px-1 py-1 md:p-4">
+                      {row.teamNameShort}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell text-center px-1 py-1 md:p-4">
+                      {row.teamName}
+                    </TableCell>
+                    <TableCell className="text-center px-1 py-1 md:p-4">
+                      {row.matchesPlayed}
+                    </TableCell>
+                    <TableCell className="text-center px-1 py-1 md:p-4">
+                      {row.wins}
+                    </TableCell>
+                    <TableCell className="text-center px-1 py-1 md:p-4">
+                      {row.draws}
+                    </TableCell>
+                    <TableCell className="text-center px-1 py-1 md:p-4">
+                      {row.losses}
+                    </TableCell>
+                    <TableCell className="text-center px-1 py-1 md:p-4">
+                      {row.goalsScored}
+                    </TableCell>
+                    <TableCell className="text-center px-1 py-1 md:p-4">
+                      {row.goalsConceded}
+                    </TableCell>
+                    <TableCell className="text-center px-1 py-1 md:p-4">
+                      {row.goalsScored - row.goalsConceded}
+                    </TableCell>
+                    <TableCell className="text-center px-1 py-1 md:p-4">
+                      {row.points}
+                    </TableCell>
+                    <TableCell className="text-center px-1 py-1 md:p-4">
+                      <div
+                        style={{
+                          display: 'flex',
+                          gap: 6,
+                          justifyContent: 'center'
+                        }}
+                      >
+                        {row.form.map((result, idx) => {
+                          const color =
+                            result === 'W'
+                              ? '#4CAF50'
+                              : result === 'D'
+                                ? '#B0B0B0'
+                                : '#F44336';
+                          const isMostRecent = idx === row.form.length - 1;
+                          const icon =
+                            result === 'W' ? (
+                              <CircleCheck
+                                color={color}
+                                size={20}
+                                strokeWidth={0.75}
+                              />
+                            ) : result === 'D' ? (
+                              <CircleMinus
+                                color={color}
+                                size={20}
+                                strokeWidth={0.75}
+                              />
+                            ) : (
+                              <CircleX
+                                color={color}
+                                size={20}
+                                strokeWidth={1}
+                              />
+                            );
+                          return isMostRecent ? (
+                            <span
+                              key={idx}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: 20,
+                                height: 20,
+                                borderRadius: '50%',
+                                border: `1px solid ${color}`,
+                                boxSizing: 'border-box',
+                                background: '#fff'
+                              }}
+                            >
+                              {icon}
+                            </span>
+                          ) : (
+                            <span
+                              key={idx}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: 20,
+                                height: 20
+                              }}
+                            >
+                              {icon}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
           </TableBody>
         </Table>
       </CardContent>

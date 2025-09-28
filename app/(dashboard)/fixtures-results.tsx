@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
+import { Loader } from 'lucide-react';
 import { FixturesData } from '@/lib/definitions';
 import { TeamForm } from '@/components/TeamForm';
 import { TeamsArr } from './page';
@@ -36,8 +37,9 @@ const FixturesResults = ({
     <Card
       className={`rounded-xl bg-white p-2 shadow-sm ${isLoading ? 'animate-pulse' : ''} h-fit`}
     >
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center">
         <CardTitle>Fixtures</CardTitle>
+        {isLoading && <Loader className="animate-spin mx-2" />}
       </CardHeader>
 
       <CardContent>

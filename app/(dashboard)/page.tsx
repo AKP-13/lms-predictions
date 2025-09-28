@@ -119,7 +119,11 @@ const Page = () => {
         </div>
 
         <div className="my-8 w-full md:my-0 md:col-span-2">
-          <LeagueTable fixtures={fixtures} teamsArr={teamsArr} />
+          <LeagueTable
+            fixtures={fixtures}
+            isLoading={isLoadingFixtures}
+            teamsArr={teamsArr}
+          />
         </div>
       </div>
 
