@@ -179,7 +179,19 @@ const LeagueTable = ({
                 L
               </TableHead>
               <TableHead className="hidden md:table-cell text-center px-2 py-1">
-                Goal Difference
+                Scored
+              </TableHead>
+              <TableHead className="table-cell md:hidden text-center px-1 py-1">
+                GF
+              </TableHead>
+              <TableHead className="hidden md:table-cell text-center px-2 py-1">
+                Conceded
+              </TableHead>
+              <TableHead className="table-cell md:hidden text-center px-1 py-1">
+                GA
+              </TableHead>
+              <TableHead className="hidden md:table-cell text-center px-2 py-1">
+                Goal Diff.
               </TableHead>
               <TableHead className="table-cell md:hidden text-center px-1 py-1">
                 GD
@@ -216,6 +228,12 @@ const LeagueTable = ({
                 </TableCell>
                 <TableCell className="text-center px-1 py-1 md:p-4">
                   {row.losses}
+                </TableCell>
+                <TableCell className="text-center px-1 py-1 md:p-4">
+                  {row.goalsScored}
+                </TableCell>
+                <TableCell className="text-center px-1 py-1 md:p-4">
+                  {row.goalsConceded}
                 </TableCell>
                 <TableCell className="text-center px-1 py-1 md:p-4">
                   {row.goalsScored - row.goalsConceded}
