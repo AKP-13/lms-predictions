@@ -24,6 +24,7 @@ type LeagueTableRow = {
   losses: number;
   goalsScored: number;
   goalsConceded: number;
+  goalDiff: number;
   points: number;
   form: ('W' | 'D' | 'L')[];
 };
@@ -72,6 +73,7 @@ const buildLeagueTable = (
       losses: 0,
       goalsScored: 0,
       goalsConceded: 0,
+      goalDiff: 0,
       points: 0,
       form: []
     };
@@ -101,8 +103,10 @@ const buildLeagueTable = (
       // Update goals scored/conceded
       home.goalsScored += fixture.team_h_score;
       home.goalsConceded += fixture.team_a_score;
+      home.goalDiff += fixture.team_h_score - fixture.team_a_score;
       away.goalsScored += fixture.team_a_score;
       away.goalsConceded += fixture.team_h_score;
+      away.goalDiff += fixture.team_a_score - fixture.team_h_score;
 
       // Determine result
       if (fixture.team_h_score > fixture.team_a_score) {
@@ -158,6 +162,171 @@ const buildLeagueTable = (
   return tableArr;
 };
 
+const headerPaddingDesktop = 'px-2 py-1';
+const headerPaddingMobile = 'px-1 py-1';
+const bodyPadding = 'px-1 py-1 md:p-4';
+const center = 'text-center';
+
+const tableConfig = [
+  {
+    dataKey: 'position',
+    headerClassName: `${center}`,
+    bodyClassName: `${center} ${bodyPadding}`,
+    loadingDivClassName: 'h-5 w-5'
+  },
+  {
+    dataKey: 'teamNameShort',
+    headerClassName: `${center}`,
+    bodyClassName: `${center} ${bodyPadding}`,
+    label: 'Team',
+    isDisplayedOnMobile: true,
+    loadingDivClassName: 'h-5 w-10'
+  },
+  {
+    dataKey: 'teamName',
+    headerClassName: `${center}`,
+    bodyClassName: `${center} ${bodyPadding}`,
+    label: 'Team',
+    isDisplayedOnDesktop: true,
+    loadingDivClassName: 'h-5 w-24'
+  },
+  {
+    dataKey: 'matchesPlayed',
+    headerClassName: `${center}`,
+    bodyClassName: `${center} ${bodyPadding}`,
+    label: 'Played',
+    isDisplayedOnDesktop: true,
+    loadingDivClassName: 'h-5 w-8'
+  },
+  {
+    dataKey: 'matchesPlayed',
+    headerClassName: `${center}`,
+    bodyClassName: `${center} ${bodyPadding}`,
+    label: 'Pd',
+    isDisplayedOnMobile: true,
+    loadingDivClassName: 'h-5 w-8'
+  },
+  {
+    dataKey: 'wins',
+    headerClassName: `${center}`,
+    bodyClassName: `${center} ${bodyPadding}`,
+    label: 'Won',
+    isDisplayedOnDesktop: true,
+    loadingDivClassName: 'h-5 w-8'
+  },
+  {
+    dataKey: 'wins',
+    headerClassName: `${center}`,
+    bodyClassName: `${center} ${bodyPadding}`,
+    label: 'W',
+    isDisplayedOnMobile: true,
+    loadingDivClassName: 'h-5 w-8'
+  },
+  {
+    dataKey: 'draws',
+    headerClassName: `${center}`,
+    bodyClassName: `${center} ${bodyPadding}`,
+    label: 'Drawn',
+    isDisplayedOnDesktop: true,
+    loadingDivClassName: 'h-5 w-8'
+  },
+  {
+    dataKey: 'draws',
+    headerClassName: `${center}`,
+    bodyClassName: `${center} ${bodyPadding}`,
+    label: 'D',
+    isDisplayedOnMobile: true,
+    loadingDivClassName: 'h-5 w-8'
+  },
+  {
+    dataKey: 'losses',
+    headerClassName: `${center}`,
+    bodyClassName: `${center} ${bodyPadding}`,
+    label: 'Lost',
+    isDisplayedOnDesktop: true,
+    loadingDivClassName: 'h-5 w-8'
+  },
+  {
+    dataKey: 'losses',
+    headerClassName: `${center}`,
+    bodyClassName: `${center} ${bodyPadding}`,
+    label: 'L',
+    isDisplayedOnMobile: true,
+    loadingDivClassName: 'h-5 w-8'
+  },
+  {
+    dataKey: 'goalsScored',
+    headerClassName: `${center}`,
+    bodyClassName: `${center} ${bodyPadding}`,
+    label: 'Scored',
+    isDisplayedOnDesktop: true,
+    loadingDivClassName: 'h-5 w-8'
+  },
+  {
+    dataKey: 'goalsScored',
+    headerClassName: `${center}`,
+    bodyClassName: `${center} ${bodyPadding}`,
+    label: 'GF',
+    isDisplayedOnMobile: true,
+    loadingDivClassName: 'h-5 w-8'
+  },
+  {
+    dataKey: 'goalsConceded',
+    headerClassName: `${center}`,
+    bodyClassName: `${center} ${bodyPadding}`,
+    label: 'Conceded',
+    isDisplayedOnDesktop: true,
+    loadingDivClassName: 'h-5 w-8'
+  },
+  {
+    dataKey: 'goalsConceded',
+    headerClassName: `${center}`,
+    bodyClassName: `${center} ${bodyPadding}`,
+    label: 'GA',
+    isDisplayedOnMobile: true,
+    loadingDivClassName: 'h-5 w-8'
+  },
+  {
+    dataKey: 'goalDiff',
+    headerClassName: `${center}`,
+    bodyClassName: `${center} ${bodyPadding}`,
+    label: 'Goal Diff',
+    isDisplayedOnDesktop: true,
+    loadingDivClassName: 'h-5 w-8'
+  },
+  {
+    dataKey: 'goalDiff',
+    headerClassName: `${center}`,
+    bodyClassName: `${center} ${bodyPadding}`,
+    label: 'GD',
+    isDisplayedOnMobile: true,
+    loadingDivClassName: 'h-5 w-8'
+  },
+  {
+    dataKey: 'points',
+    headerClassName: `${center}`,
+    bodyClassName: `${center} ${bodyPadding}`,
+    label: 'Points',
+    isDisplayedOnDesktop: true,
+    loadingDivClassName: 'h-5 w-10'
+  },
+  {
+    dataKey: 'points',
+    headerClassName: `${center}`,
+    bodyClassName: `${center} ${bodyPadding}`,
+    label: 'Pts',
+    isDisplayedOnMobile: true,
+    loadingDivClassName: 'h-5 w-10'
+  },
+  {
+    dataKey: 'form',
+    headerClassName: `${center}`,
+    bodyClassName: `${center} ${bodyPadding}`,
+    label: 'Form',
+    loadingDivClassName: 'flex gap-1 justify-center'
+  }
+];
+
 const LeagueTable = ({
   fixtures,
   isLoading,
@@ -182,57 +351,14 @@ const LeagueTable = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-center px-2 py-1" />
-              <TableHead className="text-center px-2 py-1">Team</TableHead>
-              <TableHead className="hidden md:table-cell text-center px-2 py-1">
-                Played
-              </TableHead>
-              <TableHead className="table-cell md:hidden text-center px-1 py-1">
-                Pd
-              </TableHead>
-              <TableHead className="hidden md:table-cell text-center px-2 py-1">
-                Won
-              </TableHead>
-              <TableHead className="table-cell md:hidden text-center px-1 py-1">
-                W
-              </TableHead>
-              <TableHead className="hidden md:table-cell text-center px-2 py-1">
-                Drawn
-              </TableHead>
-              <TableHead className="table-cell md:hidden text-center px-1 py-1">
-                D
-              </TableHead>
-              <TableHead className="hidden md:table-cell text-center px-2 py-1">
-                Lost
-              </TableHead>
-              <TableHead className="table-cell md:hidden text-center px-1 py-1">
-                L
-              </TableHead>
-              <TableHead className="hidden md:table-cell text-center px-2 py-1">
-                Scored
-              </TableHead>
-              <TableHead className="table-cell md:hidden text-center px-1 py-1">
-                GF
-              </TableHead>
-              <TableHead className="hidden md:table-cell text-center px-2 py-1">
-                Conceded
-              </TableHead>
-              <TableHead className="table-cell md:hidden text-center px-1 py-1">
-                GA
-              </TableHead>
-              <TableHead className="hidden md:table-cell text-center px-2 py-1">
-                Goal Diff.
-              </TableHead>
-              <TableHead className="table-cell md:hidden text-center px-1 py-1">
-                GD
-              </TableHead>
-              <TableHead className="hidden md:table-cell text-center px-2 py-1">
-                Points
-              </TableHead>
-              <TableHead className="table-cell md:hidden text-center px-1 py-1">
-                Pts
-              </TableHead>
-              <TableHead className="text-center px-2 py-1">Form</TableHead>
+              {tableConfig.map((col) => (
+                <TableHead
+                  key={`${col.dataKey} - ${col.label}`}
+                  className={`${col.headerClassName} ${col.isDisplayedOnMobile ? `table-cell md:hidden ${headerPaddingMobile}` : col.isDisplayedOnDesktop ? `hidden md:table-cell ${headerPaddingDesktop}` : ''}`}
+                >
+                  {col.label}
+                </TableHead>
+              ))}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -242,49 +368,29 @@ const LeagueTable = ({
                     key={idx}
                     className="border-b border-gray-100 last:border-0 animate-pulse"
                   >
-                    <TableCell className="text-center px-1 py-1 md:p-4">
-                      <div className="h-5 w-5 mx-auto rounded bg-gray-200 " />
-                    </TableCell>
-                    <TableCell className="table-cell md:hidden text-center px-1 py-1 md:p-4">
-                      <div className="h-5 w-10 mx-auto rounded bg-gray-200 " />
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell text-center px-1 py-1 md:p-4">
-                      <div className="h-5 w-24 mx-auto rounded bg-gray-200 " />
-                    </TableCell>
-                    <TableCell className="text-center px-1 py-1 md:p-4">
-                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 " />
-                    </TableCell>
-                    <TableCell className="text-center px-1 py-1 md:p-4">
-                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 " />
-                    </TableCell>
-                    <TableCell className="text-center px-1 py-1 md:p-4">
-                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 " />
-                    </TableCell>
-                    <TableCell className="text-center px-1 py-1 md:p-4">
-                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 " />
-                    </TableCell>
-                    <TableCell className="text-center px-1 py-1 md:p-4">
-                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 " />
-                    </TableCell>
-                    <TableCell className="text-center px-1 py-1 md:p-4">
-                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 " />
-                    </TableCell>
-                    <TableCell className="text-center px-1 py-1 md:p-4">
-                      <div className="h-5 w-10 mx-auto rounded bg-gray-200 " />
-                    </TableCell>
-                    <TableCell className="text-center px-1 py-1 md:p-4">
-                      <div className="h-5 w-10 mx-auto rounded bg-gray-200 " />
-                    </TableCell>
-                    <TableCell className="text-center px-1 py-1 md:p-4">
-                      <div className="flex gap-1 justify-center">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <div
-                            key={i}
-                            className="h-5 w-5 rounded-full bg-gray-200 "
-                          />
-                        ))}
-                      </div>
-                    </TableCell>
+                    {tableConfig.map((col) => {
+                      return (
+                        <TableCell
+                          className={`${col.bodyClassName} ${col.isDisplayedOnMobile ? 'table-cell md:hidden' : col.isDisplayedOnDesktop ? 'hidden md:table-cell' : ''}`}
+                          key={`${col.dataKey} - ${col.label}`}
+                        >
+                          {col.dataKey === 'form' ? (
+                            <div className={col.loadingDivClassName}>
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <div
+                                  key={i}
+                                  className="h-5 w-5 rounded-full bg-gray-200 "
+                                />
+                              ))}
+                            </div>
+                          ) : (
+                            <div
+                              className={`mx-auto rounded bg-gray-200 ${col.loadingDivClassName}`}
+                            />
+                          )}
+                        </TableCell>
+                      );
+                    })}
                   </TableRow>
                 ))
               : leagueTable.map((row) => {
@@ -293,72 +399,64 @@ const LeagueTable = ({
                   return (
                     <TableRow
                       key={row.teamName}
-                      className="border-b border-gray-100 last:border-0"
+                      className={`border-b border-gray-100 last:border-0 ${isLoading ? 'animate-pulse' : ''}`}
                     >
-                      <TableCell
-                        className={`text-center px-1 py-1 md:p-4 ${color}`}
-                      >
-                        {row.position}
-                      </TableCell>
-                      <TableCell className="table-cell md:hidden text-center px-1 py-1 md:p-4">
-                        {row.teamNameShort}
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell text-center px-1 py-1 md:p-4">
-                        {row.teamName}
-                      </TableCell>
-                      <TableCell className="text-center px-1 py-1 md:p-4">
-                        {row.matchesPlayed}
-                      </TableCell>
-                      <TableCell className="text-center px-1 py-1 md:p-4">
-                        {row.wins}
-                      </TableCell>
-                      <TableCell className="text-center px-1 py-1 md:p-4">
-                        {row.draws}
-                      </TableCell>
-                      <TableCell className="text-center px-1 py-1 md:p-4">
-                        {row.losses}
-                      </TableCell>
-                      <TableCell className="text-center px-1 py-1 md:p-4">
-                        {row.goalsScored}
-                      </TableCell>
-                      <TableCell className="text-center px-1 py-1 md:p-4">
-                        {row.goalsConceded}
-                      </TableCell>
-                      <TableCell className="text-center px-1 py-1 md:p-4">
-                        {row.goalsScored - row.goalsConceded}
-                      </TableCell>
-                      <TableCell className="text-center px-1 py-1 md:p-4">
-                        {row.points}
-                      </TableCell>
-                      <TableCell className="text-center px-1 py-1 md:p-4">
-                        <div className="flex gap-1 justify-center">
-                          {row.form.map((result, idx) => {
-                            const color = returnFormColor(result);
+                      {tableConfig.map((col) => {
+                        return (
+                          <TableCell
+                            className={`${col.bodyClassName} ${col.isDisplayedOnMobile ? 'table-cell md:hidden' : col.isDisplayedOnDesktop ? 'hidden md:table-cell' : ''} ${col.dataKey === 'position' ? color : ''}`}
+                            key={`${col.dataKey} - ${col.label}`}
+                          >
+                            {isLoading ? (
+                              col.dataKey === 'form' ? (
+                                <div className={col.loadingDivClassName}>
+                                  {Array.from({ length: 5 }).map((_, i) => (
+                                    <div
+                                      key={i}
+                                      className="h-5 w-5 rounded-full bg-gray-200 "
+                                    />
+                                  ))}
+                                </div>
+                              ) : (
+                                <div
+                                  className={`mx-auto rounded bg-gray-200 ${col.loadingDivClassName}`}
+                                />
+                              )
+                            ) : col.dataKey === 'form' ? (
+                              <div className="flex gap-1 justify-center">
+                                {row.form.map((result, idx) => {
+                                  const color = returnFormColor(result);
 
-                            const isMostRecent = idx === row.form.length - 1;
-                            const icon = returnIcon(result, color);
+                                  const isMostRecent =
+                                    idx === row.form.length - 1;
+                                  const icon = returnIcon(result, color);
 
-                            return isMostRecent ? (
-                              <span
-                                key={idx}
-                                className={`inline-flex items-center justify-center w-5 h-5 rounded-full border bg-white`}
-                                style={{
-                                  borderColor: color
-                                }}
-                              >
-                                {icon}
-                              </span>
+                                  return isMostRecent ? (
+                                    <span
+                                      key={idx}
+                                      className={`inline-flex items-center justify-center w-5 h-5 rounded-full border bg-white`}
+                                      style={{
+                                        borderColor: color
+                                      }}
+                                    >
+                                      {icon}
+                                    </span>
+                                  ) : (
+                                    <span
+                                      key={idx}
+                                      className="inline-flex items-center justify-center w-5 h-5"
+                                    >
+                                      {icon}
+                                    </span>
+                                  );
+                                })}
+                              </div>
                             ) : (
-                              <span
-                                key={idx}
-                                className="inline-flex items-center justify-center w-5 h-5"
-                              >
-                                {icon}
-                              </span>
-                            );
-                          })}
-                        </div>
-                      </TableCell>
+                              row[col.dataKey as keyof LeagueTableRow]
+                            )}
+                          </TableCell>
+                        );
+                      })}
                     </TableRow>
                   );
                 })}
