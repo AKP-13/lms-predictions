@@ -34,7 +34,7 @@ const FixturesResults = ({
 
   return (
     <Card
-      className={`rounded-xl bg-white p-2 shadow-sm ${isLoading ? 'animate-pulse' : ''}`}
+      className={`rounded-xl bg-white p-2 shadow-sm ${isLoading ? 'animate-pulse' : ''} h-fit`}
     >
       <CardHeader>
         <CardTitle>Fixtures</CardTitle>
