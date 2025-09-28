@@ -28,6 +28,30 @@ type LeagueTableRow = {
   form: ('W' | 'D' | 'L')[];
 };
 
+const getPositionStyling = (position: number): string =>
+  position === 1
+    ? 'bg-blue-400'
+    : position <= 4
+      ? 'bg-blue-200'
+      : position === 5
+        ? 'bg-orange-200'
+        : position >= 18
+          ? 'bg-red-200'
+          : '';
+
+const returnFormColor = (result: 'W' | 'D' | 'L'): string =>
+  result === 'W' ? '#4CAF50' : result === 'D' ? '#B0B0B0' : '#F44336';
+
+const returnIcon = (result: 'W' | 'D' | 'L', color: string) => {
+  return result === 'W' ? (
+    <CircleCheck color={color} size={20} strokeWidth={0.75} />
+  ) : result === 'D' ? (
+    <CircleMinus color={color} size={20} strokeWidth={0.75} />
+  ) : (
+    <CircleX color={color} size={20} strokeWidth={1} />
+  );
+};
+
 const buildLeagueTable = (
   fixtures: FixturesData[],
   teamsArr: TeamsArr
@@ -218,175 +242,132 @@ const LeagueTable = ({
                     key={idx}
                     className="border-b border-gray-100 last:border-0 animate-pulse"
                   >
-                    {/* Position */}
                     <TableCell className="text-center px-1 py-1 md:p-4">
-                      <div className="h-5 w-5 mx-auto rounded bg-gray-200 shimmer" />
+                      <div className="h-5 w-5 mx-auto rounded bg-gray-200 " />
                     </TableCell>
-                    {/* Team Short (mobile) */}
                     <TableCell className="table-cell md:hidden text-center px-1 py-1 md:p-4">
-                      <div className="h-5 w-10 mx-auto rounded bg-gray-200 shimmer" />
+                      <div className="h-5 w-10 mx-auto rounded bg-gray-200 " />
                     </TableCell>
-                    {/* Team Name (desktop) */}
                     <TableCell className="hidden md:table-cell text-center px-1 py-1 md:p-4">
-                      <div className="h-5 w-24 mx-auto rounded bg-gray-200 shimmer" />
+                      <div className="h-5 w-24 mx-auto rounded bg-gray-200 " />
                     </TableCell>
-                    {/* Played */}
                     <TableCell className="text-center px-1 py-1 md:p-4">
-                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 shimmer" />
+                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 " />
                     </TableCell>
-                    {/* Won */}
                     <TableCell className="text-center px-1 py-1 md:p-4">
-                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 shimmer" />
+                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 " />
                     </TableCell>
-                    {/* Drawn */}
                     <TableCell className="text-center px-1 py-1 md:p-4">
-                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 shimmer" />
+                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 " />
                     </TableCell>
-                    {/* Lost */}
                     <TableCell className="text-center px-1 py-1 md:p-4">
-                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 shimmer" />
+                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 " />
                     </TableCell>
-                    {/* Scored */}
                     <TableCell className="text-center px-1 py-1 md:p-4">
-                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 shimmer" />
+                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 " />
                     </TableCell>
-                    {/* Conceded */}
                     <TableCell className="text-center px-1 py-1 md:p-4">
-                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 shimmer" />
+                      <div className="h-5 w-8 mx-auto rounded bg-gray-200 " />
                     </TableCell>
-                    {/* Goal Diff */}
                     <TableCell className="text-center px-1 py-1 md:p-4">
-                      <div className="h-5 w-10 mx-auto rounded bg-gray-200 shimmer" />
+                      <div className="h-5 w-10 mx-auto rounded bg-gray-200 " />
                     </TableCell>
-                    {/* Points */}
                     <TableCell className="text-center px-1 py-1 md:p-4">
-                      <div className="h-5 w-10 mx-auto rounded bg-gray-200 shimmer" />
+                      <div className="h-5 w-10 mx-auto rounded bg-gray-200 " />
                     </TableCell>
-                    {/* Form */}
                     <TableCell className="text-center px-1 py-1 md:p-4">
                       <div className="flex gap-1 justify-center">
                         {Array.from({ length: 5 }).map((_, i) => (
                           <div
                             key={i}
-                            className="h-5 w-5 rounded-full bg-gray-200 shimmer"
+                            className="h-5 w-5 rounded-full bg-gray-200 "
                           />
                         ))}
                       </div>
                     </TableCell>
                   </TableRow>
                 ))
-              : leagueTable.map((row) => (
-                  <TableRow
-                    key={row.teamName}
-                    className="border-b border-gray-100 last:border-0"
-                  >
-                    <TableCell
-                      className={`text-center px-1 py-1 md:p-4 ${row.position === 1 ? 'bg-blue-400' : row.position <= 4 ? 'bg-blue-200' : row.position === 5 ? 'bg-orange-200' : row.position >= 18 ? 'bg-red-200' : ''}`}
+              : leagueTable.map((row) => {
+                  const color = getPositionStyling(row.position);
+
+                  return (
+                    <TableRow
+                      key={row.teamName}
+                      className="border-b border-gray-100 last:border-0"
                     >
-                      {row.position}
-                    </TableCell>
-                    <TableCell className="table-cell md:hidden text-center px-1 py-1 md:p-4">
-                      {row.teamNameShort}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell text-center px-1 py-1 md:p-4">
-                      {row.teamName}
-                    </TableCell>
-                    <TableCell className="text-center px-1 py-1 md:p-4">
-                      {row.matchesPlayed}
-                    </TableCell>
-                    <TableCell className="text-center px-1 py-1 md:p-4">
-                      {row.wins}
-                    </TableCell>
-                    <TableCell className="text-center px-1 py-1 md:p-4">
-                      {row.draws}
-                    </TableCell>
-                    <TableCell className="text-center px-1 py-1 md:p-4">
-                      {row.losses}
-                    </TableCell>
-                    <TableCell className="text-center px-1 py-1 md:p-4">
-                      {row.goalsScored}
-                    </TableCell>
-                    <TableCell className="text-center px-1 py-1 md:p-4">
-                      {row.goalsConceded}
-                    </TableCell>
-                    <TableCell className="text-center px-1 py-1 md:p-4">
-                      {row.goalsScored - row.goalsConceded}
-                    </TableCell>
-                    <TableCell className="text-center px-1 py-1 md:p-4">
-                      {row.points}
-                    </TableCell>
-                    <TableCell className="text-center px-1 py-1 md:p-4">
-                      <div
-                        style={{
-                          display: 'flex',
-                          gap: 6,
-                          justifyContent: 'center'
-                        }}
+                      <TableCell
+                        className={`text-center px-1 py-1 md:p-4 ${color}`}
                       >
-                        {row.form.map((result, idx) => {
-                          const color =
-                            result === 'W'
-                              ? '#4CAF50'
-                              : result === 'D'
-                                ? '#B0B0B0'
-                                : '#F44336';
-                          const isMostRecent = idx === row.form.length - 1;
-                          const icon =
-                            result === 'W' ? (
-                              <CircleCheck
-                                color={color}
-                                size={20}
-                                strokeWidth={0.75}
-                              />
-                            ) : result === 'D' ? (
-                              <CircleMinus
-                                color={color}
-                                size={20}
-                                strokeWidth={0.75}
-                              />
+                        {row.position}
+                      </TableCell>
+                      <TableCell className="table-cell md:hidden text-center px-1 py-1 md:p-4">
+                        {row.teamNameShort}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell text-center px-1 py-1 md:p-4">
+                        {row.teamName}
+                      </TableCell>
+                      <TableCell className="text-center px-1 py-1 md:p-4">
+                        {row.matchesPlayed}
+                      </TableCell>
+                      <TableCell className="text-center px-1 py-1 md:p-4">
+                        {row.wins}
+                      </TableCell>
+                      <TableCell className="text-center px-1 py-1 md:p-4">
+                        {row.draws}
+                      </TableCell>
+                      <TableCell className="text-center px-1 py-1 md:p-4">
+                        {row.losses}
+                      </TableCell>
+                      <TableCell className="text-center px-1 py-1 md:p-4">
+                        {row.goalsScored}
+                      </TableCell>
+                      <TableCell className="text-center px-1 py-1 md:p-4">
+                        {row.goalsConceded}
+                      </TableCell>
+                      <TableCell className="text-center px-1 py-1 md:p-4">
+                        {row.goalsScored - row.goalsConceded}
+                      </TableCell>
+                      <TableCell className="text-center px-1 py-1 md:p-4">
+                        {row.points}
+                      </TableCell>
+                      <TableCell className="text-center px-1 py-1 md:p-4">
+                        <div
+                          style={{
+                            display: 'flex',
+                            gap: 6,
+                            justifyContent: 'center'
+                          }}
+                        >
+                          {row.form.map((result, idx) => {
+                            const color = returnFormColor(result);
+
+                            const isMostRecent = idx === row.form.length - 1;
+                            const icon = returnIcon(result, color);
+
+                            return isMostRecent ? (
+                              <span
+                                key={idx}
+                                className={`inline-flex items-center justify-center w-5 h-5 rounded-full border bg-white`}
+                                style={{
+                                  borderColor: color
+                                }}
+                              >
+                                {icon}
+                              </span>
                             ) : (
-                              <CircleX
-                                color={color}
-                                size={20}
-                                strokeWidth={1}
-                              />
+                              <span
+                                key={idx}
+                                className="inline-flex items-center justify-center w-5 h-5"
+                              >
+                                {icon}
+                              </span>
                             );
-                          return isMostRecent ? (
-                            <span
-                              key={idx}
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                width: 20,
-                                height: 20,
-                                borderRadius: '50%',
-                                border: `1px solid ${color}`,
-                                boxSizing: 'border-box',
-                                background: '#fff'
-                              }}
-                            >
-                              {icon}
-                            </span>
-                          ) : (
-                            <span
-                              key={idx}
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                width: 20,
-                                height: 20
-                              }}
-                            >
-                              {icon}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                          })}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
           </TableBody>
         </Table>
       </CardContent>
