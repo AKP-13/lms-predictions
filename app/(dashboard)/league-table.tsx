@@ -377,7 +377,7 @@ const LeagueTable = ({
                               {Array.from({ length: 5 }).map((_, i) => (
                                 <div
                                   key={i}
-                                  className="h-5 w-5 rounded-full bg-gray-200 "
+                                  className="h-5 w-5 rounded-full bg-gray-200"
                                 />
                               ))}
                             </div>
