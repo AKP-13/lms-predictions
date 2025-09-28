@@ -5,6 +5,7 @@ import TileWrapper from '@/components/ui/tiles';
 import CurrentGameResults from './current-game-results';
 import FixturesResults from './fixtures-results';
 import Predictions from './predictions';
+import LeagueTable from './league-table';
 import {
   Card,
   CardContent,
@@ -107,14 +108,18 @@ const Page = () => {
         </div>
       </div>
 
-      <div className="block md:flex">
-        <div className="my-8 md:mr-3 w-full md:my-0">
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-4">
+        <div className="my-8 md:mr-3 w-full md:my-0 grid md:col-span-2">
           <FixturesResults
             fixtures={fixtures}
             currentGwNumber={currentGwNumber}
             teamsArr={teamsArr}
             isLoading={isLoadingFixtures}
           />
+        </div>
+
+        <div className="my-8 w-full md:my-0 md:col-span-2">
+          <LeagueTable fixtures={fixtures} teamsArr={teamsArr} />
         </div>
       </div>
 
