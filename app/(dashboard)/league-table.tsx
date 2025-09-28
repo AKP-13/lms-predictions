@@ -144,7 +144,7 @@ const LeagueTable = ({
   const leagueTable = buildLeagueTable(fixtures, teamsArr);
 
   return (
-    <Card className={`rounded-xl bg-white p-2 shadow-sm `}>
+    <Card className="rounded-xl bg-white p-2 shadow-sm">
       <CardHeader>
         <CardTitle>League Table</CardTitle>
       </CardHeader>
@@ -153,7 +153,7 @@ const LeagueTable = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-center px-2 py-1">Position</TableHead>
+              <TableHead className="text-center px-2 py-1" />
               <TableHead className="text-center px-2 py-1">Team</TableHead>
               <TableHead className="hidden md:table-cell text-center px-2 py-1">
                 Played
@@ -212,7 +212,9 @@ const LeagueTable = ({
                 key={row.teamName}
                 className="border-b border-gray-100 last:border-0"
               >
-                <TableCell className="text-center px-1 py-1 md:p-4">
+                <TableCell
+                  className={`text-center px-1 py-1 md:p-4 ${row.position === 1 ? 'bg-blue-400' : row.position <= 4 ? 'bg-blue-200' : row.position === 5 ? 'bg-orange-200' : row.position >= 18 ? 'bg-red-200' : ''}`}
+                >
                   {row.position}
                 </TableCell>
                 <TableCell className="table-cell md:hidden text-center px-1 py-1 md:p-4">
