@@ -405,22 +405,7 @@ const LeagueTable = ({
                             className={`${col.bodyClassName} ${col.isDisplayedOnMobile ? 'table-cell md:hidden' : col.isDisplayedOnDesktop ? 'hidden md:table-cell' : ''} ${col.dataKey === 'position' ? color : ''}`}
                             key={`${col.dataKey} - ${col.label}`}
                           >
-                            {isLoading ? (
-                              col.dataKey === 'form' ? (
-                                <div className={col.loadingDivClassName}>
-                                  {Array.from({ length: 5 }).map((_, i) => (
-                                    <div
-                                      key={i}
-                                      className="h-5 w-5 rounded-full bg-gray-200 "
-                                    />
-                                  ))}
-                                </div>
-                              ) : (
-                                <div
-                                  className={`mx-auto rounded bg-gray-200 ${col.loadingDivClassName}`}
-                                />
-                              )
-                            ) : col.dataKey === 'form' ? (
+                            {col.dataKey === 'form' ? (
                               <div className="flex gap-1 justify-center">
                                 {row.form.map((result, idx) => {
                                   const color = returnFormColor(result);
