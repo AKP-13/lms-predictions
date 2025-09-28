@@ -331,13 +331,7 @@ const LeagueTable = ({
                         {row.points}
                       </TableCell>
                       <TableCell className="text-center px-1 py-1 md:p-4">
-                        <div
-                          style={{
-                            display: 'flex',
-                            gap: 6,
-                            justifyContent: 'center'
-                          }}
-                        >
+                        <div className="flex gap-1 justify-center">
                           {row.form.map((result, idx) => {
                             const color = returnFormColor(result);
 
