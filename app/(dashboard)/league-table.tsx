@@ -153,6 +153,7 @@ const LeagueTable = ({
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="text-center px-2 py-1">Position</TableHead>
               <TableHead className="text-center px-2 py-1">Team</TableHead>
               <TableHead className="hidden md:table-cell text-center px-2 py-1">
                 Played
@@ -211,6 +212,9 @@ const LeagueTable = ({
                 key={row.teamName}
                 className="border-b border-gray-100 last:border-0"
               >
+                <TableCell className="text-center px-1 py-1 md:p-4">
+                  {row.position}
+                </TableCell>
                 <TableCell className="table-cell md:hidden text-center px-1 py-1 md:p-4">
                   {row.teamNameShort}
                 </TableCell>
