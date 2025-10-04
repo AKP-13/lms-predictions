@@ -275,6 +275,7 @@ const Predictions = ({
                 selectedTeam === 'Select' ||
                 selectedOutcome === 'Select' ||
                 isEliminated ||
+                isPastSubmissionDeadline ||
                 isLoadingCombined
               }
             >
