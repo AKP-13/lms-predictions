@@ -77,9 +77,11 @@ const Predictions = ({
   const [selectedOutcome, setSelectedOutcome] = useState<Outcome | 'Select'>(
     'Select'
   );
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  const isLoadingCombined = isLoading || isSubmitting;
 
   const selectedTeamFixture = predictionWeekFixtures?.find(
     (fixture) =>
@@ -106,7 +108,7 @@ const Predictions = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsSubmitting(true);
     setError(null);
     setSuccess(false);
     try {
@@ -136,23 +138,24 @@ const Predictions = ({
     } catch (err: any) {
       setError(err.message || 'Something went wrong');
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
     <Card
-      className={`rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto ${isLoading ? 'animate-pulse' : ''}`}
+      className={`rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto ${isLoadingCombined ? 'animate-pulse' : ''}`}
     >
       <CardHeader>
         <CardTitle className="flex flex-row items-center">
-          Prediction {isLoading && <Loader className="animate-spin mx-2" />}
+          Prediction{' '}
+          {isLoadingCombined && <Loader className="animate-spin mx-2" />}
         </CardTitle>
 
         <CardDescription
           className={isPastSubmissionDeadline ? 'text-red-500' : ''}
         >
-          {isLoading
+          {isLoadingCombined
             ? 'Loading...'
             : isEliminated
               ? 'You are unable to make a prediction as you have been eliminated.'
@@ -165,7 +168,7 @@ const Predictions = ({
       </CardHeader>
 
       <CardContent>
-        {isLoading ? (
+        {isLoadingCombined ? (
           <div className="flex flex-col">
             <div className="flex">
               <div className="my-4 mr-2 flex flex-col items-center w-full">
@@ -210,8 +213,7 @@ const Predictions = ({
                     isEliminated ||
                     isPending ||
                     isPastSubmissionDeadline ||
-                    isLoading ||
-                    loading
+                    isLoadingCombined
                   }
                 />
               </div>
@@ -233,8 +235,7 @@ const Predictions = ({
                     isEliminated ||
                     isPending ||
                     isPastSubmissionDeadline ||
-                    isLoading ||
-                    loading
+                    isLoadingCombined
                   }
                 />
               </div>
@@ -266,15 +267,14 @@ const Predictions = ({
             <Button
               type="submit"
               disabled={
-                loading ||
+                isSubmitting ||
                 selectedTeam === 'Select' ||
                 selectedOutcome === 'Select' ||
                 isEliminated ||
-                isPending ||
-                isPastSubmissionDeadline
+                isLoadingCombined
               }
             >
-              {loading ? 'Submitting...' : 'Submit'}
+              {isSubmitting ? 'Submitting...' : 'Submit'}
             </Button>
             {error && <div className="text-red-500 mt-2">{error}</div>}
             {success && (
