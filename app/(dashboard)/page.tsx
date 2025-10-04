@@ -89,9 +89,7 @@ const Page = () => {
         </p>
       </div>
 
-      {session === null || session === undefined ? (
-        ''
-      ) : (
+      {session === null || session === undefined ? null : (
         <TileWrapper refreshTrigger={refreshTrigger} />
       )}
 
