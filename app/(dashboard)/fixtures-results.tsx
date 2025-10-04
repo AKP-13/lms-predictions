@@ -40,10 +40,14 @@ const FixturesResults = ({
   return (
     <Card
       className={`rounded-xl bg-white p-2 shadow-sm ${isLoading ? 'animate-pulse' : ''} h-fit`}
+      aria-busy={isLoading}
+      aria-live="polite"
     >
       <CardHeader className="flex flex-row items-center">
         <CardTitle>Fixtures</CardTitle>
-        {isLoading && <Loader className="animate-spin mx-2" />}
+        {isLoading && (
+          <Loader className="animate-spin mx-2" aria-hidden="true" />
+        )}
       </CardHeader>
 
       <CardContent>

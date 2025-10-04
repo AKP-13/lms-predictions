@@ -39,12 +39,14 @@ const CurrentGameResults = ({
   return (
     <Card
       className={`rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto ${isLoadingCombined ? 'animate-pulse' : ''}`}
+      aria-busy={isLoadingCombined}
+      aria-live="polite"
     >
       <CardHeader>
         <CardTitle className="flex flex-row items-center">
           Current Game
           {isLoadingCombined ? (
-            <Loader className="animate-spin mx-2" />
+            <Loader className="animate-spin mx-2" aria-hidden="true" />
           ) : typeof leagueName === 'string' ? (
             <span style={{ fontStyle: 'italic' }}> - {leagueName}</span>
           ) : (
