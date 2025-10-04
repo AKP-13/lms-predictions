@@ -13,6 +13,7 @@ import { TeamsArr } from './page';
 import { FixturesData, Results } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
 import { Session } from 'next-auth';
+import { Loader } from 'lucide-react';
 
 type Outcome = 'Win' | 'Draw';
 
@@ -22,6 +23,7 @@ type Props = {
   session: Session | null;
   predictionWeekFixtures: FixturesData[];
   setRefreshTrigger: Dispatch<SetStateAction<number>>;
+  isLoading: boolean;
 };
 
 const returnIsPastSubmissionDeadline = ({
@@ -47,7 +49,8 @@ const Predictions = ({
   teamsArr,
   session,
   predictionWeekFixtures,
-  setRefreshTrigger
+  setRefreshTrigger,
+  isLoading
 }: Props) => {
   // Find the latest gameweek by key (maximum number)
   const gameweekNumbers = Object.keys(results).map(Number);
@@ -74,9 +77,11 @@ const Predictions = ({
   const [selectedOutcome, setSelectedOutcome] = useState<Outcome | 'Select'>(
     'Select'
   );
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  const isLoadingCombined = isLoading || isSubmitting;
 
   const selectedTeamFixture = predictionWeekFixtures?.find(
     (fixture) =>
@@ -103,7 +108,7 @@ const Predictions = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsSubmitting(true);
     setError(null);
     setSuccess(false);
     try {
@@ -133,29 +138,57 @@ const Predictions = ({
     } catch (err: any) {
       setError(err.message || 'Something went wrong');
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <Card className="rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto">
+    <Card
+      className={`rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto ${isLoadingCombined ? 'animate-pulse' : ''}`}
+      aria-busy={isLoadingCombined}
+      aria-live="polite"
+    >
       <CardHeader>
-        <CardTitle>Prediction</CardTitle>
+        <CardTitle className="flex flex-row items-center">
+          Prediction{' '}
+          {isLoadingCombined && (
+            <Loader className="animate-spin mx-2" aria-hidden="true" />
+          )}
+        </CardTitle>
+
         <CardDescription
           className={isPastSubmissionDeadline ? 'text-red-500' : ''}
         >
-          {isEliminated
-            ? 'You are unable to make a prediction as you have been eliminated.'
-            : isPending
-              ? 'Prediction submitted. Good luck!'
-              : isPastSubmissionDeadline
-                ? 'The submission deadline has passed for this gameweek.'
-                : 'Submit your prediction for this gameweek.'}
+          {isLoadingCombined
+            ? 'Loading...'
+            : isEliminated
+              ? 'You are unable to make a prediction as you have been eliminated.'
+              : isPending
+                ? 'Prediction submitted. Good luck!'
+                : isPastSubmissionDeadline
+                  ? 'The submission deadline has passed for this gameweek.'
+                  : 'Submit your prediction for this gameweek.'}
         </CardDescription>
       </CardHeader>
 
       <CardContent>
-        {session === null ? (
+        {isLoadingCombined ? (
+          <div className="flex flex-col">
+            <div className="flex">
+              <div className="my-4 mr-2 flex flex-col items-center w-full">
+                <div className="h-5 w-24 rounded-full bg-gray-200 my-2" />
+                <div className="h-5 w-24 rounded-full bg-gray-200 my-2" />
+              </div>
+
+              <div className="my-4 ml-2 flex flex-col items-center w-full">
+                <div className="h-5 w-24 rounded-full bg-gray-200 my-2" />
+                <div className="h-5 w-24 rounded-full bg-gray-200 my-2" />
+              </div>
+            </div>
+
+            <div className="h-5 w-full rounded-full bg-gray-200" />
+          </div>
+        ) : session === null ? (
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <a
               style={{ color: 'blue', fontWeight: 600, textAlign: 'center' }}
@@ -181,7 +214,10 @@ const Predictions = ({
                     setError(null);
                   }}
                   disabled={
-                    isEliminated || isPending || isPastSubmissionDeadline
+                    isEliminated ||
+                    isPending ||
+                    isPastSubmissionDeadline ||
+                    isLoadingCombined
                   }
                 />
               </div>
@@ -200,7 +236,10 @@ const Predictions = ({
                   }}
                   disabledOptions={['Select']}
                   disabled={
-                    isEliminated || isPending || isPastSubmissionDeadline
+                    isEliminated ||
+                    isPending ||
+                    isPastSubmissionDeadline ||
+                    isLoadingCombined
                   }
                 />
               </div>
@@ -232,15 +271,15 @@ const Predictions = ({
             <Button
               type="submit"
               disabled={
-                loading ||
+                isSubmitting ||
                 selectedTeam === 'Select' ||
                 selectedOutcome === 'Select' ||
                 isEliminated ||
-                isPending ||
-                isPastSubmissionDeadline
+                isPastSubmissionDeadline ||
+                isLoadingCombined
               }
             >
-              {loading ? 'Submitting...' : 'Submit'}
+              {isSubmitting ? 'Submitting...' : 'Submit'}
             </Button>
             {error && <div className="text-red-500 mt-2">{error}</div>}
             {success && (

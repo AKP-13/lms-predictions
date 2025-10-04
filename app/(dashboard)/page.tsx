@@ -47,21 +47,23 @@ const Page = () => {
   const { fplData, isLoadingFplData } = useFplData();
   const { leagueName, isLoadingLeagueName } = useLeagueInfo();
 
-  const currentGwNumber = fplData
-    ? fplData.events.find((obj) => obj.is_current === true)?.id || MIN_GW
-    : MIN_GW;
+  const currentGwNumber =
+    !isLoadingFplData && fplData
+      ? fplData.events.find((obj) => obj.is_current === true)?.id || MIN_GW
+      : MIN_GW;
 
   const predictionWeekFixtures = fixtures?.filter(
     (fixture) => fixture.event === currentGwNumber + 1
   );
 
-  const teamsArr: TeamsArr = fplData
-    ? fplData.teams.map(({ id, name, short_name }) => ({
-        id,
-        name,
-        short_name
-      }))
-    : [];
+  const teamsArr: TeamsArr =
+    !isLoadingFplData && fplData
+      ? fplData.teams.map(({ id, name, short_name }) => ({
+          id,
+          name,
+          short_name
+        }))
+      : [];
 
   const maxGameWeeks = isLoadingResults
     ? 1
@@ -87,13 +89,16 @@ const Page = () => {
         </p>
       </div>
 
-      {session === null ? '' : <TileWrapper refreshTrigger={refreshTrigger} />}
+      {session === null || session === undefined ? null : (
+        <TileWrapper refreshTrigger={refreshTrigger} />
+      )}
 
       <div className="grid gap-6 grid-cols-1 md:grid-cols-4">
         <div className="my-8 md:mr-3 w-full md:my-0 grid md:col-span-3">
           <CurrentGameResults
             refreshTrigger={refreshTrigger}
             leagueName={leagueName}
+            isLoading={isLoadingLeagueName}
           />
         </div>
 
@@ -104,6 +109,7 @@ const Page = () => {
             results={results}
             predictionWeekFixtures={predictionWeekFixtures}
             setRefreshTrigger={setRefreshTrigger}
+            isLoading={isLoadingResults || isLoadingResults || isLoadingFplData}
           />
         </div>
       </div>

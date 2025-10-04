@@ -3,7 +3,7 @@ import { useSession } from 'next-auth/react';
 
 const useLeagueInfo = () => {
   const [leagueName, setLeagueName] = useState<string | null>(null);
-  const [isLoadingLeagueName, setIsLoadingLeagueName] = useState(false);
+  const [isLoadingLeagueName, setIsLoadingLeagueName] = useState(true);
 
   const { data: session } = useSession();
 
@@ -18,6 +18,8 @@ const useLeagueInfo = () => {
 
     if (session) {
       fetchLeagueInfo();
+    } else {
+      setIsLoadingLeagueName(false);
     }
   }, [session]);
 

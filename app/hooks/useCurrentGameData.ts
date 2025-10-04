@@ -5,7 +5,7 @@ const useCurrentGameData = ({ refreshTrigger }: { refreshTrigger: number }) => {
   const [currentGameResults, setCurrentGameResults] = useState(
     [] as CurrentGameResults[]
   );
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingCurrentGameData, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -20,7 +20,7 @@ const useCurrentGameData = ({ refreshTrigger }: { refreshTrigger: number }) => {
     fetchData();
   }, [refreshTrigger]);
 
-  return { currentGameResults, isLoading };
+  return { currentGameResults, isLoadingCurrentGameData };
 };
 
 export default useCurrentGameData;

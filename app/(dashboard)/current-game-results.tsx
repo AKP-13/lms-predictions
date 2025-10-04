@@ -1,3 +1,7 @@
+import { Fragment } from 'react';
+import { useSession } from 'next-auth/react';
+import { Loader } from 'lucide-react';
+import useCurrentGameData from 'app/hooks/useCurrentGameData';
 import {
   Card,
   CardContent,
@@ -15,28 +19,35 @@ import {
   TeamName,
   TeamScore
 } from '@/components/ui/table';
-import useCurrentGameData from 'app/hooks/useCurrentGameData';
-import { useSession } from 'next-auth/react';
-import { Fragment } from 'react';
 
 const CurrentGameResults = ({
   leagueName,
-  refreshTrigger
+  refreshTrigger,
+  isLoading
 }: {
   leagueName: null | string | { error: string };
   refreshTrigger: number;
+  isLoading: boolean;
 }) => {
   const { data: session } = useSession();
-  const { currentGameResults, isLoading } = useCurrentGameData({
+  const { currentGameResults, isLoadingCurrentGameData } = useCurrentGameData({
     refreshTrigger
   });
 
+  const isLoadingCombined = isLoading || isLoadingCurrentGameData;
+
   return (
-    <Card className="rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto">
+    <Card
+      className={`rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto ${isLoadingCombined ? 'animate-pulse' : ''}`}
+      aria-busy={isLoadingCombined}
+      aria-live="polite"
+    >
       <CardHeader>
-        <CardTitle>
+        <CardTitle className="flex flex-row items-center">
           Current Game
-          {typeof leagueName === 'string' ? (
+          {isLoadingCombined ? (
+            <Loader className="animate-spin mx-2" aria-hidden="true" />
+          ) : typeof leagueName === 'string' ? (
             <span style={{ fontStyle: 'italic' }}> - {leagueName}</span>
           ) : (
             ''
@@ -48,7 +59,24 @@ const CurrentGameResults = ({
       </CardHeader>
 
       <CardContent>
-        {session === null ? (
+        {isLoadingCombined ? (
+          // Loading skeleton
+          <div>
+            {[0, 1, 2].map((rowIdx) => (
+              <div className="flex" key={`skeleton-row-${rowIdx}`}>
+                {[...Array(5)].map((_, colIdx) => (
+                  <div
+                    key={`skeleton-cell-${rowIdx}-${colIdx}`}
+                    className={`my-2 rounded-full bg-gray-200 ${
+                      rowIdx === 0 ? 'h-10' : 'h-5'
+                    } w-1/5`}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        ) : session === null || session === undefined ? (
+          // Sign in prompt
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <a
               style={{ color: 'blue', fontWeight: 600, textAlign: 'center' }}
@@ -58,10 +86,13 @@ const CurrentGameResults = ({
             </a>
           </div>
         ) : leagueName === null ? (
+          // Join league prompt
           'Join a league to get started.'
         ) : currentGameResults.length === 0 ? (
+          // Submit prediction prompt
           'Submit a prediction to begin seeing results here.'
         ) : (
+          // Current game table
           <Table>
             <TableHeader>
               <TableRow>
