@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 const useFixtures = () => {
   const [fixtures, setFixtures] = useState<FixturesData[]>([]);
-  const [isLoadingFixtures, setIsLoadingFixtures] = useState(false);
+  const [isLoadingFixtures, setIsLoadingFixtures] = useState(true);
 
   useEffect(() => {
     async function fetchFixtures() {

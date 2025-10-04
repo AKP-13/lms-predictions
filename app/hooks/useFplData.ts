@@ -85,7 +85,7 @@ type FplData = {
 
 const useFplData = () => {
   const [fplData, setFplData] = useState<FplData | null>(null);
-  const [isLoadingFplData, setIsLoadingFplData] = useState(false);
+  const [isLoadingFplData, setIsLoadingFplData] = useState(true);
 
   useEffect(() => {
     async function fetchFplData() {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -28,6 +28,10 @@ const FixturesResults = ({
   teamsArr: TeamsArr;
 }) => {
   const [selectedGw, setSelectedGw] = useState(currentGwNumber);
+
+  useEffect(() => {
+    setSelectedGw(currentGwNumber);
+  }, [currentGwNumber]);
 
   const fixturesForSelectedGameweek = Array.isArray(fixtures)
     ? fixtures.filter((f) => f.event === selectedGw)
@@ -103,7 +107,19 @@ const FixturesResults = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {Array.isArray(fixtures) && fixtures.length === 0 && !isLoading ? (
+            {isLoading ? (
+              Array.from({ length: 10 }).map((_, idx) => (
+                <TableRow
+                  key={idx}
+                  className="border-b border-gray-100 last:border-0 animate-pulse"
+                >
+                  <TableCell className="flex text-center px-1 py-1 md:p-4 gap-1 justify-center">
+                    <div className="mx-auto rounded bg-gray-200 h-5 w-1/2" />
+                    <div className="mx-auto rounded bg-gray-200 h-5 w-1/2" />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : Array.isArray(fixtures) && fixtures.length === 0 ? (
               <TableRow>
                 <TableCell className="table-cell w-full px-2 text-center">
                   No fixtures available

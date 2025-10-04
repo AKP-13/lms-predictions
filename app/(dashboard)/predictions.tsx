@@ -13,6 +13,7 @@ import { TeamsArr } from './page';
 import { FixturesData, Results } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
 import { Session } from 'next-auth';
+import { Loader } from 'lucide-react';
 
 type Outcome = 'Win' | 'Draw';
 
@@ -22,6 +23,7 @@ type Props = {
   session: Session | null;
   predictionWeekFixtures: FixturesData[];
   setRefreshTrigger: Dispatch<SetStateAction<number>>;
+  isLoading: boolean;
 };
 
 const returnIsPastSubmissionDeadline = ({
@@ -47,7 +49,8 @@ const Predictions = ({
   teamsArr,
   session,
   predictionWeekFixtures,
-  setRefreshTrigger
+  setRefreshTrigger,
+  isLoading
 }: Props) => {
   // Find the latest gameweek by key (maximum number)
   const gameweekNumbers = Object.keys(results).map(Number);
@@ -138,24 +141,47 @@ const Predictions = ({
   };
 
   return (
-    <Card className="rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto">
+    <Card
+      className={`rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto ${isLoading ? 'animate-pulse' : ''}`}
+    >
       <CardHeader>
-        <CardTitle>Prediction</CardTitle>
+        <CardTitle className="flex flex-row items-center">
+          Prediction {isLoading && <Loader className="animate-spin mx-2" />}
+        </CardTitle>
+
         <CardDescription
           className={isPastSubmissionDeadline ? 'text-red-500' : ''}
         >
-          {isEliminated
-            ? 'You are unable to make a prediction as you have been eliminated.'
-            : isPending
-              ? 'Prediction submitted. Good luck!'
-              : isPastSubmissionDeadline
-                ? 'The submission deadline has passed for this gameweek.'
-                : 'Submit your prediction for this gameweek.'}
+          {isLoading
+            ? 'Loading...'
+            : isEliminated
+              ? 'You are unable to make a prediction as you have been eliminated.'
+              : isPending
+                ? 'Prediction submitted. Good luck!'
+                : isPastSubmissionDeadline
+                  ? 'The submission deadline has passed for this gameweek.'
+                  : 'Submit your prediction for this gameweek.'}
         </CardDescription>
       </CardHeader>
 
       <CardContent>
-        {session === null ? (
+        {isLoading ? (
+          <div className="flex flex-col">
+            <div className="flex">
+              <div className="my-4 mr-2 flex flex-col items-center w-full">
+                <div className="h-5 w-24 rounded-full bg-gray-200 my-2" />
+                <div className="h-5 w-24 rounded-full bg-gray-200 my-2" />
+              </div>
+
+              <div className="my-4 ml-2 flex flex-col items-center w-full">
+                <div className="h-5 w-24 rounded-full bg-gray-200 my-2" />
+                <div className="h-5 w-24 rounded-full bg-gray-200 my-2" />
+              </div>
+            </div>
+
+            <div className="h-5 w-full rounded-full bg-gray-200" />
+          </div>
+        ) : session === null ? (
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <a
               style={{ color: 'blue', fontWeight: 600, textAlign: 'center' }}
@@ -181,7 +207,11 @@ const Predictions = ({
                     setError(null);
                   }}
                   disabled={
-                    isEliminated || isPending || isPastSubmissionDeadline
+                    isEliminated ||
+                    isPending ||
+                    isPastSubmissionDeadline ||
+                    isLoading ||
+                    loading
                   }
                 />
               </div>
@@ -200,7 +230,11 @@ const Predictions = ({
                   }}
                   disabledOptions={['Select']}
                   disabled={
-                    isEliminated || isPending || isPastSubmissionDeadline
+                    isEliminated ||
+                    isPending ||
+                    isPastSubmissionDeadline ||
+                    isLoading ||
+                    loading
                   }
                 />
               </div>

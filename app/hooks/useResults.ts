@@ -3,7 +3,7 @@ import { Results } from '@/lib/definitions';
 
 const useResults = ({ refreshTrigger }: { refreshTrigger: number }) => {
   const [results, setResults] = useState<Record<number, Results[]>>({});
-  const [isLoadingResults, setIsLoadingResults] = useState(false);
+  const [isLoadingResults, setIsLoadingResults] = useState(true);
 
   useEffect(() => {
     async function fetchResults() {

@@ -12,7 +12,7 @@ const useTileData = ({ refreshTrigger }: { refreshTrigger: number }) => {
     homeSuccess: { value: 'N/A', caption: 'N/A' },
     awaySuccess: { value: 'N/A', caption: 'N/A' }
   });
-  const [isLoadingTileData, setIsLoadingTileData] = useState(false);
+  const [isLoadingTileData, setIsLoadingTileData] = useState(true);
 
   const { data: session } = useSession();
 
@@ -49,6 +49,8 @@ const useTileData = ({ refreshTrigger }: { refreshTrigger: number }) => {
 
     if (session) {
       fetchData();
+    } else {
+      setIsLoadingTileData(false);
     }
   }, [session, refreshTrigger]);
 
