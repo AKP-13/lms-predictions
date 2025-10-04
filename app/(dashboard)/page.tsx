@@ -111,7 +111,7 @@ const Page = () => {
             results={results}
             predictionWeekFixtures={predictionWeekFixtures}
             setRefreshTrigger={setRefreshTrigger}
-            isLoading={isLoadingResults}
+            isLoading={isLoadingResults || isLoadingResults || isLoadingFplData}
           />
         </div>
       </div>
