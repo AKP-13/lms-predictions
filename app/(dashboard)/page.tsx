@@ -6,6 +6,7 @@ import CurrentGameResults from './current-game-results';
 import FixturesResults from './fixtures-results';
 import Predictions from './predictions';
 import LeagueTable from './league-table';
+import PickPlanner from '@/components/PickPlanner';
 import {
   Card,
   CardContent,
@@ -131,6 +132,17 @@ const Page = () => {
             teamsArr={teamsArr}
           />
         </div>
+      </div>
+
+      <div className="w-full overflow-x-auto">
+        <PickPlanner
+          teams={teamsArr}
+          fixtures={fixtures || []}
+          currentGwNumber={currentGwNumber}
+          numWeeks={5}
+          results={results || {}}
+          session={session}
+        />
       </div>
 
       <Card className="rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto md:hidden">
