@@ -58,16 +58,12 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
   };
 
   // Helper: check if team is already planned to be picked in any GW
-  const returnIsTeamPlanned = (teamId: number) => {
-    if (Object.values(picks).includes(teamId)) {
-      return true;
-    }
-    return false;
-  };
+  const returnIsTeamPlanned = (teamId: number) =>
+    Object.values(picks).includes(teamId);
 
   // Helper to check if a team has already been predicted in previous gameweeks
   const returnIsPreviouslyPredicted = (teamId: number) => {
-    const foundTeam = teams.find((t) => t.id === teamId);
+    const foundTeam = teams.find(({ id }) => id === teamId);
     return (
       Array.isArray(previousPicksArr) &&
       previousPicksArr.length > 0 &&
@@ -108,6 +104,21 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
     } else {
       return;
     }
+  };
+
+  const getClassName = (
+    isTeamPlannedThisGw: boolean,
+    isPreviouslyPredicted: boolean | undefined,
+    isTeamPlanned: boolean,
+    fixture: string | null
+  ) => {
+    if (isTeamPlannedThisGw)
+      return 'border border-blue-500 bg-blue-100 text-center';
+    if (isPreviouslyPredicted)
+      return 'cursor-not-allowed bg-gray-500 text-center';
+    if (isTeamPlanned)
+      return 'cursor-pointer bg-[rgba(156,163,175,0.3)] text-center';
+    return `cursor-pointer bg-white text-center${fixture ? '' : ' opacity-50'}`;
   };
 
   return (
@@ -177,10 +188,17 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
                     );
                     const isTeamPlannedThisGw = picks[gw] === team.id;
 
+                    const className = getClassName(
+                      isTeamPlannedThisGw,
+                      isPreviouslyPredicted,
+                      isTeamPlanned,
+                      fixture
+                    );
+
                     return (
                       <TableCell
                         key={weekIdx}
-                        className={`${isTeamPlannedThisGw ? 'border border-blue-500' : isPreviouslyPredicted ? 'cursor-not-allowed' : 'cursor-pointer'} text-center ${isTeamPlannedThisGw ? 'bg-blue-100' : isPreviouslyPredicted ? 'bg-gray-500' : isTeamPlanned ? 'bg-[rgba(156,163,175,0.3)]' : 'bg-white'} ${fixture ? '' : 'opacity-50'}`}
+                        className={className}
                         aria-disabled={isPreviouslyPredicted || !fixture}
                         onClick={() =>
                           !isPreviouslyPredicted &&
