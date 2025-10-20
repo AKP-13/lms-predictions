@@ -74,7 +74,7 @@ export async function fetchCurrentGameData({
       [leagueId]
     );
 
-    const currentGameId = queryResult.rows[0].current_game_id;
+    const latestGameId = queryResult.rows[0].current_game_id;
 
     const currentGameResults = await sql.query<CurrentGameResults>(
       `
@@ -94,10 +94,13 @@ export async function fetchCurrentGameData({
             AND league_id = ($3)
         ORDER BY round_number ASC;
     `,
-      [userId, currentGameId, leagueId]
+      [userId, latestGameId, leagueId]
     );
 
-    return currentGameResults.rows;
+    return {
+      latestGameResults: currentGameResults.rows,
+      latestGameId
+    };
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch current game results.');

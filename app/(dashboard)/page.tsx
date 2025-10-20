@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import TileWrapper from '@/components/ui/tiles';
-import CurrentGameResults from './current-game-results';
+import CurrentGame from './current-game-results';
 import FixturesResults from './fixtures-results';
 import Predictions from './predictions';
 import LeagueTable from './league-table';
@@ -31,6 +31,7 @@ import useResults from 'app/hooks/useResults';
 import useFixtures from 'app/hooks/useFixtures';
 import useFplData from 'app/hooks/useFplData';
 import useLeagueInfo from 'app/hooks/useLeagueInfo';
+import useCurrentGameData from 'app/hooks/useCurrentGameData';
 
 export type TeamsArr = {
   id: number;
@@ -47,6 +48,10 @@ const Page = () => {
   const { fixtures, isLoadingFixtures } = useFixtures();
   const { fplData, isLoadingFplData } = useFplData();
   const { leagueName, isLoadingLeagueName } = useLeagueInfo();
+  const { currentGameResults, currentGameId, isLoadingCurrentGameData } =
+    useCurrentGameData({
+      refreshTrigger
+    });
 
   const currentGwNumber =
     !isLoadingFplData && fplData
@@ -79,7 +84,7 @@ const Page = () => {
     <main>
       <div className="rounded-xl bg-gray-300 p-4 shadow-sm grid col-span-2 md:col-span-1 my-4">
         <h1 className="text-4xl font-bold text-center mb-2 flex items-center justify-center gap-2">
-          LPSIQ
+          Last Player Standing
         </h1>
 
         <p className="rounded-xl px-4 py-4 text-center text-xl font-light italic">
@@ -96,10 +101,10 @@ const Page = () => {
 
       <div className="grid gap-6 grid-cols-1 md:grid-cols-4">
         <div className="my-8 md:mr-3 w-full md:my-0 grid md:col-span-3">
-          <CurrentGameResults
-            refreshTrigger={refreshTrigger}
+          <CurrentGame
+            currentGameResults={currentGameResults}
             leagueName={leagueName}
-            isLoading={isLoadingLeagueName}
+            isLoading={isLoadingLeagueName || isLoadingCurrentGameData}
           />
         </div>
 
@@ -111,6 +116,7 @@ const Page = () => {
             predictionWeekFixtures={predictionWeekFixtures}
             setRefreshTrigger={setRefreshTrigger}
             isLoading={isLoadingResults || isLoadingResults || isLoadingFplData}
+            currentGameId={currentGameId}
           />
         </div>
       </div>
