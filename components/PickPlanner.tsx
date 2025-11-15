@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Select } from '@/components/ui/select';
 import {
   Card,
@@ -230,6 +231,7 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
               />
             </div>
           )}
+          {/* Motion-only animations (framer-motion) */}
         </div>
       </CardHeader>
 
@@ -267,14 +269,27 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
                 <TableHead className="w-40 font-medium text-center border-[0.5rem] border-white rounded-[1rem]">
                   Team
                 </TableHead>
-                {[...Array(numWeeks)].map((_, idx) => (
-                  <TableHead
-                    key={idx}
-                    className="w-28 font-medium text-center border-[0.5rem] border-white rounded-[1rem]"
-                  >
-                    GW{currentGwNumber + 1 + idx}
-                  </TableHead>
-                ))}
+                <AnimatePresence initial={false}>
+                  {[...Array(numWeeks)].map((_, idx) => {
+                    const gw = currentGwNumber + 1 + idx;
+                    return (
+                      <TableHead
+                        key={gw}
+                        className="w-28 font-medium text-center border-[0.5rem] border-white rounded-[1rem] p-0"
+                      >
+                        <motion.div
+                          layout
+                          initial={{ opacity: 0, y: -6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 6 }}
+                          transition={{ duration: 0.18 }}
+                        >
+                          GW{gw}
+                        </motion.div>
+                      </TableHead>
+                    );
+                  })}
+                </AnimatePresence>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -283,39 +298,42 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
                   <TableCell className="w-40 font-medium text-center border-[0.5rem] border-white rounded-[1rem]">
                     {team.name}
                   </TableCell>
-                  {[...Array(numWeeks)].map((_, weekIdx) => {
-                    const gw = currentGwNumber + 1 + weekIdx;
-                    const { display, difficulty } =
-                      getFixture(team.id, gw) || {};
-                    const isTeamPlanned = returnIsTeamPlanned(team.id);
-                    const isPreviouslyPredicted = returnIsPreviouslyPredicted(
-                      team.id
-                    );
-                    const isTeamPlannedThisGw = picks[gw] === team.id;
+                  <AnimatePresence initial={false}>
+                    {[...Array(numWeeks)].map((_, weekIdx) => {
+                      const gw = currentGwNumber + 1 + weekIdx;
+                      const { display, difficulty } = getFixture(team.id, gw) || {};
+                      const isTeamPlanned = returnIsTeamPlanned(team.id);
+                      const isPreviouslyPredicted = returnIsPreviouslyPredicted(team.id);
+                      const isTeamPlannedThisGw = picks[gw] === team.id;
 
-                    const className = getClassName(
-                      isTeamPlannedThisGw,
-                      isPreviouslyPredicted,
-                      isTeamPlanned,
-                      display,
-                      difficulty
-                    );
+                      const className = getClassName(
+                        isTeamPlannedThisGw,
+                        isPreviouslyPredicted,
+                        isTeamPlanned,
+                        display,
+                        difficulty
+                      );
 
-                    return (
-                      <TableCell
-                        key={weekIdx}
-                        className={`${className} w-28`}
-                        aria-disabled={isPreviouslyPredicted || !display}
-                        onClick={() =>
-                          !isPreviouslyPredicted &&
-                          display &&
-                          handlePick(team.id, gw)
-                        }
-                      >
-                        {display || '-'}
-                      </TableCell>
-                    );
-                  })}
+                      return (
+                        <TableCell
+                          key={`${team.id}-${gw}`}
+                          className={`${className} w-28`}
+                          aria-disabled={isPreviouslyPredicted || !display}
+                          onClick={() => !isPreviouslyPredicted && display && handlePick(team.id, gw)}
+                        >
+                          <motion.div
+                            layout
+                            initial={{ opacity: 0, y: -4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 4 }}
+                            transition={{ duration: 0.15 }}
+                          >
+                            {display || '-'}
+                          </motion.div>
+                        </TableCell>
+                      );
+                    })}
+                  </AnimatePresence>
                 </TableRow>
               ))}
             </TableBody>
