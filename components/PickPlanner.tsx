@@ -231,7 +231,6 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
               />
             </div>
           )}
-          {/* Motion-only animations (framer-motion) */}
         </div>
       </CardHeader>
 
