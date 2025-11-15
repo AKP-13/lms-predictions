@@ -25,6 +25,7 @@ interface PickPlannerProps {
   numWeeks?: number;
   results: Record<number, Results[]>;
   session: Session | null;
+  currentGameId: number | null;
 }
 
 const PickPlanner: React.FC<PickPlannerProps> = ({
@@ -33,12 +34,12 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
   currentGwNumber,
   numWeeks = 5,
   results,
-  session
+  session,
+  currentGameId
 }) => {
-  const gameweekNumbers = Object.keys(results).map(Number);
-  const latestGameweek = Math.max(...gameweekNumbers);
-  const previousPicksArr =
-    results[latestGameweek]?.map((val) => val?.team_selected) ?? [];
+  const previousPicksArr = currentGameId
+    ? (results[currentGameId]?.map((val) => val?.team_selected) ?? [])
+    : [];
   const [picks, setPicks] = useState<{ [gw: number]: number | null }>({});
 
   const isLoading = session === undefined;
@@ -49,12 +50,18 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
       (f) => f.event === gw && (f.team_h === teamId || f.team_a === teamId)
     );
     if (!fixture) return null;
+
     const isHome = fixture.team_h === teamId;
     const n = teams.find(
       (t) => t.id === (isHome ? fixture.team_a : fixture.team_h)
     );
+
     if (!n) return null;
-    return `${n.name} (${isHome ? 'H' : 'A'})`;
+
+    return {
+      display: `${n.name} (${isHome ? 'H' : 'A'})`,
+      difficulty: isHome ? fixture.team_h_difficulty : fixture.team_a_difficulty
+    };
   };
 
   // Helper: check if team is already planned to be picked in any GW
@@ -110,15 +117,32 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
     isTeamPlannedThisGw: boolean,
     isPreviouslyPredicted: boolean | undefined,
     isTeamPlanned: boolean,
-    fixture: string | null
+    fixture: string | undefined,
+    difficulty: number | undefined
   ) => {
+    // Always include a 0.5rem solid white border on cells
     if (isTeamPlannedThisGw)
-      return 'border border-blue-500 bg-blue-100 text-center';
+      return 'border-[0.5rem] border-blue-500 bg-blue-100 text-center rounded-[1rem]';
     if (isPreviouslyPredicted)
-      return 'cursor-not-allowed bg-gray-500 text-center';
+      return 'border-[0.5rem] border-white cursor-not-allowed bg-gray-500 text-center rounded-[1rem]';
     if (isTeamPlanned)
-      return 'cursor-pointer bg-[rgba(156,163,175,0.3)] text-center';
-    return `cursor-pointer bg-white text-center${fixture ? '' : ' opacity-50'}`;
+      return 'border-[0.5rem] border-white cursor-pointer bg-gray-500 text-center rounded-[1rem]';
+    if (difficulty !== undefined) {
+      const bgClass =
+        difficulty === 1
+          ? 'bg-[#4CAF50]'
+          : difficulty === 2
+            ? 'bg-[#388E3C] text-white'
+            : difficulty === 3
+              ? 'bg-[#B0BEC5] text-white'
+              : difficulty === 4
+                ? 'bg-[#EF5350] text-white'
+                : difficulty === 5
+                  ? 'bg-[#C62828] text-white'
+                  : 'bg-white';
+      return `cursor-pointer ${bgClass} text-center border-[0.5rem] border-white rounded-[1rem]`;
+    }
+    return `cursor-pointer bg-white text-center border-[0.5rem] border-white rounded-[1rem]${fixture ? '' : ' opacity-50'}`;
   };
 
   return (
@@ -162,12 +186,17 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
             </a>
           </div>
         ) : (
-          <Table>
+          <Table className="border-separate border-spacing-0">
             <TableHeader>
               <TableRow>
-                <TableHead className="font-medium text-center">Team</TableHead>
+                <TableHead className="font-medium text-center border-[0.5rem] border-white rounded-[1rem]">
+                  Team
+                </TableHead>
                 {[...Array(numWeeks)].map((_, idx) => (
-                  <TableHead key={idx} className="font-medium text-center">
+                  <TableHead
+                    key={idx}
+                    className="font-medium text-center border-[0.5rem] border-white rounded-[1rem]"
+                  >
                     GW{currentGwNumber + 1 + idx}
                   </TableHead>
                 ))}
@@ -176,12 +205,13 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
             <TableBody>
               {teams.map((team) => (
                 <TableRow key={team.id}>
-                  <TableCell className="font-medium text-center">
+                  <TableCell className="font-medium text-center border-[0.5rem] border-white rounded-[1rem]">
                     {team.name}
                   </TableCell>
                   {[...Array(numWeeks)].map((_, weekIdx) => {
                     const gw = currentGwNumber + 1 + weekIdx;
-                    const fixture = getFixture(team.id, gw);
+                    const { display, difficulty } =
+                      getFixture(team.id, gw) || {};
                     const isTeamPlanned = returnIsTeamPlanned(team.id);
                     const isPreviouslyPredicted = returnIsPreviouslyPredicted(
                       team.id
@@ -192,22 +222,23 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
                       isTeamPlannedThisGw,
                       isPreviouslyPredicted,
                       isTeamPlanned,
-                      fixture
+                      display,
+                      difficulty
                     );
 
                     return (
                       <TableCell
                         key={weekIdx}
                         className={className}
-                        aria-disabled={isPreviouslyPredicted || !fixture}
+                        aria-disabled={isPreviouslyPredicted || !display}
                         onClick={() =>
                           !isPreviouslyPredicted &&
-                          fixture &&
+                          display &&
                           handlePick(team.id, gw)
                         }
                         style={{ minWidth: 80 }}
                       >
-                        {fixture || '-'}
+                        {display || '-'}
                       </TableCell>
                     );
                   })}

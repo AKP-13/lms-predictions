@@ -148,6 +148,7 @@ const Page = () => {
           numWeeks={5}
           results={results || {}}
           session={session}
+          currentGameId={currentGameId}
         />
       </div>
 
