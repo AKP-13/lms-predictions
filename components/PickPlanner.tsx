@@ -301,9 +301,12 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
                   <AnimatePresence initial={false}>
                     {[...Array(numWeeks)].map((_, weekIdx) => {
                       const gw = currentGwNumber + 1 + weekIdx;
-                      const { display, difficulty } = getFixture(team.id, gw) || {};
+                      const { display, difficulty } =
+                        getFixture(team.id, gw) || {};
                       const isTeamPlanned = returnIsTeamPlanned(team.id);
-                      const isPreviouslyPredicted = returnIsPreviouslyPredicted(team.id);
+                      const isPreviouslyPredicted = returnIsPreviouslyPredicted(
+                        team.id
+                      );
                       const isTeamPlannedThisGw = picks[gw] === team.id;
 
                       const className = getClassName(
@@ -319,7 +322,11 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
                           key={`${team.id}-${gw}`}
                           className={`${className} w-28`}
                           aria-disabled={isPreviouslyPredicted || !display}
-                          onClick={() => !isPreviouslyPredicted && display && handlePick(team.id, gw)}
+                          onClick={() =>
+                            !isPreviouslyPredicted &&
+                            display &&
+                            handlePick(team.id, gw)
+                          }
                         >
                           <motion.div
                             layout
