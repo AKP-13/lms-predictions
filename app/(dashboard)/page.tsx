@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TileWrapper from '@/components/ui/tiles';
 import CurrentGame from './current-game-results';
 import FixturesResults from './fixtures-results';
@@ -41,6 +41,26 @@ export type TeamsArr = {
 
 const Page = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [numWeeks, setNumWeeks] = useState<number>(() => {
+    try {
+      const v =
+        typeof window !== 'undefined'
+          ? localStorage.getItem('pickPlanner:numWeeks')
+          : null;
+      return v ? Number(v) : 5;
+    } catch {
+      return 5;
+    }
+  });
+
+  // persist selection
+  useEffect(() => {
+    try {
+      localStorage.setItem('pickPlanner:numWeeks', String(numWeeks));
+    } catch {
+      // ignore
+    }
+  }, [numWeeks]);
 
   const { data: session } = useSession();
   const { results, isLoadingResults } = useResults({ refreshTrigger });
@@ -145,7 +165,8 @@ const Page = () => {
           teams={teamsArr}
           fixtures={fixtures || []}
           currentGwNumber={currentGwNumber}
-          numWeeks={5}
+          numWeeks={numWeeks}
+          setNumWeeks={setNumWeeks}
           results={results || {}}
           session={session}
           currentGameId={currentGameId}

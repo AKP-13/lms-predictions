@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Select } from '@/components/ui/select';
 import {
   Card,
   CardContent,
@@ -23,6 +24,7 @@ interface PickPlannerProps {
   fixtures: FixturesData[];
   currentGwNumber: number;
   numWeeks?: number;
+  setNumWeeks?: React.Dispatch<React.SetStateAction<number>>;
   results: Record<number, Results[]>;
   session: Session | null;
   currentGameId: number | null;
@@ -35,7 +37,8 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
   numWeeks = 5,
   results,
   session,
-  currentGameId
+  currentGameId,
+  setNumWeeks
 }) => {
   const previousPicksArr = currentGameId
     ? (results[currentGameId]?.map((val) => val?.team_selected) ?? [])
@@ -122,11 +125,11 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
   ) => {
     // Always include a 0.5rem solid white border on cells
     if (isTeamPlannedThisGw)
-      return 'border-[0.5rem] border-blue-500 bg-blue-100 text-center rounded-[1rem] cursor-pointer';
+      return 'border-[0.5rem] border-blue-500 bg-blue-100 text-center rounded-[1rem] transition-colors duration-150 ease-in-out cursor-pointer';
     if (isPreviouslyPredicted)
-      return 'border-[0.5rem] border-white cursor-not-allowed bg-gray-500 text-center rounded-[1rem]';
+      return 'border-[0.5rem] border-white cursor-not-allowed bg-gray-500 text-center rounded-[1rem] transition-colors duration-150 ease-in-out';
     if (isTeamPlanned)
-      return 'border-[0.5rem] border-white cursor-pointer bg-gray-500 text-center rounded-[1rem]';
+      return 'border-[0.5rem] border-white cursor-pointer bg-gray-500 text-center rounded-[1rem] transition-colors duration-150 ease-in-out';
     if (difficulty !== undefined) {
       const bgClass =
         difficulty === 1
@@ -140,9 +143,9 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
                 : difficulty === 5
                   ? 'bg-[#C62828] text-white'
                   : 'bg-white';
-      return `cursor-pointer ${bgClass} text-center border-[0.5rem] border-white rounded-[1rem]`;
+      return `cursor-pointer ${bgClass} text-center border-[0.5rem] border-white rounded-[1rem] transition-colors transition-shadow duration-150 ease-in-out`;
     }
-    return `cursor-pointer bg-white text-center border-[0.5rem] border-white rounded-[1rem]${fixture ? '' : ' opacity-50'}`;
+    return `cursor-pointer bg-white text-center border-[0.5rem] border-white rounded-[1rem]${fixture ? '' : ' opacity-50'} transition-colors duration-150 ease-in-out`;
   };
 
   return (
@@ -152,10 +155,36 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
       aria-live="polite"
     >
       <CardHeader>
-        <CardTitle className="flex flex-row items-center">
-          Pick Planner
-        </CardTitle>
-        <CardDescription>Plan your picks.</CardDescription>
+        <div className="flex items-center justify-between w-full">
+          <div>
+            <CardTitle className="flex flex-row items-center">
+              Pick Planner
+            </CardTitle>
+            <CardDescription>Plan your picks.</CardDescription>
+          </div>
+          {setNumWeeks && (
+            <div className="ml-4 flex items-center">
+              <label htmlFor="weeks" className="text-sm font-medium mr-2">
+                Weeks
+              </label>
+              <Select
+                name="weeks"
+                id="weeks"
+                options={['5', '6', '7', '8', '9', '10']}
+                value={String(numWeeks ?? 5)}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setNumWeeks(Number(e.target.value))
+                }
+                aria-label="Number of weeks to show"
+                disabled={isLoading}
+                className={
+                  isLoading ? 'opacity-50 cursor-not-allowed animate-pulse' : ''
+                }
+                style={{ width: 60 }}
+              />
+            </div>
+          )}
+        </div>
       </CardHeader>
 
       <CardContent>
@@ -186,16 +215,16 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
             </a>
           </div>
         ) : (
-          <Table className="border-separate border-spacing-0">
+          <Table className="table-fixed border-separate border-spacing-0 w-full">
             <TableHeader>
               <TableRow>
-                <TableHead className="font-medium text-center border-[0.5rem] border-white rounded-[1rem]">
+                <TableHead className="w-40 font-medium text-center border-[0.5rem] border-white rounded-[1rem]">
                   Team
                 </TableHead>
                 {[...Array(numWeeks)].map((_, idx) => (
                   <TableHead
                     key={idx}
-                    className="font-medium text-center border-[0.5rem] border-white rounded-[1rem]"
+                    className="w-28 font-medium text-center border-[0.5rem] border-white rounded-[1rem]"
                   >
                     GW{currentGwNumber + 1 + idx}
                   </TableHead>
@@ -205,7 +234,7 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
             <TableBody>
               {teams.map((team) => (
                 <TableRow key={team.id}>
-                  <TableCell className="font-medium text-center border-[0.5rem] border-white rounded-[1rem]">
+                  <TableCell className="w-40 font-medium text-center border-[0.5rem] border-white rounded-[1rem]">
                     {team.name}
                   </TableCell>
                   {[...Array(numWeeks)].map((_, weekIdx) => {
@@ -229,14 +258,13 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
                     return (
                       <TableCell
                         key={weekIdx}
-                        className={className}
+                        className={`${className} w-28`}
                         aria-disabled={isPreviouslyPredicted || !display}
                         onClick={() =>
                           !isPreviouslyPredicted &&
                           display &&
                           handlePick(team.id, gw)
                         }
-                        style={{ minWidth: 80 }}
                       >
                         {display || '-'}
                       </TableCell>
