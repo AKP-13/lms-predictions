@@ -122,7 +122,7 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
   ) => {
     // Always include a 0.5rem solid white border on cells
     if (isTeamPlannedThisGw)
-      return 'border-[0.5rem] border-blue-500 bg-blue-100 text-center rounded-[1rem]';
+      return 'border-[0.5rem] border-blue-500 bg-blue-100 text-center rounded-[1rem] cursor-pointer';
     if (isPreviouslyPredicted)
       return 'border-[0.5rem] border-white cursor-not-allowed bg-gray-500 text-center rounded-[1rem]';
     if (isTeamPlanned)
