@@ -163,50 +163,52 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
             <CardDescription>Plan your picks.</CardDescription>
           </div>
 
-          <div className="flex items-center space-x-6">
-            <div className="flex items-center space-x-3 text-sm text-gray-600">
-              <span>Difficulty</span>
-              <div className="flex items-start space-x-2">
-                <div className="flex flex-col items-center">
-                  <div className="h-4 flex items-center">
-                    <span className="w-3 h-3 rounded-full bg-[#4CAF50]" />
+          {session && (
+            <div className="flex items-center space-x-6">
+              <div className="flex items-center space-x-3 text-sm text-gray-600">
+                <span>Difficulty</span>
+                <div className="flex items-start space-x-2">
+                  <div className="flex flex-col items-center">
+                    <div className="h-4 flex items-center">
+                      <span className="w-3 h-3 rounded-full bg-[#4CAF50]" />
+                    </div>
+                    <span className="text-xs text-gray-600">1</span>
+                    <span className="text-[10px] text-gray-500 min-h-[12px]">
+                      Easy
+                    </span>
                   </div>
-                  <span className="text-xs text-gray-600">1</span>
-                  <span className="text-[10px] text-gray-500 min-h-[12px]">
-                    Easy
-                  </span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="h-4 flex items-center">
-                    <span className="w-3 h-3 rounded-full bg-[#388E3C]" />
+                  <div className="flex flex-col items-center">
+                    <div className="h-4 flex items-center">
+                      <span className="w-3 h-3 rounded-full bg-[#388E3C]" />
+                    </div>
+                    <span className="text-xs text-gray-600">2</span>
                   </div>
-                  <span className="text-xs text-gray-600">2</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="h-4 flex items-center">
-                    <span className="w-3 h-3 rounded-full bg-[#B0BEC5]" />
+                  <div className="flex flex-col items-center">
+                    <div className="h-4 flex items-center">
+                      <span className="w-3 h-3 rounded-full bg-[#B0BEC5]" />
+                    </div>
+                    <span className="text-xs text-gray-600">3</span>
                   </div>
-                  <span className="text-xs text-gray-600">3</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="h-4 flex items-center">
-                    <span className="w-3 h-3 rounded-full bg-[#EF5350]" />
+                  <div className="flex flex-col items-center">
+                    <div className="h-4 flex items-center">
+                      <span className="w-3 h-3 rounded-full bg-[#EF5350]" />
+                    </div>
+                    <span className="text-xs text-gray-600">4</span>
                   </div>
-                  <span className="text-xs text-gray-600">4</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="h-4 flex items-center">
-                    <span className="w-3 h-3 rounded-full bg-[#C62828]" />
+                  <div className="flex flex-col items-center">
+                    <div className="h-4 flex items-center">
+                      <span className="w-3 h-3 rounded-full bg-[#C62828]" />
+                    </div>
+                    <span className="text-xs text-gray-600">5</span>
+                    <span className="text-[10px] text-gray-500 min-h-[12px]">
+                      Hard
+                    </span>
                   </div>
-                  <span className="text-xs text-gray-600">5</span>
-                  <span className="text-[10px] text-gray-500 min-h-[12px]">
-                    Hard
-                  </span>
                 </div>
               </div>
             </div>
-          </div>
-          {setNumWeeks && (
+          )}
+          {setNumWeeks && session && (
             <div className="flex items-center">
               <label htmlFor="weeks" className="text-sm font-medium mr-2">
                 Weeks
