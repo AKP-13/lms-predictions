@@ -152,9 +152,15 @@ const PickPlanner: FC<PickPlannerProps> = ({
   const getFixture = ({ gw, teamId }: { gw: number; teamId: number }) =>
     fixtureMap.get(`${gw}-${teamId}`) || null;
 
+  // Memoized Set of picked team IDs for O(1) lookup
+  const pickedTeamIdsSet = useMemo(
+    () =>
+      new Set(Object.values(picks).filter((id): id is number => id !== null)),
+    [picks]
+  );
+
   // Helper: check if team is already planned to be picked in any GW
-  const returnIsTeamPlanned = (teamId: number) =>
-    Object.values(picks).includes(teamId);
+  const returnIsTeamPlanned = (teamId: number) => pickedTeamIdsSet.has(teamId);
 
   // Helper to check if a team has already been predicted - now O(1)
   const returnIsPreviouslyPredicted = (teamId: number) =>
