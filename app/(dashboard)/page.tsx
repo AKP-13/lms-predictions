@@ -69,9 +69,7 @@ const Page = () => {
   const { fplData, isLoadingFplData } = useFplData();
   const { leagueName, isLoadingLeagueName } = useLeagueInfo();
   const { currentGameResults, currentGameId, isLoadingCurrentGameData } =
-    useCurrentGameData({
-      refreshTrigger
-    });
+    useCurrentGameData({ refreshTrigger });
 
   const currentGwNumber =
     !isLoadingFplData && fplData
