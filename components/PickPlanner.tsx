@@ -92,7 +92,7 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
       setPicks((prev) => ({ ...prev, [gw]: teamId }));
     }
     // team selected but in a different gw
-    else if (isTeamPlanned && picks[gw] !== teamId) {
+    else if (picks[gw] !== teamId) {
       // Remove the team from previous gw
       const gwToRemove = Object.entries(picks).find(
         ([, value]) => value === teamId
@@ -106,7 +106,7 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
       }
     }
     // team selected in same gw (remove)
-    else if (isTeamPlanned && picks[gw] === teamId) {
+    else if (picks[gw] === teamId) {
       setPicks((prev) => {
         const updated = { ...prev };
         delete updated[gw];
