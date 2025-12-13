@@ -126,7 +126,7 @@ const FixturesResults = ({
             ) : Array.isArray(fixtures) && fixtures.length === 0 ? (
               <TableRow>
                 <TableCell className="table-cell w-full px-2 text-center">
-                  No fixtures available
+                  The site is being updated. Please check back later.
                 </TableCell>
               </TableRow>
             ) : (

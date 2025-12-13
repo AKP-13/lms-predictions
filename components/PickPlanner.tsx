@@ -325,6 +325,10 @@ const PickPlanner: FC<PickPlannerProps> = ({
               Sign in to get started
             </a>
           </div>
+        ) : fixtures.length === 0 ? (
+          <p className="text-center">
+            The site is being updated. Please check back later.
+          </p>
         ) : (
           <Table className="table-fixed border-separate border-spacing-0 w-full">
             <TableHeader>
