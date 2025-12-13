@@ -136,9 +136,12 @@ const PickPlanner: FC<PickPlannerProps> = ({
         ? (results[currentGameId]?.map((val) => val?.team_selected) ?? [])
         : [];
 
+    // Create a Map of teams indexed by name for O(1) lookups
+    const teamsByName = new Map(teams.map((team) => [team.name, team]));
+
     const teamIdSet = new Set<number>();
     previousPicksArr.forEach((teamName) => {
-      const team = teams.find((t) => t.name === teamName);
+      const team = teamsByName.get(teamName);
       if (team) teamIdSet.add(team.id);
     });
 
