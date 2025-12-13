@@ -390,13 +390,32 @@ const PickPlanner: FC<PickPlannerProps> = ({
                       return (
                         <TableCell
                           key={`${team.id}-${gw}`}
-                          className={`${className} w-28`}
+                          className={`${className} w-28 outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white rounded-[1rem]`}
                           aria-disabled={isPreviouslyPredicted || !fixtureText}
                           onClick={() =>
                             !isPreviouslyPredicted &&
                             fixtureText &&
                             handlePick(team.id, gw)
                           }
+                          tabIndex={
+                            isPreviouslyPredicted || !fixtureText ? -1 : 0
+                          }
+                          aria-pressed={isTeamPlannedThisGw}
+                          aria-label={
+                            fixtureText
+                              ? `GW ${gw}, ${team.name}, ${fixtureText}${isPreviouslyPredicted ? ', already used' : ''}`
+                              : `GW ${gw}, ${team.name}, no fixture`
+                          }
+                          onKeyDown={(e) => {
+                            if (
+                              (e.key === 'Enter' || e.key === ' ') &&
+                              !isPreviouslyPredicted &&
+                              fixtureText
+                            ) {
+                              e.preventDefault();
+                              handlePick(team.id, gw);
+                            }
+                          }}
                         >
                           <motion.div
                             layout
