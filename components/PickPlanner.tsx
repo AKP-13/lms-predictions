@@ -67,10 +67,7 @@ const WeekPicker = ({
         }
         aria-label="Number of weeks to show"
         disabled={isLoading}
-        className={
-          isLoading ? 'opacity-50 cursor-not-allowed animate-pulse' : ''
-        }
-        style={{ width: 60 }}
+        className={`${isLoading ? 'opacity-50 cursor-not-allowed animate-pulse ' : ''}w-[60px]`}
       />
     </div>
   );
