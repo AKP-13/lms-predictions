@@ -91,22 +91,23 @@ const PickPlanner: FC<PickPlannerProps> = ({
   const isLoading = session === undefined;
 
   // Helper: get fixture for a team in a given GW
-  const getFixture = (teamId: number, gw: number) => {
+  const getFixture = ({ gw, teamId }: { gw: number; teamId: number }) => {
     const fixture = fixtures.find(
       (f) => f.event === gw && (f.team_h === teamId || f.team_a === teamId)
     );
+
     if (!fixture) return null;
 
-    const isHome = fixture.team_h === teamId;
-    const n = teams.find(
-      (t) => t.id === (isHome ? fixture.team_a : fixture.team_h)
-    );
+    const { team_h, team_a, team_h_difficulty, team_a_difficulty } = fixture;
 
-    if (!n) return null;
+    const isHome = team_h === teamId;
+    const opponent = teams.find((t) => t.id === (isHome ? team_a : team_h));
+
+    if (!opponent) return null;
 
     return {
-      fixtureText: `${n.name} (${isHome ? 'H' : 'A'})`,
-      difficulty: isHome ? fixture.team_h_difficulty : fixture.team_a_difficulty
+      fixtureText: `${opponent.name} (${isHome ? 'H' : 'A'})`,
+      difficulty: isHome ? team_h_difficulty : team_a_difficulty
     };
   };
 
@@ -341,7 +342,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
                     {[...Array(numWeeks)].map((_, weekIdx) => {
                       const gw = currentGwNumber + 1 + weekIdx;
                       const { fixtureText, difficulty } =
-                        getFixture(team.id, gw) || {};
+                        getFixture({ teamId: team.id, gw }) || {};
                       const isTeamPlanned = returnIsTeamPlanned(team.id);
                       const isPreviouslyPredicted = returnIsPreviouslyPredicted(
                         team.id
