@@ -210,18 +210,20 @@ const PickPlanner: FC<PickPlannerProps> = ({
     fixtureText: string | undefined,
     difficulty: number | undefined
   ) => {
+    const baseStyles =
+      'border-[0.5rem] text-center duration-150 ease-in-out rounded-[1rem]';
     // Always include a 0.5rem solid border on cells; border color varies based on the cell's state (e.g., blue for planned cells, white otherwise)
     if (isTeamPlannedThisGw)
-      return 'border-[0.5rem] border-blue-500 bg-blue-100 text-center rounded-[1rem] transition-colors duration-150 ease-in-out cursor-pointer';
+      return `${baseStyles} border-blue-500 bg-blue-100 transition-colors cursor-pointer`;
     if (isPreviouslyPredicted)
-      return 'border-[0.5rem] border-white cursor-not-allowed bg-gray-500 text-center rounded-[1rem] transition-colors duration-150 ease-in-out';
+      return `${baseStyles} border-white cursor-not-allowed bg-gray-500 transition-colors`;
     if (isTeamPlanned)
-      return 'border-[0.5rem] border-white cursor-pointer bg-gray-500 text-center rounded-[1rem] transition-colors duration-150 ease-in-out';
+      return `${baseStyles} border-white cursor-pointer bg-gray-500 transition-colors`;
     if (difficulty !== undefined) {
       const bgClass = DIFFICULTY_BG_CLASS_MAP[difficulty] || 'bg-white';
-      return `cursor-pointer ${bgClass} text-center border-[0.5rem] border-white rounded-[1rem] transition-all duration-150 ease-in-out`;
+      return `${baseStyles} cursor-pointer ${bgClass} border-white transition-all`;
     }
-    return `cursor-pointer bg-white text-center border-[0.5rem] border-white rounded-[1rem]${fixtureText ? '' : ' opacity-50'} transition-colors duration-150 ease-in-out`;
+    return `${baseStyles} cursor-pointer bg-white border-white${fixtureText ? '' : ' opacity-50'} transition-colors`;
   };
 
   return (
