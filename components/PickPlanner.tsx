@@ -132,18 +132,14 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
     if (isTeamPlanned)
       return 'border-[0.5rem] border-white cursor-pointer bg-gray-500 text-center rounded-[1rem] transition-colors duration-150 ease-in-out';
     if (difficulty !== undefined) {
-      const bgClass =
-        difficulty === 1
-          ? 'bg-[#4CAF50]'
-          : difficulty === 2
-            ? 'bg-[#388E3C] text-white'
-            : difficulty === 3
-              ? 'bg-[#B0BEC5] text-white'
-              : difficulty === 4
-                ? 'bg-[#EF5350] text-white'
-                : difficulty === 5
-                  ? 'bg-[#C62828] text-white'
-                  : 'bg-white';
+      const difficultyBgClassMap: { [key: number]: string } = {
+        1: 'bg-[#4CAF50]',
+        2: 'bg-[#388E3C] text-white',
+        3: 'bg-[#B0BEC5] text-white',
+        4: 'bg-[#EF5350] text-white',
+        5: 'bg-[#C62828] text-white'
+      };
+      const bgClass = difficultyBgClassMap[difficulty] || 'bg-white';
       return `cursor-pointer ${bgClass} text-center border-[0.5rem] border-white rounded-[1rem] transition-colors transition-shadow duration-150 ease-in-out`;
     }
     return `cursor-pointer bg-white text-center border-[0.5rem] border-white rounded-[1rem]${fixture ? '' : ' opacity-50'} transition-colors duration-150 ease-in-out`;
