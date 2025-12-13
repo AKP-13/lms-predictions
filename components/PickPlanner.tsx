@@ -63,7 +63,7 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
     if (!n) return null;
 
     return {
-      display: `${n.name} (${isHome ? 'H' : 'A'})`,
+      fixtureText: `${n.name} (${isHome ? 'H' : 'A'})`,
       difficulty: isHome ? fixture.team_h_difficulty : fixture.team_a_difficulty
     };
   };
@@ -121,7 +121,7 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
     isTeamPlannedThisGw: boolean,
     isPreviouslyPredicted: boolean | undefined,
     isTeamPlanned: boolean,
-    fixture: string | undefined,
+    fixtureText: string | undefined,
     difficulty: number | undefined
   ) => {
     // Always include a 0.5rem solid white border on cells
@@ -142,7 +142,7 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
       const bgClass = difficultyBgClassMap[difficulty] || 'bg-white';
       return `cursor-pointer ${bgClass} text-center border-[0.5rem] border-white rounded-[1rem] transition-colors transition-shadow duration-150 ease-in-out`;
     }
-    return `cursor-pointer bg-white text-center border-[0.5rem] border-white rounded-[1rem]${fixture ? '' : ' opacity-50'} transition-colors duration-150 ease-in-out`;
+    return `cursor-pointer bg-white text-center border-[0.5rem] border-white rounded-[1rem]${fixtureText ? '' : ' opacity-50'} transition-colors duration-150 ease-in-out`;
   };
 
   return (
@@ -328,7 +328,7 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
                   <AnimatePresence initial={false}>
                     {[...Array(numWeeks)].map((_, weekIdx) => {
                       const gw = currentGwNumber + 1 + weekIdx;
-                      const { display, difficulty } =
+                      const { fixtureText, difficulty } =
                         getFixture(team.id, gw) || {};
                       const isTeamPlanned = returnIsTeamPlanned(team.id);
                       const isPreviouslyPredicted = returnIsPreviouslyPredicted(
@@ -340,7 +340,7 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
                         isTeamPlannedThisGw,
                         isPreviouslyPredicted,
                         isTeamPlanned,
-                        display,
+                        fixtureText,
                         difficulty
                       );
 
@@ -348,10 +348,10 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
                         <TableCell
                           key={`${team.id}-${gw}`}
                           className={`${className} w-28`}
-                          aria-disabled={isPreviouslyPredicted || !display}
+                          aria-disabled={isPreviouslyPredicted || !fixtureText}
                           onClick={() =>
                             !isPreviouslyPredicted &&
-                            display &&
+                            fixtureText &&
                             handlePick(team.id, gw)
                           }
                         >
@@ -362,7 +362,7 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
                             exit={{ opacity: 0, y: 4 }}
                             transition={{ duration: 0.15 }}
                           >
-                            {display || '-'}
+                            {fixtureText || '-'}
                           </motion.div>
                         </TableCell>
                       );
