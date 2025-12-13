@@ -80,7 +80,7 @@ const WeekPicker = ({
         }
         aria-label="Number of weeks to show"
         disabled={isLoading}
-        className={`${isLoading ? 'opacity-50 cursor-not-allowed animate-pulse ' : ''}w-[60px]`}
+        className={`${isLoading ? 'opacity-50 cursor-not-allowed animate-pulse' : ''} w-[60px]`}
       />
     </div>
   );
@@ -210,7 +210,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
     fixtureText: string | undefined,
     difficulty: number | undefined
   ) => {
-    // Always include a 0.5rem solid white border on cells
+    // Always include a 0.5rem solid border on cells; border color varies based on the cell's state (e.g., blue for planned cells, white otherwise)
     if (isTeamPlannedThisGw)
       return 'border-[0.5rem] border-blue-500 bg-blue-100 text-center rounded-[1rem] transition-colors duration-150 ease-in-out cursor-pointer';
     if (isPreviouslyPredicted)
