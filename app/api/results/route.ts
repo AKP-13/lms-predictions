@@ -6,11 +6,15 @@ export async function GET() {
   try {
     const session = await auth();
 
-    const data = await fetchResultsData({
-      userId: session?.user?.id ?? undefined
-    });
+    const userId = session?.user?.id;
 
-    return NextResponse.json(data);
+    if (userId) {
+      const data = await fetchResultsData({ userId });
+
+      return NextResponse.json(data);
+    }
+
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   } catch (error) {
     console.log('error fetching results', error);
     return NextResponse.json(
