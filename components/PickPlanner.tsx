@@ -96,16 +96,19 @@ const PickPlanner: FC<PickPlannerProps> = ({
 
   const isLoading = session === undefined;
 
-  // Create O(1) lookup map for fixtures: key = "teamId-gw"
+  // Create O(1) lookup maps
   const fixtureMap = useMemo(() => {
+    // First, create a Map of teams indexed by ID for O(1) lookups
+    const teamsById = new Map(teams.map((team) => [team.id, team]));
+
     const map = new Map<string, { fixtureText: string; difficulty: number }>();
 
     fixtures.forEach((fixture) => {
       const { event, team_h, team_a, team_h_difficulty, team_a_difficulty } =
         fixture;
 
-      // Home team
-      const homeOpponent = teams.find((t) => t.id === team_a);
+      // Home team - O(1) lookup
+      const homeOpponent = teamsById.get(team_a);
       if (homeOpponent) {
         map.set(`${event}-${team_h}`, {
           fixtureText: `${homeOpponent.name} (H)`,
@@ -113,8 +116,8 @@ const PickPlanner: FC<PickPlannerProps> = ({
         });
       }
 
-      // Away team
-      const awayOpponent = teams.find((t) => t.id === team_h);
+      // Away team - O(1) lookup
+      const awayOpponent = teamsById.get(team_h);
       if (awayOpponent) {
         map.set(`${event}-${team_a}`, {
           fixtureText: `${awayOpponent.name} (A)`,
