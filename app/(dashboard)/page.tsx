@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import TileWrapper from '@/components/ui/tiles';
 import CurrentGame from './current-game-results';
 import FixturesResults from './fixtures-results';
@@ -80,14 +80,17 @@ const Page = () => {
     (fixture) => fixture.event === currentGwNumber + 1
   );
 
-  const teamsArr: TeamsArr =
-    !isLoadingFplData && fplData
-      ? fplData.teams.map(({ id, name, short_name }) => ({
-          id,
-          name,
-          short_name
-        }))
-      : [];
+  const teamsArr: TeamsArr = useMemo(
+    () =>
+      !isLoadingFplData && fplData
+        ? fplData.teams.map(({ id, name, short_name }) => ({
+            id,
+            name,
+            short_name
+          }))
+        : [],
+    [isLoadingFplData, fplData]
+  );
 
   const maxGameWeeks = isLoadingResults
     ? 1

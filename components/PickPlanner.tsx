@@ -3,6 +3,7 @@ import React, {
   Dispatch,
   FC,
   SetStateAction,
+  useMemo,
   useState
 } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -25,6 +26,15 @@ import {
 import { FixturesData, Results } from '@/lib/definitions';
 import { TeamsArr } from 'app/(dashboard)/page';
 import { Session } from 'next-auth';
+
+// Constant - never changes
+const DIFFICULTY_BG_CLASS_MAP: { [key: number]: string } = {
+  1: 'bg-[#4CAF50]',
+  2: 'bg-[#388E3C] text-white',
+  3: 'bg-[#B0BEC5] text-white',
+  4: 'bg-[#EF5350] text-white',
+  5: 'bg-[#C62828] text-white'
+};
 
 interface PickPlannerProps {
   teams: TeamsArr;
@@ -83,49 +93,67 @@ const PickPlanner: FC<PickPlannerProps> = ({
   currentGameId,
   setNumWeeks
 }) => {
-  const previousPicksArr = currentGameId
-    ? (results[currentGameId]?.map((val) => val?.team_selected) ?? [])
-    : [];
   const [picks, setPicks] = useState<{ [gw: number]: number | null }>({});
 
   const isLoading = session === undefined;
 
-  // Helper: get fixture for a team in a given GW
-  const getFixture = ({ gw, teamId }: { gw: number; teamId: number }) => {
-    const fixture = fixtures.find(
-      (f) => f.event === gw && (f.team_h === teamId || f.team_a === teamId)
-    );
+  // Create O(1) lookup map for fixtures: key = "teamId-gw"
+  const fixtureMap = useMemo(() => {
+    const map = new Map<string, { fixtureText: string; difficulty: number }>();
 
-    if (!fixture) return null;
+    fixtures.forEach((fixture) => {
+      const { event, team_h, team_a, team_h_difficulty, team_a_difficulty } =
+        fixture;
 
-    const { team_h, team_a, team_h_difficulty, team_a_difficulty } = fixture;
+      // Home team
+      const homeOpponent = teams.find((t) => t.id === team_a);
+      if (homeOpponent) {
+        map.set(`${event}-${team_h}`, {
+          fixtureText: `${homeOpponent.name} (H)`,
+          difficulty: team_h_difficulty
+        });
+      }
 
-    const isHome = team_h === teamId;
-    const opponent = teams.find((t) => t.id === (isHome ? team_a : team_h));
+      // Away team
+      const awayOpponent = teams.find((t) => t.id === team_h);
+      if (awayOpponent) {
+        map.set(`${event}-${team_a}`, {
+          fixtureText: `${awayOpponent.name} (A)`,
+          difficulty: team_a_difficulty
+        });
+      }
+    });
 
-    if (!opponent) return null;
+    return map;
+  }, [fixtures, teams]);
 
-    return {
-      fixtureText: `${opponent.name} (${isHome ? 'H' : 'A'})`,
-      difficulty: isHome ? team_h_difficulty : team_a_difficulty
-    };
-  };
+  // Create O(1) lookup Set for previously predicted team IDs
+  const previouslyPredictedTeamIds = useMemo(() => {
+    const previousPicksArr =
+      typeof currentGameId === 'number'
+        ? (results[currentGameId]?.map((val) => val?.team_selected) ?? [])
+        : [];
+
+    const teamIdSet = new Set<number>();
+    previousPicksArr.forEach((teamName) => {
+      const team = teams.find((t) => t.name === teamName);
+      if (team) teamIdSet.add(team.id);
+    });
+
+    return teamIdSet;
+  }, [currentGameId, results, teams]);
+
+  // Helper: get fixture for a team in a given GW - now O(1)
+  const getFixture = ({ gw, teamId }: { gw: number; teamId: number }) =>
+    fixtureMap.get(`${gw}-${teamId}`) || null;
 
   // Helper: check if team is already planned to be picked in any GW
   const returnIsTeamPlanned = (teamId: number) =>
     Object.values(picks).includes(teamId);
 
-  // Helper to check if a team has already been predicted in previous gameweeks
-  const returnIsPreviouslyPredicted = (teamId: number) => {
-    const foundTeam = teams.find(({ id }) => id === teamId);
-    return (
-      Array.isArray(previousPicksArr) &&
-      previousPicksArr.length > 0 &&
-      teams.length > 0 &&
-      foundTeam &&
-      previousPicksArr.includes(foundTeam.name)
-    );
-  };
+  // Helper to check if a team has already been predicted - now O(1)
+  const returnIsPreviouslyPredicted = (teamId: number) =>
+    previouslyPredictedTeamIds.has(teamId);
 
   // Handle pick
   const handlePick = (teamId: number, gw: number) => {
@@ -175,14 +203,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
     if (isTeamPlanned)
       return 'border-[0.5rem] border-white cursor-pointer bg-gray-500 text-center rounded-[1rem] transition-colors duration-150 ease-in-out';
     if (difficulty !== undefined) {
-      const difficultyBgClassMap: { [key: number]: string } = {
-        1: 'bg-[#4CAF50]',
-        2: 'bg-[#388E3C] text-white',
-        3: 'bg-[#B0BEC5] text-white',
-        4: 'bg-[#EF5350] text-white',
-        5: 'bg-[#C62828] text-white'
-      };
-      const bgClass = difficultyBgClassMap[difficulty] || 'bg-white';
+      const bgClass = DIFFICULTY_BG_CLASS_MAP[difficulty] || 'bg-white';
       return `cursor-pointer ${bgClass} text-center border-[0.5rem] border-white rounded-[1rem] transition-colors transition-shadow duration-150 ease-in-out`;
     }
     return `cursor-pointer bg-white text-center border-[0.5rem] border-white rounded-[1rem]${fixtureText ? '' : ' opacity-50'} transition-colors duration-150 ease-in-out`;
