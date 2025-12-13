@@ -15,8 +15,10 @@ const useCurrentGameData = ({ refreshTrigger }: { refreshTrigger: number }) => {
       const {
         latestGameResults,
         latestGameId
-      }: { latestGameResults: CurrentGameResults[]; latestGameId: number } =
-        await res.json();
+      }: {
+        latestGameResults: CurrentGameResults[];
+        latestGameId: number | null;
+      } = await res.json();
 
       setCurrentGameResults(latestGameResults);
       setCurrentGameId(latestGameId);
