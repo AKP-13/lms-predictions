@@ -69,7 +69,7 @@ const WeekPicker = ({
 
     <Select
       name="weeks"
-      id="weeks"
+      id={`week-picker-${mobile ? 'mobile' : 'desktop'}`}
       options={['5', '6', '7', '8', '9', '10']}
       value={String(numWeeks ?? 5)}
       onChange={(e: ChangeEvent<HTMLSelectElement>) =>
