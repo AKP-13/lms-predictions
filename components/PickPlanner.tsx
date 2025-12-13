@@ -195,7 +195,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
 
   const getClassName = (
     isTeamPlannedThisGw: boolean,
-    isPreviouslyPredicted: boolean | undefined,
+    isPreviouslyPredicted: boolean,
     isTeamPlanned: boolean,
     fixtureText: string | undefined,
     difficulty: number | undefined
