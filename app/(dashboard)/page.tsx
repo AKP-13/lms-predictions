@@ -48,7 +48,10 @@ const Page = () => {
     try {
       const v = localStorage.getItem('pickPlanner:numWeeks');
       if (v) {
-        setNumWeeks(Number(v));
+        const parsed = parseInt(v, 10);
+        if (!isNaN(parsed)) {
+          setNumWeeks(parsed);
+        }
       }
     } catch {
       // ignore
