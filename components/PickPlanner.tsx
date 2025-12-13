@@ -203,7 +203,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
       return 'border-[0.5rem] border-white cursor-pointer bg-gray-500 text-center rounded-[1rem] transition-colors duration-150 ease-in-out';
     if (difficulty !== undefined) {
       const bgClass = DIFFICULTY_BG_CLASS_MAP[difficulty] || 'bg-white';
-      return `cursor-pointer ${bgClass} text-center border-[0.5rem] border-white rounded-[1rem] transition-colors transition-shadow duration-150 ease-in-out`;
+      return `cursor-pointer ${bgClass} text-center border-[0.5rem] border-white rounded-[1rem] transition-all duration-150 ease-in-out`;
     }
     return `cursor-pointer bg-white text-center border-[0.5rem] border-white rounded-[1rem]${fixtureText ? '' : ' opacity-50'} transition-colors duration-150 ease-in-out`;
   };
