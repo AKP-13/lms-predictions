@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Select } from '@/components/ui/select';
 import {
@@ -30,6 +30,45 @@ interface PickPlannerProps {
   session: Session | null;
   currentGameId: number | null;
 }
+
+const WeekPicker = ({
+  mobile,
+  numWeeks,
+  setNumWeeks,
+  isLoading
+}: {
+  mobile: boolean;
+  numWeeks: number;
+  setNumWeeks: Dispatch<SetStateAction<number>>;
+  isLoading: boolean;
+}) => {
+  return (
+    <div
+      className={`items-center flex-shrink-0 ${
+        mobile ? 'flex lg:hidden' : 'hidden lg:flex lg:order-3'
+      }`}
+    >
+      <label htmlFor="weeks" className="text-sm font-medium mr-2">
+        Weeks
+      </label>
+      <Select
+        name="weeks"
+        id="weeks"
+        options={['5', '6', '7', '8', '9', '10']}
+        value={String(numWeeks ?? 5)}
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+          setNumWeeks(Number(e.target.value))
+        }
+        aria-label="Number of weeks to show"
+        disabled={isLoading}
+        className={
+          isLoading ? 'opacity-50 cursor-not-allowed animate-pulse' : ''
+        }
+        style={{ width: 60 }}
+      />
+    </div>
+  );
+};
 
 const PickPlanner: React.FC<PickPlannerProps> = ({
   teams,
@@ -166,28 +205,12 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
 
             {/* Weeks dropdown - shows on first row on mobile, on right on large screens */}
             {setNumWeeks && session && (
-              <div className="flex items-center flex-shrink-0 lg:hidden">
-                <label htmlFor="weeks" className="text-sm font-medium mr-2">
-                  Weeks
-                </label>
-                <Select
-                  name="weeks"
-                  id="weeks"
-                  options={['5', '6', '7', '8', '9', '10']}
-                  value={String(numWeeks ?? 5)}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                    setNumWeeks(Number(e.target.value))
-                  }
-                  aria-label="Number of weeks to show"
-                  disabled={isLoading}
-                  className={
-                    isLoading
-                      ? 'opacity-50 cursor-not-allowed animate-pulse'
-                      : ''
-                  }
-                  style={{ width: 60 }}
-                />
-              </div>
+              <WeekPicker
+                mobile
+                numWeeks={numWeeks}
+                setNumWeeks={setNumWeeks}
+                isLoading={isLoading}
+              />
             )}
           </div>
 
@@ -238,26 +261,12 @@ const PickPlanner: React.FC<PickPlannerProps> = ({
 
           {/* Weeks dropdown for large screens */}
           {setNumWeeks && session && (
-            <div className="hidden lg:flex items-center flex-shrink-0 lg:order-3">
-              <label htmlFor="weeks" className="text-sm font-medium mr-2">
-                Weeks
-              </label>
-              <Select
-                name="weeks"
-                id="weeks"
-                options={['5', '6', '7', '8', '9', '10']}
-                value={String(numWeeks ?? 5)}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                  setNumWeeks(Number(e.target.value))
-                }
-                aria-label="Number of weeks to show"
-                disabled={isLoading}
-                className={
-                  isLoading ? 'opacity-50 cursor-not-allowed animate-pulse' : ''
-                }
-                style={{ width: 60 }}
-              />
-            </div>
+            <WeekPicker
+              mobile={false}
+              numWeeks={numWeeks}
+              setNumWeeks={setNumWeeks}
+              isLoading={isLoading}
+            />
           )}
         </div>
       </CardHeader>
