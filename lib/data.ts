@@ -81,6 +81,16 @@ export async function fetchCurrentGameData({
       [leagueId]
     );
 
+    if (
+      !queryResult.rows.length ||
+      queryResult.rows[0].current_game_id == null
+    ) {
+      return {
+        latestGameResults: [],
+        latestGameId: null
+      };
+    }
+
     const latestGameId = queryResult.rows[0].current_game_id;
 
     const currentGameResults = await sql.query<CurrentGameResults>(
