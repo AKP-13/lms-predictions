@@ -57,31 +57,30 @@ const WeekPicker = ({
   numWeeks: number;
   setNumWeeks: Dispatch<SetStateAction<number>>;
   isLoading: boolean;
-}) => {
-  return (
-    <div
-      className={`items-center flex-shrink-0 ${
-        mobile ? 'flex lg:hidden' : 'hidden lg:flex lg:order-3'
-      }`}
-    >
-      <label htmlFor="weeks" className="text-sm font-medium mr-2">
-        Weeks
-      </label>
-      <Select
-        name="weeks"
-        id="weeks"
-        options={['5', '6', '7', '8', '9', '10']}
-        value={String(numWeeks ?? 5)}
-        onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-          setNumWeeks(Number(e.target.value))
-        }
-        aria-label="Number of weeks to show"
-        disabled={isLoading}
-        className={`${isLoading ? 'opacity-50 cursor-not-allowed animate-pulse ' : ''}w-[60px]`}
-      />
-    </div>
-  );
-};
+}) => (
+  <div
+    className={`items-center flex-shrink-0 ${
+      mobile ? 'flex lg:hidden' : 'hidden lg:flex lg:order-3'
+    }`}
+  >
+    <label htmlFor="weeks" className="text-sm font-medium mr-2">
+      Weeks
+    </label>
+
+    <Select
+      name="weeks"
+      id="weeks"
+      options={['5', '6', '7', '8', '9', '10']}
+      value={String(numWeeks ?? 5)}
+      onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+        setNumWeeks(Number(e.target.value))
+      }
+      aria-label="Number of weeks to show"
+      disabled={isLoading}
+      className={`${isLoading ? 'opacity-50 cursor-not-allowed animate-pulse ' : ''}w-[60px]`}
+    />
+  </div>
+);
 
 const PickPlanner: FC<PickPlannerProps> = ({
   teams,
@@ -315,9 +314,9 @@ const PickPlanner: FC<PickPlannerProps> = ({
           </div>
         ) : session === null ? (
           // Sign in prompt
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div className="flex justify-center">
             <a
-              style={{ color: 'blue', fontWeight: 600, textAlign: 'center' }}
+              className="text-blue-600 font-semibold text-center"
               href="/api/auth/signin"
             >
               Sign in to get started
