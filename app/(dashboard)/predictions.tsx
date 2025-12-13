@@ -65,11 +65,11 @@ const Predictions = ({
   });
 
   const isEliminated =
-    currentGameId &&
+    typeof currentGameId === 'number' &&
     results[currentGameId]?.some((val) => val.correct === false);
 
   const isPending =
-    currentGameId &&
+    typeof currentGameId === 'number' &&
     results[currentGameId]?.some((val) => val.correct === null);
 
   const teams = teamsArr.map(({ name }) => name);
