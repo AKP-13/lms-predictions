@@ -41,17 +41,19 @@ export type TeamsArr = {
 
 const Page = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [numWeeks, setNumWeeks] = useState<number>(() => {
+  const [numWeeks, setNumWeeks] = useState<number>(5);
+
+  // load from localStorage after mount
+  useEffect(() => {
     try {
-      const v =
-        typeof window !== 'undefined'
-          ? localStorage.getItem('pickPlanner:numWeeks')
-          : null;
-      return v ? Number(v) : 5;
+      const v = localStorage.getItem('pickPlanner:numWeeks');
+      if (v) {
+        setNumWeeks(Number(v));
+      }
     } catch {
-      return 5;
+      // ignore
     }
-  });
+  }, []);
 
   // persist selection
   useEffect(() => {
