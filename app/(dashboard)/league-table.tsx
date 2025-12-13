@@ -353,100 +353,112 @@ const LeagueTable = ({
         <Table>
           <TableHeader>
             <TableRow>
-              {tableConfig.map((col) => (
-                <TableHead
-                  key={`${col.dataKey} - ${col.label}`}
-                  className={`${col.headerClassName} ${col.isDisplayedOnMobile ? `table-cell md:hidden ${headerPaddingMobile}` : col.isDisplayedOnDesktop ? `hidden md:table-cell ${headerPaddingDesktop}` : ''}`}
-                >
-                  {col.label}
-                </TableHead>
-              ))}
+              {fixtures.length === 0 ? (
+                <TableHead className="text-center">No data</TableHead>
+              ) : (
+                tableConfig.map((col) => (
+                  <TableHead
+                    key={`${col.dataKey} - ${col.label}`}
+                    className={`${col.headerClassName} ${col.isDisplayedOnMobile ? `table-cell md:hidden ${headerPaddingMobile}` : col.isDisplayedOnDesktop ? `hidden md:table-cell ${headerPaddingDesktop}` : ''}`}
+                  >
+                    {col.label}
+                  </TableHead>
+                ))
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading
-              ? Array.from({ length: 20 }).map((_, idx) => (
+            {isLoading ? (
+              Array.from({ length: 20 }).map((_, idx) => (
+                <TableRow
+                  key={idx}
+                  className="border-b border-gray-100 last:border-0 animate-pulse"
+                >
+                  {tableConfig.map((col) => {
+                    return (
+                      <TableCell
+                        className={`${col.bodyClassName} ${col.isDisplayedOnMobile ? 'table-cell md:hidden' : col.isDisplayedOnDesktop ? 'hidden md:table-cell' : ''}`}
+                        key={`${col.dataKey} - ${col.label}`}
+                      >
+                        {col.dataKey === 'form' ? (
+                          <div className={col.loadingDivClassName}>
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <div
+                                key={i}
+                                className="h-5 w-5 rounded-full bg-gray-200"
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          <div
+                            className={`mx-auto rounded bg-gray-200 ${col.loadingDivClassName}`}
+                          />
+                        )}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              ))
+            ) : fixtures.length === 0 ? (
+              <TableRow>
+                <TableCell className="table-cell w-full px-2 text-center">
+                  The site is being updated. Please check back later.
+                </TableCell>
+              </TableRow>
+            ) : (
+              leagueTable.map((row) => {
+                const color = getPositionStyling(row.position);
+
+                return (
                   <TableRow
-                    key={idx}
-                    className="border-b border-gray-100 last:border-0 animate-pulse"
+                    key={row.teamName}
+                    className={`border-b border-gray-100 last:border-0 ${isLoading ? 'animate-pulse' : ''}`}
                   >
                     {tableConfig.map((col) => {
                       return (
                         <TableCell
-                          className={`${col.bodyClassName} ${col.isDisplayedOnMobile ? 'table-cell md:hidden' : col.isDisplayedOnDesktop ? 'hidden md:table-cell' : ''}`}
+                          className={`${col.bodyClassName} ${col.isDisplayedOnMobile ? 'table-cell md:hidden' : col.isDisplayedOnDesktop ? 'hidden md:table-cell' : ''} ${col.dataKey === 'position' ? color : ''}`}
                           key={`${col.dataKey} - ${col.label}`}
                         >
                           {col.dataKey === 'form' ? (
-                            <div className={col.loadingDivClassName}>
-                              {Array.from({ length: 5 }).map((_, i) => (
-                                <div
-                                  key={i}
-                                  className="h-5 w-5 rounded-full bg-gray-200"
-                                />
-                              ))}
+                            <div className="flex gap-1 justify-center">
+                              {row.form.map((result, idx) => {
+                                const color = returnFormColor(result);
+
+                                const isMostRecent =
+                                  idx === row.form.length - 1;
+                                const icon = returnIcon(result, color);
+
+                                return isMostRecent ? (
+                                  <span
+                                    key={idx}
+                                    className={`inline-flex items-center justify-center w-5 h-5 rounded-full border bg-white`}
+                                    style={{
+                                      borderColor: color
+                                    }}
+                                  >
+                                    {icon}
+                                  </span>
+                                ) : (
+                                  <span
+                                    key={idx}
+                                    className="inline-flex items-center justify-center w-5 h-5"
+                                  >
+                                    {icon}
+                                  </span>
+                                );
+                              })}
                             </div>
                           ) : (
-                            <div
-                              className={`mx-auto rounded bg-gray-200 ${col.loadingDivClassName}`}
-                            />
+                            row[col.dataKey as keyof LeagueTableRow]
                           )}
                         </TableCell>
                       );
                     })}
                   </TableRow>
-                ))
-              : leagueTable.map((row) => {
-                  const color = getPositionStyling(row.position);
-
-                  return (
-                    <TableRow
-                      key={row.teamName}
-                      className={`border-b border-gray-100 last:border-0 ${isLoading ? 'animate-pulse' : ''}`}
-                    >
-                      {tableConfig.map((col) => {
-                        return (
-                          <TableCell
-                            className={`${col.bodyClassName} ${col.isDisplayedOnMobile ? 'table-cell md:hidden' : col.isDisplayedOnDesktop ? 'hidden md:table-cell' : ''} ${col.dataKey === 'position' ? color : ''}`}
-                            key={`${col.dataKey} - ${col.label}`}
-                          >
-                            {col.dataKey === 'form' ? (
-                              <div className="flex gap-1 justify-center">
-                                {row.form.map((result, idx) => {
-                                  const color = returnFormColor(result);
-
-                                  const isMostRecent =
-                                    idx === row.form.length - 1;
-                                  const icon = returnIcon(result, color);
-
-                                  return isMostRecent ? (
-                                    <span
-                                      key={idx}
-                                      className={`inline-flex items-center justify-center w-5 h-5 rounded-full border bg-white`}
-                                      style={{
-                                        borderColor: color
-                                      }}
-                                    >
-                                      {icon}
-                                    </span>
-                                  ) : (
-                                    <span
-                                      key={idx}
-                                      className="inline-flex items-center justify-center w-5 h-5"
-                                    >
-                                      {icon}
-                                    </span>
-                                  );
-                                })}
-                              </div>
-                            ) : (
-                              row[col.dataKey as keyof LeagueTableRow]
-                            )}
-                          </TableCell>
-                        );
-                      })}
-                    </TableRow>
-                  );
-                })}
+                );
+              })
+            )}
           </TableBody>
         </Table>
       </CardContent>

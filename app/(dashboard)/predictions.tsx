@@ -24,6 +24,7 @@ type Props = {
   predictionWeekFixtures: FixturesData[];
   setRefreshTrigger: Dispatch<SetStateAction<number>>;
   isLoading: boolean;
+  currentGameId: number | null;
 };
 
 const returnIsPastSubmissionDeadline = ({
@@ -50,25 +51,26 @@ const Predictions = ({
   session,
   predictionWeekFixtures,
   setRefreshTrigger,
-  isLoading
+  isLoading,
+  currentGameId
 }: Props) => {
   // Find the latest gameweek by key (maximum number)
-  const gameweekNumbers = Object.keys(results).map(Number);
-  const latestGameweek = Math.max(...gameweekNumbers);
   const previousPicksArr =
-    results[latestGameweek]?.map((val) => val?.team_selected) ?? [];
+    typeof currentGameId === 'number'
+      ? (results[currentGameId]?.map((val) => val?.team_selected) ?? [])
+      : [];
 
   const isPastSubmissionDeadline = returnIsPastSubmissionDeadline({
     predictionWeekFixtures
   });
 
-  const isEliminated = results[latestGameweek]?.some(
-    (val) => val.correct === false
-  );
+  const isEliminated =
+    typeof currentGameId === 'number' &&
+    results[currentGameId]?.some((val) => val.correct === false);
 
-  const isPending = results[latestGameweek]?.some(
-    (val) => val.correct === null
-  );
+  const isPending =
+    typeof currentGameId === 'number' &&
+    results[currentGameId]?.some((val) => val.correct === null);
 
   const teams = teamsArr.map(({ name }) => name);
   const outcomes: Outcome[] = ['Win', 'Draw'];

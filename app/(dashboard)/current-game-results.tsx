@@ -1,7 +1,6 @@
 import { Fragment } from 'react';
 import { useSession } from 'next-auth/react';
 import { Loader } from 'lucide-react';
-import useCurrentGameData from 'app/hooks/useCurrentGameData';
 import {
   Card,
   CardContent,
@@ -19,22 +18,20 @@ import {
   TeamName,
   TeamScore
 } from '@/components/ui/table';
+import { CurrentGameResults } from '@/lib/definitions';
 
-const CurrentGameResults = ({
+const CurrentGame = ({
+  currentGameResults,
   leagueName,
-  refreshTrigger,
   isLoading
 }: {
+  currentGameResults: CurrentGameResults[];
   leagueName: null | string | { error: string };
-  refreshTrigger: number;
   isLoading: boolean;
 }) => {
   const { data: session } = useSession();
-  const { currentGameResults, isLoadingCurrentGameData } = useCurrentGameData({
-    refreshTrigger
-  });
 
-  const isLoadingCombined = isLoading || isLoadingCurrentGameData;
+  const isLoadingCombined = isLoading;
 
   return (
     <Card
@@ -180,4 +177,4 @@ const CurrentGameResults = ({
   );
 };
 
-export default CurrentGameResults;
+export default CurrentGame;

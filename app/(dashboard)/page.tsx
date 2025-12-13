@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import TileWrapper from '@/components/ui/tiles';
-import CurrentGameResults from './current-game-results';
+import CurrentGame from './current-game-results';
 import FixturesResults from './fixtures-results';
 import Predictions from './predictions';
 import LeagueTable from './league-table';
+import PickPlanner from '@/components/PickPlanner';
 import {
   Card,
   CardContent,
@@ -30,6 +31,7 @@ import useResults from 'app/hooks/useResults';
 import useFixtures from 'app/hooks/useFixtures';
 import useFplData from 'app/hooks/useFplData';
 import useLeagueInfo from 'app/hooks/useLeagueInfo';
+import useCurrentGameData from 'app/hooks/useCurrentGameData';
 
 export type TeamsArr = {
   id: number;
@@ -39,6 +41,26 @@ export type TeamsArr = {
 
 const Page = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [numWeeks, setNumWeeks] = useState<number>(() => {
+    try {
+      const v =
+        typeof window !== 'undefined'
+          ? localStorage.getItem('pickPlanner:numWeeks')
+          : null;
+      return v ? Number(v) : 5;
+    } catch {
+      return 5;
+    }
+  });
+
+  // persist selection
+  useEffect(() => {
+    try {
+      localStorage.setItem('pickPlanner:numWeeks', String(numWeeks));
+    } catch {
+      // ignore
+    }
+  }, [numWeeks]);
 
   const { data: session } = useSession();
   const { results, isLoadingResults } = useResults({ refreshTrigger });
@@ -46,6 +68,8 @@ const Page = () => {
   const { fixtures, isLoadingFixtures } = useFixtures();
   const { fplData, isLoadingFplData } = useFplData();
   const { leagueName, isLoadingLeagueName } = useLeagueInfo();
+  const { currentGameResults, currentGameId, isLoadingCurrentGameData } =
+    useCurrentGameData({ refreshTrigger });
 
   const currentGwNumber =
     !isLoadingFplData && fplData
@@ -56,14 +80,17 @@ const Page = () => {
     (fixture) => fixture.event === currentGwNumber + 1
   );
 
-  const teamsArr: TeamsArr =
-    !isLoadingFplData && fplData
-      ? fplData.teams.map(({ id, name, short_name }) => ({
-          id,
-          name,
-          short_name
-        }))
-      : [];
+  const teamsArr: TeamsArr = useMemo(
+    () =>
+      !isLoadingFplData && fplData
+        ? fplData.teams.map(({ id, name, short_name }) => ({
+            id,
+            name,
+            short_name
+          }))
+        : [],
+    [isLoadingFplData, fplData]
+  );
 
   const maxGameWeeks = isLoadingResults
     ? 1
@@ -78,7 +105,7 @@ const Page = () => {
     <main>
       <div className="rounded-xl bg-gray-300 p-4 shadow-sm grid col-span-2 md:col-span-1 my-4">
         <h1 className="text-4xl font-bold text-center mb-2 flex items-center justify-center gap-2">
-          LPSIQ
+          Last Player Standing
         </h1>
 
         <p className="rounded-xl px-4 py-4 text-center text-xl font-light italic">
@@ -95,10 +122,10 @@ const Page = () => {
 
       <div className="grid gap-6 grid-cols-1 md:grid-cols-4">
         <div className="my-8 md:mr-3 w-full md:my-0 grid md:col-span-3">
-          <CurrentGameResults
-            refreshTrigger={refreshTrigger}
+          <CurrentGame
+            currentGameResults={currentGameResults}
             leagueName={leagueName}
-            isLoading={isLoadingLeagueName}
+            isLoading={isLoadingLeagueName || isLoadingCurrentGameData}
           />
         </div>
 
@@ -109,7 +136,8 @@ const Page = () => {
             results={results}
             predictionWeekFixtures={predictionWeekFixtures}
             setRefreshTrigger={setRefreshTrigger}
-            isLoading={isLoadingResults || isLoadingResults || isLoadingFplData}
+            isLoading={isLoadingResults || isLoadingFplData}
+            currentGameId={currentGameId}
           />
         </div>
       </div>
@@ -131,6 +159,19 @@ const Page = () => {
             teamsArr={teamsArr}
           />
         </div>
+      </div>
+
+      <div className="w-full overflow-x-auto">
+        <PickPlanner
+          teams={teamsArr}
+          fixtures={fixtures || []}
+          currentGwNumber={currentGwNumber}
+          numWeeks={numWeeks}
+          setNumWeeks={setNumWeeks}
+          results={results || {}}
+          session={session}
+          currentGameId={currentGameId}
+        />
       </div>
 
       <Card className="rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto md:hidden">

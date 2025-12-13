@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth';
-import { fetchCurrentGameData, fetchResultsData } from '@/lib/data';
+import { fetchCurrentGameData } from '@/lib/data';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
