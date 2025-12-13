@@ -1,4 +1,10 @@
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React, {
+  ChangeEvent,
+  Dispatch,
+  FC,
+  SetStateAction,
+  useState
+} from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Select } from '@/components/ui/select';
 import {
@@ -25,7 +31,7 @@ interface PickPlannerProps {
   fixtures: FixturesData[];
   currentGwNumber: number;
   numWeeks?: number;
-  setNumWeeks?: React.Dispatch<React.SetStateAction<number>>;
+  setNumWeeks?: Dispatch<SetStateAction<number>>;
   results: Record<number, Results[]>;
   session: Session | null;
   currentGameId: number | null;
@@ -56,7 +62,7 @@ const WeekPicker = ({
         id="weeks"
         options={['5', '6', '7', '8', '9', '10']}
         value={String(numWeeks ?? 5)}
-        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+        onChange={(e: ChangeEvent<HTMLSelectElement>) =>
           setNumWeeks(Number(e.target.value))
         }
         aria-label="Number of weeks to show"
@@ -70,7 +76,7 @@ const WeekPicker = ({
   );
 };
 
-const PickPlanner: React.FC<PickPlannerProps> = ({
+const PickPlanner: FC<PickPlannerProps> = ({
   teams,
   fixtures,
   currentGwNumber,
