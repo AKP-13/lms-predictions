@@ -211,7 +211,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
     difficulty: number | undefined
   ) => {
     const baseStyles =
-      'border-[0.5rem] text-center duration-150 ease-in-out rounded-[1rem] px-1 py-1 md:p-4';
+      'border-[0.5rem] text-center duration-150 ease-in-out rounded-[1rem] p-1 md:p-4';
     // Always include a 0.5rem solid border on cells; border color varies based on the cell's state (e.g., blue for planned cells, white otherwise)
     if (isTeamPlannedThisGw)
       return `${baseStyles} border-blue-500 bg-blue-100 transition-colors cursor-pointer`;
@@ -348,7 +348,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
           <Table className="table-fixed border-separate border-spacing-0 w-full">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-40 font-medium text-center border-[0.5rem] border-white rounded-[1rem] px-1 py-1 md:p-4">
+                <TableHead className="w-40 font-medium text-center border-[0.5rem] border-white rounded-[1rem] p-1 md:p-4">
                   Team
                 </TableHead>
                 <AnimatePresence initial={false}>
@@ -357,7 +357,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
                     return (
                       <TableHead
                         key={gw}
-                        className="w-28 font-medium text-center border-[0.5rem] border-white rounded-[1rem] px-1 py-1 md:p-4"
+                        className="w-28 font-medium text-center border-[0.5rem] border-white rounded-[1rem] p-1 md:p-4"
                       >
                         <motion.div
                           layout
@@ -377,7 +377,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
             <TableBody>
               {teams.map((team) => (
                 <TableRow key={team.id}>
-                  <TableCell className="w-40 font-medium text-center border-[0.5rem] border-white rounded-[1rem] px-1 py-1 md:p-4">
+                  <TableCell className="w-40 font-medium text-center border-[0.5rem] border-white rounded-[1rem] p-1 md:p-4">
                     <span className="hidden md:inline">{team.name}</span>
                     <span className="md:hidden">{team.short_name}</span>
                   </TableCell>
