@@ -12,6 +12,13 @@ const useResults = ({ refreshTrigger }: { refreshTrigger: number }) => {
     const fetchData = async () => {
       setIsLoadingResults(true);
       const res = await fetch('/api/results');
+      
+      if (res.status === 401) {
+        // Session expired or unauthorized - don't update results
+        setIsLoadingResults(false);
+        return;
+      }
+      
       const results = await res.json();
       setResults(results);
       setIsLoadingResults(false);

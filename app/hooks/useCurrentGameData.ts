@@ -15,6 +15,13 @@ const useCurrentGameData = ({ refreshTrigger }: { refreshTrigger: number }) => {
     const fetchData = async () => {
       setIsLoading(true);
       const res = await fetch('/api/currentGameData');
+      
+      if (res.status === 401) {
+        // Session expired or unauthorized - don't update results
+        setIsLoading(false);
+        return;
+      }
+      
       const {
         latestGameResults,
         latestGameId
