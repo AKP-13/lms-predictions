@@ -17,7 +17,7 @@ const useCurrentGameData = ({ refreshTrigger }: { refreshTrigger: number }) => {
       const res = await fetch('/api/currentGameData');
       
       if (res.status === 401) {
-        // Session expired or unauthorized - don't update results
+        // Session expired or unauthorized - don't update game data
         setIsLoading(false);
         return;
       }
