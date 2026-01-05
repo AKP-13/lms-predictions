@@ -103,7 +103,7 @@ const Page = () => {
 
   return (
     <main>
-      <div className="rounded-xl bg-gray-300 p-4 shadow-sm grid col-span-2 md:col-span-1 my-4">
+      <div className="rounded-xl bg-gray-300 p-4 shadow-sm grid col-span-2 md:col-span-1 my-6">
         <h1 className="text-4xl font-bold text-center mb-2 flex items-center justify-center gap-2">
           Last Player Standing
         </h1>
@@ -117,11 +117,13 @@ const Page = () => {
       </div>
 
       {session === null || session === undefined ? null : (
-        <TileWrapper refreshTrigger={refreshTrigger} />
+        <div className="my-6">
+          <TileWrapper refreshTrigger={refreshTrigger} />
+        </div>
       )}
 
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-4">
-        <div className="my-8 md:mr-3 w-full md:my-0 grid md:col-span-3">
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-4 my-6">
+        <div className="w-full grid md:col-span-3">
           <CurrentGame
             currentGameResults={currentGameResults}
             leagueName={leagueName}
@@ -129,7 +131,7 @@ const Page = () => {
           />
         </div>
 
-        <div className="my-8 w-full md:my-0 md:col-span-1">
+        <div className="w-full md:col-span-1">
           <Predictions
             session={session}
             teamsArr={teamsArr}
@@ -142,8 +144,8 @@ const Page = () => {
         </div>
       </div>
 
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-4">
-        <div className="my-8 md:mr-3 w-full md:my-0 grid md:col-span-2">
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-4 my-6">
+        <div className="w-full grid md:col-span-2">
           <FixturesResults
             fixtures={fixtures}
             currentGwNumber={currentGwNumber}
@@ -152,7 +154,7 @@ const Page = () => {
           />
         </div>
 
-        <div className="my-8 w-full md:my-0 md:col-span-2">
+        <div className="w-full md:col-span-2">
           <LeagueTable
             fixtures={fixtures}
             isLoading={isLoadingFixtures}
@@ -161,7 +163,7 @@ const Page = () => {
         </div>
       </div>
 
-      <div className="w-full overflow-x-auto">
+      <div className="w-full overflow-x-auto my-6">
         <PickPlanner
           teams={teamsArr}
           fixtures={fixtures || []}
@@ -174,7 +176,7 @@ const Page = () => {
         />
       </div>
 
-      <Card className="rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto md:hidden">
+      <Card className="rounded-xl bg-white p-2 my-6 shadow-sm overflow-auto md:hidden">
         <CardHeader>
           <CardTitle>Results</CardTitle>
           <CardDescription>View your previous results</CardDescription>

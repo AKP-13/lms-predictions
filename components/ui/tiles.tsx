@@ -185,16 +185,16 @@ export function Tile({
     <SkeletonTile />
   ) : (
     <div className="rounded-xl bg-white p-2 shadow-sm grid col-span-2 md:col-span-1">
-      <div className="flex p-4">
+      <div className="flex p-2 md:p-4">
         {Icon ? <Icon className={`h-5 w-5 text-blue-300`} /> : null}
         <h3 className="ml-2 text-sm font-medium">{title}</h3>
       </div>
-      <p className={`truncate rounded-xl px-4 py-2 text-center text-2xl`}>
+      <p className={`truncate rounded-xl px-2 md:px-4 py-2 text-center text-2xl`}>
         {value}
       </p>
       {caption && (
         <p
-          className={`truncate rounded-xl px-4 py-4 text-center text-small italic ${color}`}
+          className={`truncate rounded-xl px-2 md:px-4 py-2 md:py-4 text-center text-small italic ${color}`}
         >
           {caption}
         </p>
