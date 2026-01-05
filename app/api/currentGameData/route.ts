@@ -9,9 +9,7 @@ export async function GET() {
     const userId = session?.user?.id;
 
     if (userId) {
-      const data = await fetchCurrentGameData({
-        userId: session?.user?.id ?? undefined
-      });
+      const data = await fetchCurrentGameData({ userId });
       return NextResponse.json(data);
     }
 
