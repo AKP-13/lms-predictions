@@ -6,10 +6,10 @@ export async function GET() {
   try {
     const session = await auth();
 
-    if (session) {
-      const data = await fetchTileData({
-        userId: session?.user?.id ?? undefined
-      });
+    const userId = session?.user?.id;
+
+    if (userId) {
+      const data = await fetchTileData({ userId });
 
       return NextResponse.json(data);
     }

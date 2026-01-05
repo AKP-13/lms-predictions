@@ -11,6 +11,10 @@ const useLeagueInfo = () => {
     async function fetchLeagueInfo() {
       setIsLoadingLeagueName(true);
       const res = await fetch('/api/league-info');
+      if (!res.ok) {
+        setIsLoadingLeagueName(false);
+        return;
+      }
       const data = await res.json();
       setLeagueName(data);
       setIsLoadingLeagueName(false);

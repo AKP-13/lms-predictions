@@ -1,4 +1,5 @@
 import { CurrentGameResults } from '@/lib/definitions';
+import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 
 const useCurrentGameData = ({ refreshTrigger }: { refreshTrigger: number }) => {
@@ -8,10 +9,19 @@ const useCurrentGameData = ({ refreshTrigger }: { refreshTrigger: number }) => {
   const [currentGameId, setCurrentGameId] = useState<number | null>(null);
   const [isLoadingCurrentGameData, setIsLoading] = useState(true);
 
+  const { data: session } = useSession();
+
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       const res = await fetch('/api/currentGameData');
+
+      if (!res.ok) {
+        // Session expired or unauthorized - don't update game data
+        setIsLoading(false);
+        return;
+      }
+
       const {
         latestGameResults,
         latestGameId
@@ -25,8 +35,12 @@ const useCurrentGameData = ({ refreshTrigger }: { refreshTrigger: number }) => {
       setIsLoading(false);
     };
 
-    fetchData();
-  }, [refreshTrigger]);
+    if (session) {
+      fetchData();
+    } else {
+      setIsLoading(false);
+    }
+  }, [refreshTrigger, session]);
 
   return { currentGameResults, currentGameId, isLoadingCurrentGameData };
 };
