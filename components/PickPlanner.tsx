@@ -211,7 +211,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
     difficulty: number | undefined
   ) => {
     const baseStyles =
-      'border-[0.5rem] text-center duration-150 ease-in-out rounded-[1rem]';
+      'border-[0.5rem] md:border-[0.5rem] text-center duration-150 ease-in-out rounded-[1rem] px-1 py-1 md:p-4';
     // Always include a 0.5rem solid border on cells; border color varies based on the cell's state (e.g., blue for planned cells, white otherwise)
     if (isTeamPlannedThisGw)
       return `${baseStyles} border-blue-500 bg-blue-100 transition-colors cursor-pointer`;
@@ -228,14 +228,14 @@ const PickPlanner: FC<PickPlannerProps> = ({
 
   return (
     <Card
-      className={`rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto ${isLoading ? 'animate-pulse' : ''}`}
+      className={`rounded-xl bg-white p-2 shadow-sm overflow-auto ${isLoading ? 'animate-pulse' : ''}`}
       aria-busy={isLoading}
       aria-live="polite"
     >
       <CardHeader className="relative">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 w-full">
           {/* Title and Weeks on same row for mobile */}
-          <div className="flex items-start justify-between w-full lg:w-auto">
+          <div className="flex items-center justify-between w-full lg:w-auto">
             <div>
               <CardTitle className="flex flex-row items-center">
                 Pick Planner
@@ -348,7 +348,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
           <Table className="table-fixed border-separate border-spacing-0 w-full">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-40 font-medium text-center border-[0.5rem] border-white rounded-[1rem]">
+                <TableHead className="w-40 font-medium text-center border-[0.5rem] border-white rounded-[1rem] px-1 py-1 md:p-4">
                   Team
                 </TableHead>
                 <AnimatePresence initial={false}>
@@ -357,7 +357,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
                     return (
                       <TableHead
                         key={gw}
-                        className="w-28 font-medium text-center border-[0.5rem] border-white rounded-[1rem] p-0"
+                        className="w-28 font-medium text-center border-[0.5rem] border-white rounded-[1rem] p-0 px-1 py-1 md:p-4"
                       >
                         <motion.div
                           layout
@@ -377,8 +377,9 @@ const PickPlanner: FC<PickPlannerProps> = ({
             <TableBody>
               {teams.map((team) => (
                 <TableRow key={team.id}>
-                  <TableCell className="w-40 font-medium text-center border-[0.5rem] border-white rounded-[1rem]">
-                    {team.name}
+                  <TableCell className="w-40 font-medium text-center border-[0.5rem] border-white rounded-[1rem] px-1 py-1 md:p-4">
+                    <span className="hidden md:inline">{team.name}</span>
+                    <span className="md:hidden">{team.short_name}</span>
                   </TableCell>
                   <AnimatePresence initial={false}>
                     {[...Array(numWeeks)].map((_, weekIdx) => {

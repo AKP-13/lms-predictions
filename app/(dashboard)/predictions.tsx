@@ -146,7 +146,7 @@ const Predictions = ({
 
   return (
     <Card
-      className={`rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto ${isLoadingCombined ? 'animate-pulse' : ''}`}
+      className={`rounded-xl bg-white p-2 shadow-sm overflow-auto ${isLoadingCombined ? 'animate-pulse' : ''}`}
       aria-busy={isLoadingCombined}
       aria-live="polite"
     >
