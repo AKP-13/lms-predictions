@@ -150,7 +150,7 @@ const Predictions = ({
       aria-busy={isLoadingCombined}
       aria-live="polite"
     >
-      <CardHeader>
+      <CardHeader className="p-2 md:p-6">
         <CardTitle className="flex flex-row items-center">
           Prediction{' '}
           {isLoadingCombined && (
@@ -173,7 +173,7 @@ const Predictions = ({
         </CardDescription>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="p-2 md:p-6 md:pt-0">
         {isLoadingCombined ? (
           <div className="flex flex-col">
             <div className="flex">

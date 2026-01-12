@@ -177,12 +177,12 @@ const Page = () => {
       </div>
 
       <Card className="rounded-xl bg-white p-2 my-6 shadow-sm overflow-auto md:hidden">
-        <CardHeader>
+        <CardHeader className="p-2 md:p-6">
           <CardTitle>Results</CardTitle>
           <CardDescription>View your previous results</CardDescription>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="p-2 md:p-6 md:pt-0">
           {session === null ? (
             <div style={{ display: 'flex', justifyContent: 'center' }}>
               <a
