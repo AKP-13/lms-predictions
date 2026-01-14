@@ -109,7 +109,6 @@ const PickPlanner: FC<PickPlannerProps> = ({
       string,
       {
         fixtureText: string;
-        opponentName: string;
         opponentShortName: string;
         location: 'H' | 'A';
         difficulty: number;
@@ -125,7 +124,6 @@ const PickPlanner: FC<PickPlannerProps> = ({
       if (homeOpponent) {
         map.set(`${event}-${team_h}`, {
           fixtureText: `${homeOpponent.name} (H)`,
-          opponentName: homeOpponent.name,
           opponentShortName: homeOpponent.short_name,
           location: 'H',
           difficulty: team_h_difficulty
@@ -137,7 +135,6 @@ const PickPlanner: FC<PickPlannerProps> = ({
       if (awayOpponent) {
         map.set(`${event}-${team_a}`, {
           fixtureText: `${awayOpponent.name} (A)`,
-          opponentName: awayOpponent.name,
           opponentShortName: awayOpponent.short_name,
           location: 'A',
           difficulty: team_a_difficulty
