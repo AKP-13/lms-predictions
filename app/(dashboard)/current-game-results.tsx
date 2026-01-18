@@ -35,17 +35,20 @@ const CurrentGame = ({
 
   return (
     <Card
-      className={`rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto ${isLoadingCombined ? 'animate-pulse' : ''}`}
+      className={`rounded-xl bg-white p-2 shadow-sm overflow-auto ${isLoadingCombined ? 'animate-pulse' : ''}`}
       aria-busy={isLoadingCombined}
       aria-live="polite"
     >
-      <CardHeader>
-        <CardTitle className="flex flex-row items-center">
-          Current Game
+      <CardHeader className="p-2 md:p-6">
+        <CardTitle className="flex flex-col md:flex-row md:items-center">
+          <span>Current Game</span>
           {isLoadingCombined ? (
             <Loader className="animate-spin mx-2" aria-hidden="true" />
           ) : typeof leagueName === 'string' ? (
-            <span style={{ fontStyle: 'italic' }}> - {leagueName}</span>
+            <span style={{ fontStyle: 'italic' }} className="md:ml-1">
+              <span className="hidden md:inline"> - </span>
+              {leagueName}
+            </span>
           ) : (
             ''
           )}
@@ -55,7 +58,7 @@ const CurrentGame = ({
         </CardDescription>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="p-2 md:p-6 md:pt-0">
         {isLoadingCombined ? (
           // Loading skeleton
           <div>

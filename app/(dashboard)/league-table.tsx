@@ -342,14 +342,14 @@ const LeagueTable = ({
       aria-busy={isLoading}
       aria-live="polite"
     >
-      <CardHeader className="flex flex-row items-center">
+      <CardHeader className="flex flex-row items-center p-2 md:p-6">
         <CardTitle>League Table</CardTitle>
         {isLoading && (
           <Loader className="animate-spin mx-2" aria-hidden="true" />
         )}
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="p-2 md:p-6 md:pt-0">
         <Table>
           <TableHeader>
             <TableRow>

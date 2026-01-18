@@ -105,7 +105,15 @@ const PickPlanner: FC<PickPlannerProps> = ({
     // First, create a Map of teams indexed by ID for O(1) lookups
     const teamsById = new Map(teams.map((team) => [team.id, team]));
 
-    const map = new Map<string, { fixtureText: string; difficulty: number }>();
+    const map = new Map<
+      string,
+      {
+        fixtureText: string;
+        opponentShortName: string;
+        location: 'H' | 'A';
+        difficulty: number;
+      }
+    >();
 
     fixtures.forEach((fixture) => {
       const { event, team_h, team_a, team_h_difficulty, team_a_difficulty } =
@@ -116,6 +124,8 @@ const PickPlanner: FC<PickPlannerProps> = ({
       if (homeOpponent) {
         map.set(`${event}-${team_h}`, {
           fixtureText: `${homeOpponent.name} (H)`,
+          opponentShortName: homeOpponent.short_name,
+          location: 'H',
           difficulty: team_h_difficulty
         });
       }
@@ -125,6 +135,8 @@ const PickPlanner: FC<PickPlannerProps> = ({
       if (awayOpponent) {
         map.set(`${event}-${team_a}`, {
           fixtureText: `${awayOpponent.name} (A)`,
+          opponentShortName: awayOpponent.short_name,
+          location: 'A',
           difficulty: team_a_difficulty
         });
       }
@@ -211,8 +223,8 @@ const PickPlanner: FC<PickPlannerProps> = ({
     difficulty: number | undefined
   ) => {
     const baseStyles =
-      'border-[0.5rem] text-center duration-150 ease-in-out rounded-[1rem]';
-    // Always include a 0.5rem solid border on cells; border color varies based on the cell's state (e.g., blue for planned cells, white otherwise)
+      'border-[0.25rem] text-center duration-150 ease-in-out rounded-[1rem] p-1 md:p-4 m-[2px]';
+    // Always include a 0.25rem solid border on cells with 2px margin to prevent overlap; border color varies based on the cell's state (e.g., blue for planned cells, white otherwise)
     if (isTeamPlannedThisGw)
       return `${baseStyles} border-blue-500 bg-blue-100 transition-colors cursor-pointer`;
     if (isPreviouslyPredicted)
@@ -228,14 +240,14 @@ const PickPlanner: FC<PickPlannerProps> = ({
 
   return (
     <Card
-      className={`rounded-xl bg-white p-2 my-8 shadow-sm overflow-auto ${isLoading ? 'animate-pulse' : ''}`}
+      className={`rounded-xl bg-white p-2 shadow-sm overflow-auto ${isLoading ? 'animate-pulse' : ''}`}
       aria-busy={isLoading}
       aria-live="polite"
     >
-      <CardHeader className="relative">
+      <CardHeader className="relative p-2 md:p-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 w-full">
           {/* Title and Weeks on same row for mobile */}
-          <div className="flex items-start justify-between w-full lg:w-auto">
+          <div className="flex items-center justify-between w-full lg:w-auto">
             <div>
               <CardTitle className="flex flex-row items-center">
                 Pick Planner
@@ -313,7 +325,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
         </div>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="p-2 md:p-6 md:pt-0">
         {isLoading ? (
           // Loading skeleton
           <div>
@@ -348,7 +360,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
           <Table className="table-fixed border-separate border-spacing-0 w-full">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-40 font-medium text-center border-[0.5rem] border-white rounded-[1rem]">
+                <TableHead className="w-16 md:w-40 font-medium text-center border-[0.25rem] border-white rounded-[1rem] p-1 md:p-4 m-[2px]">
                   Team
                 </TableHead>
                 <AnimatePresence initial={false}>
@@ -357,7 +369,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
                     return (
                       <TableHead
                         key={gw}
-                        className="w-28 font-medium text-center border-[0.5rem] border-white rounded-[1rem] p-0"
+                        className="w-28 font-medium text-center border-[0.25rem] border-white rounded-[1rem] p-1 md:p-4 m-[2px]"
                       >
                         <motion.div
                           layout
@@ -377,14 +389,20 @@ const PickPlanner: FC<PickPlannerProps> = ({
             <TableBody>
               {teams.map((team) => (
                 <TableRow key={team.id}>
-                  <TableCell className="w-40 font-medium text-center border-[0.5rem] border-white rounded-[1rem]">
-                    {team.name}
+                  <TableCell className="w-16 md:w-40 font-medium text-center border-[0.25rem] border-white rounded-[1rem] p-1 md:p-4 m-[2px]">
+                    <span className="hidden md:inline">{team.name}</span>
+                    <span className="md:hidden">{team.short_name}</span>
                   </TableCell>
                   <AnimatePresence initial={false}>
                     {[...Array(numWeeks)].map((_, weekIdx) => {
                       const gw = currentGwNumber + 1 + weekIdx;
-                      const { fixtureText, difficulty } =
-                        getFixture({ teamId: team.id, gw }) || {};
+                      const fixtureData = getFixture({ teamId: team.id, gw });
+                      const {
+                        fixtureText,
+                        opponentShortName,
+                        location,
+                        difficulty
+                      } = fixtureData || {};
                       const isTeamPlanned = returnIsTeamPlanned(team.id);
                       const isPreviouslyPredicted = returnIsPreviouslyPredicted(
                         team.id
@@ -402,7 +420,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
                       return (
                         <TableCell
                           key={`${team.id}-${gw}`}
-                          className={`${className} w-28 outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white rounded-[1rem]`}
+                          className={`${className} w-28 outline-2 outline-offset-[-2px] outline-transparent focus-visible:outline-blue-500`}
                           aria-disabled={isPreviouslyPredicted || !fixtureText}
                           onClick={() =>
                             !isPreviouslyPredicted &&
@@ -436,7 +454,21 @@ const PickPlanner: FC<PickPlannerProps> = ({
                             exit={{ opacity: 0, y: 4 }}
                             transition={{ duration: 0.15 }}
                           >
-                            {fixtureText || '-'}
+                            {fixtureText ? (
+                              <>
+                                {/* Desktop: show full text */}
+                                <span className="hidden md:inline">
+                                  {fixtureText}
+                                </span>
+                                {/* Mobile: show short name on top, location on bottom */}
+                                <span className="md:hidden flex flex-col items-center">
+                                  <span>{opponentShortName}</span>
+                                  <span>({location})</span>
+                                </span>
+                              </>
+                            ) : (
+                              '-'
+                            )}
                           </motion.div>
                         </TableCell>
                       );
