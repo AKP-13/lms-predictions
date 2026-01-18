@@ -420,7 +420,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
                       return (
                         <TableCell
                           key={`${team.id}-${gw}`}
-                          className={`${className} w-28 outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white rounded-[1rem]`}
+                          className={`${className} w-28 outline-2 outline-offset-[-2px] outline-transparent focus-visible:outline-blue-500`}
                           aria-disabled={isPreviouslyPredicted || !fixtureText}
                           onClick={() =>
                             !isPreviouslyPredicted &&
