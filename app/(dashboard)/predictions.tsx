@@ -200,10 +200,10 @@ const Predictions = ({
             </a>
           </div>
         ) : (
-          <form className="flex flex-col" onSubmit={handleSubmit}>
-            <div className="flex">
-              <div className="my-4 mr-2 flex flex-col items-center w-full">
-                <label htmlFor="team">Team</label>
+          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+            <div className="flex gap-3">
+              <div className="flex flex-col items-center w-full">
+                <label htmlFor="team" className="text-sm font-medium mb-2 text-gray-700">Team</label>
                 <Select
                   name="team"
                   id="team"
@@ -224,8 +224,8 @@ const Predictions = ({
                 />
               </div>
 
-              <div className="my-4 ml-2 flex flex-col items-center w-full">
-                <label htmlFor="outcome">Outcome</label>
+              <div className="flex flex-col items-center w-full">
+                <label htmlFor="outcome" className="text-sm font-medium mb-2 text-gray-700">Outcome</label>
                 <Select
                   name="outcome"
                   id="outcome"
@@ -248,14 +248,14 @@ const Predictions = ({
             </div>
 
             {selectedTeam !== 'Select' && selectedOutcome !== 'Select' && (
-              <div className="my-2">
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200 text-sm text-gray-700">
                 Are you sure you want to predict a
                 {['a', 'e', 'i', 'o', 'u'].includes(
                   selectedTeam[0].toLowerCase()
                 )
                   ? 'n'
                   : ''}{' '}
-                <strong>
+                <strong className="text-gray-900">
                   {selectedTeam} {selectedOutcome.toLowerCase()} vs{' '}
                   {opposingTeamName}
                   {selectedTeamLocation === 'Home' ? ' at home' : ' away'}?
@@ -263,7 +263,7 @@ const Predictions = ({
                 If this doesn't look right, please email your prediction{' '}
                 <a
                   href={`mailto:${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS}?subject=Last%20Player%20Standing%20Prediction%20Week%20${selectedTeamFixture ? selectedTeamFixture.event : 'Undefined'}&body=My%20prediction%20this%20week%20is...`}
-                  style={{ color: 'blue', textDecoration: 'underline' }}
+                  className="text-blue-600 underline hover:text-blue-800"
                 >
                   here
                 </a>
@@ -272,6 +272,7 @@ const Predictions = ({
             )}
             <Button
               type="submit"
+              className="w-full"
               disabled={
                 isSubmitting ||
                 selectedTeam === 'Select' ||
@@ -283,9 +284,9 @@ const Predictions = ({
             >
               {isSubmitting ? 'Submitting...' : 'Submit'}
             </Button>
-            {error && <div className="text-red-500 mt-2">{error}</div>}
+            {error && <div className="text-red-600 font-medium p-3 bg-red-50 rounded-lg border border-red-200">{error}</div>}
             {success && (
-              <div className="text-green-500 mt-2">Prediction submitted!</div>
+              <div className="text-green-600 font-medium p-3 bg-green-50 rounded-lg border border-green-200">Prediction submitted!</div>
             )}
           </form>
         )}
