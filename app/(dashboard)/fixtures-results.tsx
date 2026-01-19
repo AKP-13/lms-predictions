@@ -15,6 +15,11 @@ import { FixturesData } from '@/lib/definitions';
 import { TeamForm } from '@/components/TeamForm';
 import { TeamsArr } from './page';
 import { MAX_GW, MIN_GW } from '@/lib/constants';
+import {
+  groupFixturesByDate,
+  getSortedDates,
+  formatKickoffTime
+} from '@/lib/fixtures';
 
 const FixturesResults = ({
   isLoading,
@@ -33,33 +38,13 @@ const FixturesResults = ({
     setSelectedGw(currentGwNumber);
   }, [currentGwNumber]);
 
-  // Filter by gameweek and group by date in a single pass
+  // Group fixtures by date for the selected gameweek
   const fixturesByDate = Array.isArray(fixtures)
-    ? fixtures.reduce((acc, fixture) => {
-      if (fixture.event !== selectedGw) return acc;
-
-      const date = new Date(fixture.kickoff_time).toLocaleDateString('en-GB', {
-        weekday: 'short',
-        day: 'numeric',
-        month: 'short'
-      });
-
-      if (!acc[date]) {
-        acc[date] = [];
-      }
-
-      acc[date].push(fixture);
-
-      return acc;
-    }, {} as Record<string, FixturesData[]>)
+    ? groupFixturesByDate(fixtures, selectedGw)
     : {};
 
-  // Sort dates chronologically using the first fixture's kickoff_time
-  const sortedDates = Object.keys(fixturesByDate).sort((a, b) => {
-    const timeA = new Date(fixturesByDate[a][0].kickoff_time).getTime();
-    const timeB = new Date(fixturesByDate[b][0].kickoff_time).getTime();
-    return timeA - timeB;
-  });
+  // Sort dates chronologically
+  const sortedDates = getSortedDates(fixturesByDate);
 
   return (
     <Card
@@ -147,10 +132,12 @@ const FixturesResults = ({
                   </TableCell>
                 </TableRow>
               ))
-            ) : Array.isArray(fixtures) && fixtures.length === 0 ? (
+            ) : !Array.isArray(fixtures) || fixtures.length === 0 ? (
               <TableRow>
                 <TableCell className="table-cell w-full px-2 text-center">
-                  The site is being updated. Please check back later.
+                  {typeof fixtures === 'string'
+                    ? fixtures
+                    : 'The site is being updated. Please check back later.'}
                 </TableCell>
               </TableRow>
             ) : (
@@ -177,13 +164,7 @@ const FixturesResults = ({
                       fixture.finished || fixture.finished_provisional;
 
                     // Format kick-off time
-                    const kickoffTime = new Date(
-                      fixture.kickoff_time
-                    ).toLocaleTimeString('en-GB', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: false
-                    });
+                    const kickoffTime = formatKickoffTime(fixture.kickoff_time);
 
                     return (
                       <TableRow
@@ -211,8 +192,7 @@ const FixturesResults = ({
                             {/* Center section - Score or Time */}
                             <div className="col-span-2 flex flex-col items-center justify-center">
                               <div
-                                className={`min-w-[80px] text-center ${isStarted ? 'font-bold' : 'font-normal'
-                                  }`}
+                                className={`min-w-[80px] text-center ${isStarted ? 'font-bold' : 'font-normal'}`}
                               >
                                 {isStarted && !isFinished && (
                                   <div>Live {fixture.minutes}'</div>
