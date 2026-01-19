@@ -8,8 +8,12 @@ import {
   HouseIcon,
   Loader,
   SignpostIcon,
-  ThumbsDownIcon
+  ThumbsDownIcon,
+  Info,
+  X
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 
 const iconMap = {
   gamesPlayed: Hash,
@@ -21,6 +25,17 @@ const iconMap = {
   awaySuccess: SignpostIcon,
   bogeyRound: ThumbsDownIcon,
   loading: Loader
+};
+
+const infoDescriptions = {
+  gamesPlayed: 'Total number of games you have participated in, with your furthest round reached displayed below.',
+  mostSelected: 'The team you have selected most frequently across all games.',
+  mostSuccessful: 'The team with your highest success rate, considering only teams picked at least 3 times.',
+  leastSuccessful: 'The team with your lowest success rate, considering only teams picked at least 3 times.',
+  bogeyTeam: 'The opposing team that has knocked you out the most times across all games.',
+  homeSuccess: 'Your success rate when picking teams playing at home.',
+  awaySuccess: 'Your success rate when picking teams playing away.',
+  bogeyRound: 'The round(s) in which you have been knocked out most frequently across all games.'
 };
 
 export default function TileWrapper({
@@ -172,6 +187,7 @@ export function Tile({
   value: number | string;
   variant?: 'success' | 'error' | 'default';
 }) {
+  const [showInfo, setShowInfo] = useState(false);
   const Icon = iconMap[isLoading ? 'loading' : type];
 
   const color =
@@ -184,21 +200,60 @@ export function Tile({
   return isLoading ? (
     <SkeletonTile />
   ) : (
-    <div className="rounded-xl bg-white p-2 shadow-sm grid col-span-2 md:col-span-1">
-      <div className="flex p-2 md:p-4">
-        {Icon ? <Icon className={`h-5 w-5 text-blue-300`} /> : null}
-        <h3 className="ml-2 text-sm font-medium">{title}</h3>
-      </div>
-      <p className={`truncate rounded-xl px-2 md:px-4 py-2 text-center text-2xl`}>
-        {value}
-      </p>
-      {caption && (
-        <p
-          className={`truncate rounded-xl px-2 md:px-4 py-2 md:py-4 text-center text-small italic ${color}`}
+    <div className="rounded-xl bg-white p-2 shadow-sm grid col-span-2 md:col-span-1 relative">
+      <div className="flex p-2 md:p-4 items-center justify-between">
+        <div className="flex items-center">
+          {Icon ? <Icon className={`h-5 w-5 text-blue-300`} /> : null}
+          <h3 className="ml-2 text-sm font-medium">{title}</h3>
+        </div>
+        <button
+          onClick={() => setShowInfo(!showInfo)}
+          className="ml-2 p-1 rounded-full hover:bg-gray-100 transition-colors"
+          aria-label={showInfo ? 'Hide info' : 'Show info'}
         >
-          {caption}
-        </p>
-      )}
+          {showInfo ? (
+            <X className="h-4 w-4 text-gray-600" />
+          ) : (
+            <Info className="h-4 w-4 text-gray-600" />
+          )}
+        </button>
+      </div>
+      
+      <AnimatePresence mode="wait">
+        {showInfo ? (
+          <motion.div
+            key="info"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="px-2 md:px-4 py-2 md:py-4"
+          >
+            <p className="text-sm text-gray-700 leading-relaxed">
+              {infoDescriptions[type]}
+            </p>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="data"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            <p className={`truncate rounded-xl px-2 md:px-4 py-2 text-center text-2xl`}>
+              {value}
+            </p>
+            {caption && (
+              <p
+                className={`truncate rounded-xl px-2 md:px-4 py-2 md:py-4 text-center text-small italic ${color}`}
+              >
+                {caption}
+              </p>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
