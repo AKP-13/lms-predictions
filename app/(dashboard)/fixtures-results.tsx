@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -37,10 +37,11 @@ const FixturesResults = ({
     ? fixtures.filter((f) => f.event === selectedGw)
     : [];
 
-  // Group fixtures by date
+  // Group fixtures by date with optimized date parsing
   const fixturesByDate = fixturesForSelectedGameweek.reduce(
     (acc, fixture) => {
-      const date = new Date(fixture.kickoff_time).toLocaleDateString('en-GB', {
+      const dateObj = new Date(fixture.kickoff_time);
+      const date = dateObj.toLocaleDateString('en-GB', {
         weekday: 'short',
         day: 'numeric',
         month: 'short'
@@ -54,11 +55,11 @@ const FixturesResults = ({
     {} as Record<string, FixturesData[]>
   );
 
-  // Sort dates chronologically
+  // Sort dates chronologically using the first fixture's kickoff_time
   const sortedDates = Object.keys(fixturesByDate).sort((a, b) => {
-    const dateA = new Date(fixturesByDate[a][0].kickoff_time).getTime();
-    const dateB = new Date(fixturesByDate[b][0].kickoff_time).getTime();
-    return dateA - dateB;
+    const timeA = new Date(fixturesByDate[a][0].kickoff_time).getTime();
+    const timeB = new Date(fixturesByDate[b][0].kickoff_time).getTime();
+    return timeA - timeB;
   });
 
   return (
@@ -155,7 +156,7 @@ const FixturesResults = ({
               </TableRow>
             ) : (
               sortedDates.map((date) => (
-                <>
+                <React.Fragment key={date}>
                   {/* Date header */}
                   <TableRow key={`date-${date}`}>
                     <TableCell className="table-cell w-full px-2 py-3 font-semibold bg-gray-50">
@@ -249,7 +250,7 @@ const FixturesResults = ({
                   </TableRow>
                 );
               })}
-                </>
+                </React.Fragment>
               ))
             )}
           </TableBody>
