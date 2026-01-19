@@ -43,7 +43,7 @@ export default function TileWrapper({
   } = useTileData({ refreshTrigger });
 
   return gamesPlayed.value === 0 ? (
-    <div className="grid gap-6 grid-cols-4">
+    <div className="grid gap-6 md:gap-8 grid-cols-4">
       <Tile
         caption="Insufficient data"
         title="Games Played"
@@ -74,7 +74,7 @@ export default function TileWrapper({
       />
     </div>
   ) : (
-    <div className="grid gap-6 grid-cols-4">
+    <div className="grid gap-6 md:gap-8 grid-cols-4">
       <Tile
         caption={gamesPlayed.caption}
         title="Games Played"
@@ -176,25 +176,25 @@ export function Tile({
 
   const color =
     variant === 'error'
-      ? 'text-red-400'
+      ? 'text-red-500'
       : variant === 'success'
-        ? 'text-green-400'
-        : 'text-gray-400';
+        ? 'text-green-500'
+        : 'text-gray-500';
 
   return isLoading ? (
     <SkeletonTile />
   ) : (
-    <div className="rounded-xl bg-white p-2 shadow-sm grid col-span-2 md:col-span-1">
-      <div className="flex p-2 md:p-4">
-        {Icon ? <Icon className={`h-5 w-5 text-blue-300`} /> : null}
-        <h3 className="ml-2 text-sm font-medium">{title}</h3>
+    <div className="rounded-2xl bg-white p-4 md:p-6 shadow-md hover:shadow-lg transition-shadow duration-200 grid col-span-2 md:col-span-1">
+      <div className="flex p-2 md:p-3 items-center">
+        {Icon ? <Icon className={`h-6 w-6 text-blue-400`} /> : null}
+        <h3 className="ml-2 text-sm md:text-base font-semibold text-gray-700">{title}</h3>
       </div>
-      <p className={`truncate rounded-xl px-2 md:px-4 py-2 text-center text-2xl`}>
+      <p className={`truncate rounded-xl px-2 md:px-4 py-3 md:py-4 text-center text-3xl md:text-4xl font-bold text-gray-900`}>
         {value}
       </p>
       {caption && (
         <p
-          className={`truncate rounded-xl px-2 md:px-4 py-2 md:py-4 text-center text-small italic ${color}`}
+          className={`truncate rounded-xl px-2 md:px-4 py-2 md:py-3 text-center text-sm md:text-base font-medium ${color}`}
         >
           {caption}
         </p>
@@ -206,13 +206,13 @@ export function Tile({
 const SkeletonTile = () => {
   const Icon = iconMap['loading'];
   return (
-    <div className="rounded-xl bg-white p-2 shadow-sm grid col-span-2 md:col-span-1 animate-pulse">
-      <div className="flex p-4">
-        <Icon className={`h-5 w-5 text-blue-300 animate-spin`} />
-        <div className="ml-2 h-4 w-24 bg-gray-300 rounded" />
+    <div className="rounded-2xl bg-white p-4 md:p-6 shadow-md grid col-span-2 md:col-span-1 animate-pulse">
+      <div className="flex p-3 items-center">
+        <Icon className={`h-6 w-6 text-blue-400 animate-spin`} />
+        <div className="ml-2 h-5 w-28 bg-gray-300 rounded" />
       </div>
-      <div className="h-8 w-3/4 bg-gray-300 rounded mx-auto my-2" />
-      <div className="h-4 w-1/2 bg-gray-200 rounded mx-auto my-2" />
+      <div className="h-10 w-3/4 bg-gray-300 rounded mx-auto my-3" />
+      <div className="h-5 w-1/2 bg-gray-200 rounded mx-auto my-2" />
     </div>
   );
 };

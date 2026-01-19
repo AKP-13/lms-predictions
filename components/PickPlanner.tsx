@@ -240,19 +240,19 @@ const PickPlanner: FC<PickPlannerProps> = ({
 
   return (
     <Card
-      className={`rounded-xl bg-white p-2 shadow-sm overflow-auto ${isLoading ? 'animate-pulse' : ''}`}
+      className={`rounded-2xl bg-white p-3 md:p-4 shadow-md overflow-auto ${isLoading ? 'animate-pulse' : ''}`}
       aria-busy={isLoading}
       aria-live="polite"
     >
-      <CardHeader className="relative p-2 md:p-6">
+      <CardHeader className="relative p-3 md:p-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 w-full">
           {/* Title and Weeks on same row for mobile */}
           <div className="flex items-center justify-between w-full lg:w-auto">
             <div>
-              <CardTitle className="flex flex-row items-center">
+              <CardTitle className="flex flex-row items-center text-2xl md:text-3xl">
                 Pick Planner
               </CardTitle>
-              <CardDescription className="hidden sm:block">
+              <CardDescription className="hidden sm:block text-base text-gray-600">
                 Plan your picks.
               </CardDescription>
             </div>
@@ -325,7 +325,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
         </div>
       </CardHeader>
 
-      <CardContent className="p-2 md:p-6 md:pt-0">
+      <CardContent className="p-3 md:p-6 md:pt-0">
         {isLoading ? (
           // Loading skeleton
           <div>

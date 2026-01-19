@@ -146,12 +146,12 @@ const Predictions = ({
 
   return (
     <Card
-      className={`rounded-xl bg-white p-2 shadow-sm overflow-auto ${isLoadingCombined ? 'animate-pulse' : ''}`}
+      className={`rounded-2xl bg-white p-3 md:p-4 shadow-md overflow-auto ${isLoadingCombined ? 'animate-pulse' : ''}`}
       aria-busy={isLoadingCombined}
       aria-live="polite"
     >
-      <CardHeader className="p-2 md:p-6">
-        <CardTitle className="flex flex-row items-center">
+      <CardHeader className="p-3 md:p-6">
+        <CardTitle className="flex flex-row items-center text-2xl md:text-3xl">
           Prediction{' '}
           {isLoadingCombined && (
             <Loader className="animate-spin mx-2" aria-hidden="true" />
@@ -159,7 +159,7 @@ const Predictions = ({
         </CardTitle>
 
         <CardDescription
-          className={isPastSubmissionDeadline ? 'text-red-500' : ''}
+          className={`text-base ${isPastSubmissionDeadline ? 'text-red-500 font-medium' : 'text-gray-600'}`}
         >
           {isLoadingCombined
             ? 'Loading...'
@@ -173,7 +173,7 @@ const Predictions = ({
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="p-2 md:p-6 md:pt-0">
+      <CardContent className="p-3 md:p-6 md:pt-0">
         {isLoadingCombined ? (
           <div className="flex flex-col">
             <div className="flex">

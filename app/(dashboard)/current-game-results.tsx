@@ -35,17 +35,17 @@ const CurrentGame = ({
 
   return (
     <Card
-      className={`rounded-xl bg-white p-2 shadow-sm overflow-auto ${isLoadingCombined ? 'animate-pulse' : ''}`}
+      className={`rounded-2xl bg-white p-3 md:p-4 shadow-md overflow-auto ${isLoadingCombined ? 'animate-pulse' : ''}`}
       aria-busy={isLoadingCombined}
       aria-live="polite"
     >
-      <CardHeader className="p-2 md:p-6">
-        <CardTitle className="flex flex-col md:flex-row md:items-center">
+      <CardHeader className="p-3 md:p-6">
+        <CardTitle className="flex flex-col md:flex-row md:items-center text-2xl md:text-3xl">
           <span>Current Game</span>
           {isLoadingCombined ? (
             <Loader className="animate-spin mx-2" aria-hidden="true" />
           ) : typeof leagueName === 'string' ? (
-            <span style={{ fontStyle: 'italic' }} className="md:ml-1">
+            <span style={{ fontStyle: 'italic' }} className="md:ml-1 text-xl md:text-2xl font-normal text-gray-600">
               <span className="hidden md:inline"> - </span>
               {leagueName}
             </span>
@@ -53,12 +53,12 @@ const CurrentGame = ({
             ''
           )}
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-base text-gray-600">
           {`Your results from this game ${currentGameResults.length === 0 ? 'will be displayed here.' : ''}`}
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="p-2 md:p-6 md:pt-0">
+      <CardContent className="p-3 md:p-6 md:pt-0">
         {isLoadingCombined ? (
           // Loading skeleton
           <div>

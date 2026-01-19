@@ -103,26 +103,26 @@ const Page = () => {
 
   return (
     <main>
-      <div className="rounded-xl bg-gray-300 p-4 shadow-sm grid col-span-2 md:col-span-1 my-6">
-        <h1 className="text-4xl font-bold text-center mb-2 flex items-center justify-center gap-2">
+      <div className="rounded-2xl bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 p-8 md:p-12 shadow-lg grid col-span-2 md:col-span-1 my-8">
+        <h1 className="text-5xl md:text-6xl font-extrabold text-center mb-4 flex items-center justify-center gap-2 tracking-tight">
           Last Player Standing
         </h1>
 
-        <p className="rounded-xl px-4 py-4 text-center text-xl font-light italic">
-          <strong className="font-bold">Submit predictions</strong>,{' '}
-          <strong className="font-bold">plan picks</strong>,{' '}
-          <strong className="font-bold">view results</strong>, and{' '}
-          <strong className="font-bold">analyse performance</strong>.
+        <p className="rounded-xl px-4 py-2 text-center text-lg md:text-xl font-normal text-gray-700 leading-relaxed">
+          <strong className="font-semibold text-gray-900">Submit predictions</strong>,{' '}
+          <strong className="font-semibold text-gray-900">plan picks</strong>,{' '}
+          <strong className="font-semibold text-gray-900">view results</strong>, and{' '}
+          <strong className="font-semibold text-gray-900">analyse performance</strong>.
         </p>
       </div>
 
       {session === null || session === undefined ? null : (
-        <div className="my-6">
+        <div className="my-8">
           <TileWrapper refreshTrigger={refreshTrigger} />
         </div>
       )}
 
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-4 my-6">
+      <div className="grid gap-6 md:gap-8 grid-cols-1 md:grid-cols-4 my-8">
         <div className="w-full grid md:col-span-3">
           <CurrentGame
             currentGameResults={currentGameResults}
@@ -144,7 +144,7 @@ const Page = () => {
         </div>
       </div>
 
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-4 my-6">
+      <div className="grid gap-6 md:gap-8 grid-cols-1 md:grid-cols-4 my-8">
         <div className="w-full grid md:col-span-2">
           <FixturesResults
             fixtures={fixtures}
@@ -163,7 +163,7 @@ const Page = () => {
         </div>
       </div>
 
-      <div className="w-full overflow-x-auto my-6">
+      <div className="w-full overflow-x-auto my-8">
         <PickPlanner
           teams={teamsArr}
           fixtures={fixtures || []}
@@ -176,13 +176,13 @@ const Page = () => {
         />
       </div>
 
-      <Card className="rounded-xl bg-white p-2 my-6 shadow-sm overflow-auto md:hidden">
-        <CardHeader className="p-2 md:p-6">
-          <CardTitle>Results</CardTitle>
-          <CardDescription>View your previous results</CardDescription>
+      <Card className="rounded-2xl bg-white p-3 md:p-4 my-8 shadow-md overflow-auto md:hidden">
+        <CardHeader className="p-3 md:p-6">
+          <CardTitle className="text-2xl md:text-3xl">Results</CardTitle>
+          <CardDescription className="text-base text-gray-600">View your previous results</CardDescription>
         </CardHeader>
 
-        <CardContent className="p-2 md:p-6 md:pt-0">
+        <CardContent className="p-3 md:p-6 md:pt-0">
           {session === null ? (
             <div style={{ display: 'flex', justifyContent: 'center' }}>
               <a
