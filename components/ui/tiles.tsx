@@ -176,14 +176,14 @@ export function Tile({
   isLoading: boolean;
   title: string;
   type:
-    | 'gamesPlayed'
-    | 'mostSelected'
-    | 'mostSuccessful'
-    | 'leastSuccessful'
-    | 'bogeyTeam'
-    | 'homeSuccess'
-    | 'awaySuccess'
-    | 'bogeyRound';
+  | 'gamesPlayed'
+  | 'mostSelected'
+  | 'mostSuccessful'
+  | 'leastSuccessful'
+  | 'bogeyTeam'
+  | 'homeSuccess'
+  | 'awaySuccess'
+  | 'bogeyRound';
   value: number | string;
   variant?: 'success' | 'error' | 'default';
 }) {
@@ -200,7 +200,7 @@ export function Tile({
   return isLoading ? (
     <SkeletonTile />
   ) : (
-    <div className="rounded-xl bg-white p-2 shadow-sm grid col-span-2 md:col-span-1">
+    <div className="rounded-xl bg-white p-2 shadow-sm grid col-span-2 md:col-span-1 content-between">
       <div className="flex p-2 md:p-4 items-center justify-between">
         <div className="flex items-center">
           {Icon ? <Icon className={`h-5 w-5 text-blue-300`} /> : null}
@@ -218,7 +218,7 @@ export function Tile({
           )}
         </button>
       </div>
-      
+
       <AnimatePresence mode="wait">
         {showInfo ? (
           <motion.div
