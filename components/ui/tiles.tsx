@@ -189,7 +189,7 @@ export function Tile({
         {Icon ? <Icon className={`h-6 w-6 text-blue-400`} /> : null}
         <h3 className="ml-2 text-sm md:text-base font-semibold text-gray-700">{title}</h3>
       </div>
-      <p className={`truncate rounded-xl px-2 md:px-4 py-3 md:py-4 text-center text-3xl md:text-4xl font-bold text-gray-900`}>
+      <p className={`truncate rounded-xl px-2 md:px-4 py-3 md:py-4 text-center text-xl md:text-4xl font-bold text-gray-900`}>
         {value}
       </p>
       {caption && (
