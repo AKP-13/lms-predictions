@@ -338,18 +338,18 @@ const LeagueTable = ({
 
   return (
     <Card
-      className={`rounded-xl bg-white p-2 shadow-sm ${isLoading ? 'animate-pulse' : ''}`}
+      className={`rounded-2xl bg-white p-3 md:p-4 shadow-md ${isLoading ? 'animate-pulse' : ''}`}
       aria-busy={isLoading}
       aria-live="polite"
     >
-      <CardHeader className="flex flex-row items-center p-2 md:p-6">
-        <CardTitle>League Table</CardTitle>
+      <CardHeader className="flex flex-row items-center p-3 md:p-6">
+        <CardTitle className="text-2xl md:text-3xl">League Table</CardTitle>
         {isLoading && (
           <Loader className="animate-spin mx-2" aria-hidden="true" />
         )}
       </CardHeader>
 
-      <CardContent className="p-2 md:p-6 md:pt-0">
+      <CardContent className="p-3 md:p-6 md:pt-0">
         <Table>
           <TableHeader>
             <TableRow>
