@@ -31,7 +31,9 @@ export async function POST(request: Request) {
                 league_id
             FROM user_leagues
             WHERE user_id = ($1)
-        );
+        )
+        ORDER BY id DESC
+        LIMIT 1;
         `,
       [userId]
     );
