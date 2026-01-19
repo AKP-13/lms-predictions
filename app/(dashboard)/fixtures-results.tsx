@@ -39,9 +39,7 @@ const FixturesResults = ({
   }, [currentGwNumber]);
 
   // Group fixtures by date for the selected gameweek
-  const fixturesByDate = Array.isArray(fixtures)
-    ? groupFixturesByDate(fixtures, selectedGw)
-    : {};
+  const fixturesByDate = Array.isArray(fixtures) ? groupFixturesByDate(fixtures, selectedGw) : {};
 
   // Sort dates chronologically
   const sortedDates = getSortedDates(fixturesByDate);
