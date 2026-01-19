@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -33,27 +33,26 @@ const FixturesResults = ({
     setSelectedGw(currentGwNumber);
   }, [currentGwNumber]);
 
-  const fixturesForSelectedGameweek = Array.isArray(fixtures)
-    ? fixtures.filter((f) => f.event === selectedGw)
-    : [];
+  // Filter by gameweek and group by date in a single pass
+  const fixturesByDate = Array.isArray(fixtures)
+    ? fixtures.reduce((acc, fixture) => {
+      if (fixture.event !== selectedGw) return acc;
 
-  // Group fixtures by date with optimized date parsing
-  const fixturesByDate = fixturesForSelectedGameweek.reduce(
-    (acc, fixture) => {
-      const dateObj = new Date(fixture.kickoff_time);
-      const date = dateObj.toLocaleDateString('en-GB', {
+      const date = new Date(fixture.kickoff_time).toLocaleDateString('en-GB', {
         weekday: 'short',
         day: 'numeric',
         month: 'short'
       });
+
       if (!acc[date]) {
         acc[date] = [];
       }
+
       acc[date].push(fixture);
+
       return acc;
-    },
-    {} as Record<string, FixturesData[]>
-  );
+    }, {} as Record<string, FixturesData[]>)
+    : {};
 
   // Sort dates chronologically using the first fixture's kickoff_time
   const sortedDates = Object.keys(fixturesByDate).sort((a, b) => {
@@ -156,101 +155,101 @@ const FixturesResults = ({
               </TableRow>
             ) : (
               sortedDates.map((date) => (
-                <React.Fragment key={date}>
+                <Fragment key={date}>
                   {/* Date header */}
                   <TableRow key={`date-${date}`}>
-                    <TableCell className="table-cell w-full px-2 py-3 font-semibold bg-gray-50">
+                    <TableCell className="table-cell w-full px-2 py-3 font-semibold bg-gray-50 text-center">
                       {date}
                     </TableCell>
                   </TableRow>
+
                   {/* Fixtures for this date */}
                   {fixturesByDate[date].map((fixture) => {
-                const { name: homeTeamName, id: homeTeamId } = teamsArr?.[
-                  fixture?.team_h - 1
-                ] || { name: 'Unknown', id: 0 };
-                const { name: awayTeamName, id: awayTeamId } = teamsArr?.[
-                  fixture?.team_a - 1
-                ] || { name: 'Unknown', id: 0 };
+                    const { name: homeTeamName, id: homeTeamId } = teamsArr?.[
+                      fixture?.team_h - 1
+                    ] || { name: 'Unknown', id: 0 };
+                    const { name: awayTeamName, id: awayTeamId } = teamsArr?.[
+                      fixture?.team_a - 1
+                    ] || { name: 'Unknown', id: 0 };
 
-                const isStarted = fixture.started;
-                const isFinished =
-                  fixture.finished || fixture.finished_provisional;
+                    const isStarted = fixture.started;
+                    const isFinished =
+                      fixture.finished || fixture.finished_provisional;
 
-                // Format kick-off time
-                const kickoffTime = new Date(
-                  fixture.kickoff_time
-                ).toLocaleTimeString('en-GB', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: false
-                });
+                    // Format kick-off time
+                    const kickoffTime = new Date(
+                      fixture.kickoff_time
+                    ).toLocaleTimeString('en-GB', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false
+                    });
 
-                return (
-                  <TableRow
-                    key={fixture.code}
-                    className="border-b border-gray-100 last:border-0"
-                  >
-                    <TableCell className="table-cell w-full px-2">
-                      <div className="grid grid-cols-12 items-center gap-2">
-                        {/* Left section - Home team */}
-                        <div className="col-span-5 flex flex-col xl:flex-row items-center gap-2">
-                          {selectedGw <= currentGwNumber && (
-                            <div className="flex-shrink-0 order-last xl:order-first w-full xl:w-auto text-left">
-                              <TeamForm
-                                teamId={homeTeamId}
-                                fixtures={fixtures}
-                                selectedGw={selectedGw}
-                              />
+                    return (
+                      <TableRow
+                        key={fixture.code}
+                        className="border-b border-gray-100 last:border-0"
+                      >
+                        <TableCell className="table-cell w-full px-2">
+                          <div className="grid grid-cols-12 items-center gap-2">
+                            {/* Left section - Home team */}
+                            <div className="col-span-5 flex flex-col xl:flex-row items-center gap-2">
+                              {selectedGw <= currentGwNumber && (
+                                <div className="flex-shrink-0 order-last xl:order-first w-full xl:w-auto text-left">
+                                  <TeamForm
+                                    teamId={homeTeamId}
+                                    fixtures={fixtures}
+                                    selectedGw={selectedGw}
+                                  />
+                                </div>
+                              )}
+                              <span className="flex-1 text-center xl:text-right">
+                                {homeTeamName}
+                              </span>
                             </div>
-                          )}
-                          <span className="flex-1 text-center xl:text-right">
-                            {homeTeamName}
-                          </span>
-                        </div>
 
-                        {/* Center section - Score or Time */}
-                        <div className="col-span-2 flex flex-col items-center justify-center">
-                          <div
-                            className={`min-w-[80px] text-center ${
-                              isStarted ? 'font-bold' : 'font-normal'
-                            }`}
-                          >
-                            {isStarted && !isFinished && (
-                              <div>Live {fixture.minutes}'</div>
-                            )}
-                            <div>
-                              {isStarted || isFinished ? (
-                                <>
-                                  {fixture.team_h_score} - {fixture.team_a_score}
-                                </>
-                              ) : (
-                                kickoffTime
+                            {/* Center section - Score or Time */}
+                            <div className="col-span-2 flex flex-col items-center justify-center">
+                              <div
+                                className={`min-w-[80px] text-center ${isStarted ? 'font-bold' : 'font-normal'
+                                  }`}
+                              >
+                                {isStarted && !isFinished && (
+                                  <div>Live {fixture.minutes}'</div>
+                                )}
+                                <div>
+                                  {isStarted || isFinished ? (
+                                    <>
+                                      {fixture.team_h_score} - {fixture.team_a_score}
+                                    </>
+                                  ) : (
+                                    kickoffTime
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Right section - Away team */}
+                            <div className="col-span-5 flex flex-col xl:flex-row items-center gap-2">
+                              <span className="flex-1 text-center xl:text-left">
+                                {awayTeamName}
+                              </span>
+                              {selectedGw <= currentGwNumber && (
+                                <div className="flex-shrink-0 order-last w-full xl:w-auto text-right">
+                                  <TeamForm
+                                    teamId={awayTeamId}
+                                    fixtures={fixtures}
+                                    selectedGw={selectedGw}
+                                  />
+                                </div>
                               )}
                             </div>
                           </div>
-                        </div>
-
-                        {/* Right section - Away team */}
-                        <div className="col-span-5 flex flex-col xl:flex-row items-center gap-2">
-                          <span className="flex-1 text-center xl:text-left">
-                            {awayTeamName}
-                          </span>
-                          {selectedGw <= currentGwNumber && (
-                            <div className="flex-shrink-0 order-last w-full xl:w-auto text-right">
-                              <TeamForm
-                                teamId={awayTeamId}
-                                fixtures={fixtures}
-                                selectedGw={selectedGw}
-                              />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-                </React.Fragment>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </Fragment>
               ))
             )}
           </TableBody>
