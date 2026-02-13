@@ -28,14 +28,19 @@ const iconMap = {
 };
 
 const infoDescriptions = {
-  gamesPlayed: 'Total number of games you have participated in, with your furthest round reached displayed below.',
+  gamesPlayed:
+    'Total number of games you have participated in, with your furthest round reached displayed below.',
   mostSelected: 'The team you have selected most frequently across all games.',
-  mostSuccessful: 'The team with your highest success rate, considering only teams picked at least 3 times.',
-  leastSuccessful: 'The team with your lowest success rate, considering only teams picked at least 3 times.',
-  bogeyTeam: 'The opposing team that has knocked you out the most times across all games.',
+  mostSuccessful:
+    'The team with your highest success rate, considering only teams picked at least 3 times.',
+  leastSuccessful:
+    'The team with your lowest success rate, considering only teams picked at least 3 times.',
+  bogeyTeam:
+    'The opposing team that has knocked you out the most times across all games.',
   homeSuccess: 'Your success rate when picking teams playing at home.',
   awaySuccess: 'Your success rate when picking teams playing away.',
-  bogeyRound: 'The round(s) in which you have been knocked out most frequently across all games.'
+  bogeyRound:
+    'The round(s) in which you have been knocked out most frequently across all games.'
 };
 
 export default function TileWrapper({
@@ -176,14 +181,14 @@ export function Tile({
   isLoading: boolean;
   title: string;
   type:
-  | 'gamesPlayed'
-  | 'mostSelected'
-  | 'mostSuccessful'
-  | 'leastSuccessful'
-  | 'bogeyTeam'
-  | 'homeSuccess'
-  | 'awaySuccess'
-  | 'bogeyRound';
+    | 'gamesPlayed'
+    | 'mostSelected'
+    | 'mostSuccessful'
+    | 'leastSuccessful'
+    | 'bogeyTeam'
+    | 'homeSuccess'
+    | 'awaySuccess'
+    | 'bogeyRound';
   value: number | string;
   variant?: 'success' | 'error' | 'default';
 }) {
@@ -230,7 +235,7 @@ export function Tile({
             className="px-2 md:px-4 py-2 md:py-4"
           >
             <p className="text-sm text-gray-700 leading-relaxed">
-              {infoDescriptions[type] || 'Information about this tile.'}
+              {infoDescriptions[type]}
             </p>
           </motion.div>
         ) : (
@@ -241,7 +246,9 @@ export function Tile({
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
-            <p className={`truncate rounded-xl px-2 md:px-4 py-2 text-center text-2xl`}>
+            <p
+              className={`truncate rounded-xl px-2 md:px-4 py-2 text-center text-2xl`}
+            >
               {value}
             </p>
             {caption && (
