@@ -10,12 +10,23 @@ import {
   SignpostIcon,
   ThumbsDownIcon,
   Info,
-  X
+  X,
+  LucideIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 
-const iconMap = {
+type TileType =
+  | 'gamesPlayed'
+  | 'mostSelected'
+  | 'mostSuccessful'
+  | 'leastSuccessful'
+  | 'bogeyTeam'
+  | 'homeSuccess'
+  | 'awaySuccess'
+  | 'bogeyRound';
+
+const iconMap: Record<TileType | 'loading', LucideIcon> = {
   gamesPlayed: Hash,
   mostSelected: ArrowUpWideNarrowIcon,
   mostSuccessful: BadgePlusIcon,
@@ -27,7 +38,7 @@ const iconMap = {
   loading: Loader
 };
 
-const infoDescriptions = {
+const infoDescriptions: Record<TileType, string> = {
   gamesPlayed:
     'Total number of games you have participated in, with your furthest round reached displayed below.',
   mostSelected: 'The team you have selected most frequently across all games.',
@@ -44,17 +55,7 @@ const infoDescriptions = {
 };
 
 /** Shorter labels for mobile so titles fit without truncation. */
-const shortTitles: Record<
-  | 'gamesPlayed'
-  | 'mostSelected'
-  | 'mostSuccessful'
-  | 'leastSuccessful'
-  | 'bogeyTeam'
-  | 'homeSuccess'
-  | 'awaySuccess'
-  | 'bogeyRound',
-  string
-> = {
+const shortTitles: Record<TileType, string> = {
   gamesPlayed: 'Games',
   mostSelected: 'Most picked',
   mostSuccessful: 'Best pick',
@@ -202,15 +203,7 @@ export function Tile({
   caption?: string;
   isLoading: boolean;
   title: string;
-  type:
-    | 'gamesPlayed'
-    | 'mostSelected'
-    | 'mostSuccessful'
-    | 'leastSuccessful'
-    | 'bogeyTeam'
-    | 'homeSuccess'
-    | 'awaySuccess'
-    | 'bogeyRound';
+  type: TileType;
   value: number | string;
   variant?: 'success' | 'error' | 'default';
 }) {
