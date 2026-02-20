@@ -11,8 +11,7 @@ import {
 } from '@/components/ui/table';
 import { Loader } from 'lucide-react';
 
-const Injuries = ({data, isLoading}: {data: any[], isLoading: boolean}) => {
-
+const Injuries = ({ data, isLoading }: { data: any[]; isLoading: boolean }) => {
   return (
     <Card
       className={`rounded-xl bg-white p-2 shadow-sm ${isLoading ? 'animate-pulse' : ''} h-fit`}
@@ -40,16 +39,16 @@ const Injuries = ({data, isLoading}: {data: any[], isLoading: boolean}) => {
                 }}
               >
                 Name
-                </TableHead>
-                <TableHead
-                    style={{
-                    flex: 1,
-                    textAlign: 'left',
-                    alignContent: 'center'
-                    }}
-                >
-                    Team
-                </TableHead>
+              </TableHead>
+              <TableHead
+                style={{
+                  flex: 1,
+                  textAlign: 'left',
+                  alignContent: 'center'
+                }}
+              >
+                Team
+              </TableHead>
               <TableHead
                 style={{
                   flex: 1,
@@ -90,7 +89,7 @@ const Injuries = ({data, isLoading}: {data: any[], isLoading: boolean}) => {
                 </TableCell>
               </TableRow>
             ) : (
-                data.map((injury) => {
+              data.map((injury) => {
                 return (
                   <TableRow
                     key={injury.web_name}
@@ -112,10 +111,12 @@ const Injuries = ({data, isLoading}: {data: any[], isLoading: boolean}) => {
                         <div className="col-span-2 flex flex-col items-center justify-center">
                           <div
                             className={`min-w-[80px] text-center ${
-                              injury.chance_of_playing_this_round ? 'font-bold' : 'font-normal'
+                              injury.chance_of_playing_next_round
+                                ? 'font-bold'
+                                : 'font-normal'
                             }`}
                           >
-                            {injury.chance_of_playing_this_round}
+                            {injury.chance_of_playing_next_round}
                           </div>
                         </div>
 

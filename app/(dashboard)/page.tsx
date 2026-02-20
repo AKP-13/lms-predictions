@@ -81,14 +81,14 @@ const Page = () => {
     (fixture) => fixture.event === currentGwNumber + 1
   );
 
-const teamsArr: TeamsArr = useMemo(
+  const teamsArr: TeamsArr = useMemo(
     () =>
       !isLoadingFplData && fplData
         ? fplData.teams.map(({ id, name, short_name }) => ({
-          id,
-          name,
-          short_name
-        }))
+            id,
+            name,
+            short_name
+          }))
         : [],
     [isLoadingFplData, fplData]
   );
@@ -97,26 +97,33 @@ const teamsArr: TeamsArr = useMemo(
     ? 1
     : Array.isArray(Object.values(results))
       ? Object.values(results).reduce(
-        (maxLength, currentArray) => Math.max(maxLength, currentArray.length),
-        0
-      )
+          (maxLength, currentArray) => Math.max(maxLength, currentArray.length),
+          0
+        )
       : 1;
 
-  const injuries = fplData?.elements?.reduce<
-    { web_name: string; chance_of_playing_this_round: number | null; news: string; team_name: FPLTeamName | null }[]
-  >((acc, curr) => {
-    if (curr.status === 'i') {
-      acc.push({
-        web_name: curr.web_name,
-        chance_of_playing_this_round: curr.chance_of_playing_this_round,
-        news: curr.news,
-        team_name: fplData?.teams.find((team) => team.id === curr.team)?.name || null,
-      });
-    }
-    return acc;
-  }, []) ?? [];
+  const injuries =
+    fplData?.elements?.reduce<
+      {
+        web_name: string;
+        chance_of_playing_next_round: number | null;
+        news: string;
+        team_name: FPLTeamName | null;
+      }[]
+    >((acc, curr) => {
+      if (curr.status === 'i') {
+        acc.push({
+          web_name: curr.web_name,
+          chance_of_playing_next_round: curr.chance_of_playing_next_round,
+          news: curr.news,
+          team_name:
+            fplData?.teams.find((team) => team.id === curr.team)?.name || null
+        });
+      }
+      return acc;
+    }, []) ?? [];
 
-  console.log('injuries', injuries)
+  console.log('injuries', injuries);
 
   return (
     <main>
