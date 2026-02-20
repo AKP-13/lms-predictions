@@ -43,6 +43,28 @@ const infoDescriptions = {
     'The round(s) in which you have been knocked out most frequently across all games.'
 };
 
+/** Shorter labels for mobile so titles fit without truncation. */
+const shortTitles: Record<
+  | 'gamesPlayed'
+  | 'mostSelected'
+  | 'mostSuccessful'
+  | 'leastSuccessful'
+  | 'bogeyTeam'
+  | 'homeSuccess'
+  | 'awaySuccess'
+  | 'bogeyRound',
+  string
+> = {
+  gamesPlayed: 'Games',
+  mostSelected: 'Most picked',
+  mostSuccessful: 'Best pick',
+  leastSuccessful: 'Worst pick',
+  bogeyTeam: 'Bogey team',
+  homeSuccess: 'Home',
+  awaySuccess: 'Away',
+  bogeyRound: 'Bogey round'
+};
+
 export default function TileWrapper({
   refreshTrigger
 }: {
@@ -205,21 +227,27 @@ export function Tile({
   return isLoading ? (
     <SkeletonTile />
   ) : (
-    <div className="rounded-xl bg-white p-2 shadow-sm grid col-span-2 md:col-span-1 content-between">
-      <div className="flex p-2 md:p-4 items-center justify-between">
-        <div className="flex items-center">
-          {Icon ? <Icon className={`h-5 w-5 text-blue-300`} /> : null}
-          <h3 className="ml-2 text-sm font-medium">{title}</h3>
+    <div className="rounded-xl bg-white p-2 shadow-sm grid col-span-2 md:col-span-1 content-between border-2 border-transparent transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-md hover:border-blue-200 overflow-hidden min-w-0">
+      {/* Label row: short title on mobile so it fits; full title on desktop */}
+      <div className="flex p-2 md:p-4 items-center justify-between gap-2 border-b border-gray-100 min-h-0 min-w-0">
+        <div className="flex items-center min-w-0 flex-1 overflow-hidden">
+          {Icon ? (
+            <Icon className="h-4 w-4 md:h-5 md:w-5 text-blue-300 flex-shrink-0" />
+          ) : null}
+          <h3 className="ml-1.5 md:ml-2 text-xs md:text-sm font-medium text-gray-500 md:text-gray-900 truncate min-w-0">
+            <span className="md:hidden">{shortTitles[type]}</span>
+            <span className="hidden md:inline">{title}</span>
+          </h3>
         </div>
         <button
           onClick={() => setShowInfo(!showInfo)}
-          className="ml-2 p-1 rounded-full hover:bg-gray-100 transition-colors"
+          className="flex-shrink-0 p-1 rounded-full hover:bg-gray-100 transition-colors"
           aria-label={showInfo ? 'Hide info' : 'Show info'}
         >
           {showInfo ? (
-            <X className="h-4 w-4 text-gray-600" />
+            <X className="h-3.5 w-3.5 md:h-4 md:w-4 text-gray-500" />
           ) : (
-            <Info className="h-4 w-4 text-gray-600" />
+            <Info className="h-3.5 w-3.5 md:h-4 md:w-4 text-gray-400" />
           )}
         </button>
       </div>
@@ -245,15 +273,18 @@ export function Tile({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
+            className="px-2 md:px-4 py-3 md:py-4 min-w-0 overflow-hidden"
           >
             <p
-              className={`truncate rounded-xl px-2 md:px-4 py-2 text-center text-2xl`}
+              className="text-2xl font-semibold text-gray-900 text-left md:text-center truncate"
+              title={typeof value === 'string' ? value : String(value)}
             >
               {value}
             </p>
             {caption && (
               <p
-                className={`truncate rounded-xl px-2 md:px-4 py-2 md:py-4 text-center text-small italic ${color}`}
+                className={`mt-0.5 text-xs md:text-sm italic text-left md:text-center truncate ${color}`}
+                title={caption}
               >
                 {caption}
               </p>
