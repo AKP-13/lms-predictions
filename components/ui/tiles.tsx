@@ -240,6 +240,7 @@ export function Tile({
           </h3>
         </div>
         <button
+          type="button"
           onClick={() => setShowInfo(!showInfo)}
           className="flex-shrink-0 p-1 rounded-full hover:bg-gray-100 transition-colors"
           aria-label={showInfo ? 'Hide info' : 'Show info'}
