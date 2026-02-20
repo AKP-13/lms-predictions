@@ -14,7 +14,7 @@ import {
   LucideIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 
 type TileType =
   | 'gamesPlayed'
@@ -25,6 +25,11 @@ type TileType =
   | 'homeSuccess'
   | 'awaySuccess'
   | 'bogeyRound';
+
+type TileVariant = 'success' | 'error' | 'default';
+
+/** Caption that indicates user has never been knocked out; used for variant logic. */
+const CAPTION_NEVER_KNOCKED_OUT = 'Yet to be knocked out!';
 
 const iconMap: Record<TileType | 'loading', LucideIcon> = {
   gamesPlayed: Hash,
@@ -66,147 +71,98 @@ const shortTitles: Record<TileType, string> = {
   bogeyRound: 'Bogey round'
 };
 
+type TileDataSlice = { value: number | string; caption: string };
+type TileDataKey = keyof ReturnType<typeof useTileData>['data'];
+
+/** Static config for each tile: type, label, data key, and variant logic. Single source of truth for adding/removing tiles. */
+const TILE_CONFIGS: Array<{
+  type: TileType;
+  title: string;
+  dataKey: TileDataKey;
+  getVariant: (slice: TileDataSlice) => TileVariant;
+}> = [
+  { type: 'gamesPlayed', title: 'Games Played', dataKey: 'gamesPlayed', getVariant: () => 'success' },
+  {
+    type: 'bogeyRound',
+    title: 'Bogey Round',
+    dataKey: 'bogeyRoundNumber',
+    getVariant: (s) => (s.caption === CAPTION_NEVER_KNOCKED_OUT ? 'success' : 'error')
+  },
+  { type: 'mostSelected', title: 'Most picked team', dataKey: 'mostSelected', getVariant: () => 'success' },
+  { type: 'mostSuccessful', title: 'Most Successful Pick', dataKey: 'mostSuccessful', getVariant: () => 'success' },
+  { type: 'leastSuccessful', title: 'Least Successful Pick', dataKey: 'leastSuccessful', getVariant: () => 'error' },
+  {
+    type: 'bogeyTeam',
+    title: 'Bogey Team',
+    dataKey: 'bogeyTeam',
+    getVariant: (s) => (s.caption === CAPTION_NEVER_KNOCKED_OUT ? 'success' : 'error')
+  },
+  {
+    type: 'homeSuccess',
+    title: 'Home Pick Success',
+    dataKey: 'homeSuccess',
+    getVariant: (s) => (s.value === 'N/A' ? 'error' : 'success')
+  },
+  {
+    type: 'awaySuccess',
+    title: 'Away Pick Success',
+    dataKey: 'awaySuccess',
+    getVariant: (s) => (s.value === 'N/A' ? 'error' : 'success')
+  }
+];
+
+/** Tiles shown when user has no games played (subset, same order as design). */
+const EMPTY_STATE_TILE_TYPES: TileType[] = ['gamesPlayed', 'mostSelected', 'bogeyRound', 'bogeyTeam'];
+
 export default function TileWrapper({
   refreshTrigger
 }: {
   refreshTrigger: number;
 }) {
-  const {
-    data: {
-      gamesPlayed,
-      bogeyRoundNumber,
-      mostSelected,
-      mostSuccessful,
-      leastSuccessful,
-      bogeyTeam,
-      homeSuccess,
-      awaySuccess
-    },
-    isLoading
-  } = useTileData({ refreshTrigger });
+  const { data, isLoading } = useTileData({ refreshTrigger });
+  const isEmpty = data.gamesPlayed.value === 0;
 
-  return gamesPlayed.value === 0 ? (
+  const configs = isEmpty
+    ? TILE_CONFIGS.filter((c) => EMPTY_STATE_TILE_TYPES.includes(c.type))
+    : TILE_CONFIGS;
+
+  return (
     <div className="grid gap-6 grid-cols-4">
-      <Tile
-        caption="Insufficient data"
-        title="Games Played"
-        type="gamesPlayed"
-        value={isLoading ? '...' : gamesPlayed.value}
-        isLoading={isLoading}
-      />
-      <Tile
-        caption="Insufficient data"
-        title="Most picked team"
-        type="mostSelected"
-        value={isLoading ? '...' : mostSelected.value}
-        isLoading={isLoading}
-      />
-      <Tile
-        caption="Insufficient data"
-        title="Bogey Round"
-        type="bogeyRound"
-        value={isLoading ? '...' : bogeyRoundNumber.value}
-        isLoading={isLoading}
-      />
-      <Tile
-        caption="Insufficient data"
-        title="Bogey Team"
-        type="bogeyTeam"
-        value={isLoading ? '...' : bogeyTeam.value}
-        isLoading={isLoading}
-      />
-    </div>
-  ) : (
-    <div className="grid gap-6 grid-cols-4">
-      <Tile
-        caption={gamesPlayed.caption}
-        title="Games Played"
-        type="gamesPlayed"
-        value={isLoading ? '...' : gamesPlayed.value}
-        variant="success"
-        isLoading={isLoading}
-      />
-      <Tile
-        caption={bogeyRoundNumber.caption}
-        title="Bogey Round"
-        type="bogeyRound"
-        value={isLoading ? '...' : bogeyRoundNumber.value}
-        variant={
-          bogeyRoundNumber.caption === 'Yet to be knocked out!'
-            ? 'success'
-            : 'error'
-        }
-        isLoading={isLoading}
-      />
-      <Tile
-        caption={mostSelected.caption}
-        title="Most picked team"
-        type="mostSelected"
-        value={isLoading ? '...' : mostSelected.value}
-        variant="success"
-        isLoading={isLoading}
-      />
-      <Tile
-        caption={mostSuccessful.caption}
-        title="Most Successful Pick"
-        type="mostSuccessful"
-        value={isLoading ? '...' : mostSuccessful.value}
-        variant="success"
-        isLoading={isLoading}
-      />
-      <Tile
-        caption={leastSuccessful.caption}
-        title="Least Successful Pick"
-        type="leastSuccessful"
-        value={isLoading ? '...' : leastSuccessful.value}
-        variant="error"
-        isLoading={isLoading}
-      />
-      <Tile
-        caption={bogeyTeam.caption}
-        title="Bogey Team"
-        type="bogeyTeam"
-        value={isLoading ? '...' : bogeyTeam.value}
-        variant={
-          bogeyTeam.caption === 'Yet to be knocked out!' ? 'success' : 'error'
-        }
-        isLoading={isLoading}
-      />
-      <Tile
-        caption={homeSuccess.caption}
-        title="Home Pick Success"
-        type="homeSuccess"
-        value={isLoading ? '...' : homeSuccess.value}
-        variant={homeSuccess.value === 'N/A' ? 'error' : 'success'}
-        isLoading={isLoading}
-      />
-      <Tile
-        caption={awaySuccess.caption}
-        title="Away Pick Success"
-        type="awaySuccess"
-        value={isLoading ? '...' : awaySuccess.value}
-        variant={awaySuccess.value === 'N/A' ? 'error' : 'success'}
-        isLoading={isLoading}
-      />
+      {configs.map(({ type, title, dataKey, getVariant }) => {
+        const slice = data[dataKey];
+        return (
+          <Tile
+            key={type}
+            caption={isEmpty ? 'Insufficient data' : slice.caption}
+            isLoading={isLoading}
+            title={title}
+            type={type}
+            value={isLoading ? '...' : slice.value}
+            variant={isEmpty ? 'default' : getVariant(slice)}
+          />
+        );
+      })}
     </div>
   );
 }
 
-export function Tile({
+export interface TileProps {
+  caption?: string;
+  isLoading: boolean;
+  title: string;
+  type: TileType;
+  value: number | string;
+  variant?: TileVariant;
+}
+
+function TileComponent({
   caption,
   isLoading,
   title,
   type,
   value,
   variant = 'default'
-}: {
-  caption?: string;
-  isLoading: boolean;
-  title: string;
-  type: TileType;
-  value: number | string;
-  variant?: 'success' | 'error' | 'default';
-}) {
+}: TileProps) {
   const [showInfo, setShowInfo] = useState(false);
   const Icon = iconMap[isLoading ? 'loading' : type];
 
@@ -290,16 +246,19 @@ export function Tile({
   );
 }
 
-const SkeletonTile = () => {
-  const Icon = iconMap['loading'];
+/** Memoized to avoid re-renders when parent updates but props are unchanged (e.g. other tiles in the grid). */
+export const Tile = memo(TileComponent);
+
+function SkeletonTile() {
+  const Icon = iconMap.loading;
   return (
     <div className="rounded-xl bg-white p-2 shadow-sm grid col-span-2 md:col-span-1 animate-pulse">
       <div className="flex p-4">
-        <Icon className={`h-5 w-5 text-blue-300 animate-spin`} />
+        <Icon className="h-5 w-5 text-blue-300 animate-spin" />
         <div className="ml-2 h-4 w-24 bg-gray-300 rounded" />
       </div>
       <div className="h-8 w-3/4 bg-gray-300 rounded mx-auto my-2" />
       <div className="h-4 w-1/2 bg-gray-200 rounded mx-auto my-2" />
     </div>
   );
-};
+}
