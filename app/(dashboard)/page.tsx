@@ -123,8 +123,6 @@ const Page = () => {
       return acc;
     }, []) ?? [];
 
-  console.log('injuries', injuries);
-
   return (
     <main>
       <div className="rounded-xl bg-gray-300 p-4 shadow-sm grid col-span-2 md:col-span-1 my-6">
