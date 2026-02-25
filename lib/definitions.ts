@@ -92,3 +92,10 @@ export type FixturesData = {
   team_a_difficulty: number;
   pulse_id: number;
 };
+
+export type Injury = {
+  web_name: string;
+  chance_of_playing_next_round: number | null;
+  news: string;
+  team_name: FPLTeamName | null;
+};

@@ -25,13 +25,14 @@ import {
   TeamScore
 } from '@/components/ui/table';
 import { MIN_GW } from '@/lib/constants';
-import { FPLTeamName } from '@/lib/definitions';
+import { FPLTeamName, Injury } from '@/lib/definitions';
 import { useSession } from 'next-auth/react';
 import useResults from 'app/hooks/useResults';
 import useFixtures from 'app/hooks/useFixtures';
-import useFplData from 'app/hooks/useFplData';
+import useFplData, { FplData } from 'app/hooks/useFplData';
 import useLeagueInfo from 'app/hooks/useLeagueInfo';
 import useCurrentGameData from 'app/hooks/useCurrentGameData';
+import Injuries from './injuries';
 
 export type TeamsArr = {
   id: number;
@@ -101,6 +102,27 @@ const Page = () => {
         )
       : 1;
 
+  const injuries: Injury[] =
+    fplData?.elements?.reduce<
+      {
+        web_name: string;
+        chance_of_playing_next_round: number | null;
+        news: string;
+        team_name: FPLTeamName | null;
+      }[]
+    >((acc, curr) => {
+      if (curr.status === 'i') {
+        acc.push({
+          web_name: curr.web_name,
+          chance_of_playing_next_round: curr.chance_of_playing_next_round,
+          news: curr.news,
+          team_name:
+            fplData?.teams.find((team) => team.id === curr.team)?.name || null
+        });
+      }
+      return acc;
+    }, []) ?? [];
+
   return (
     <main>
       <div className="rounded-xl bg-gray-300 p-4 shadow-sm grid col-span-2 md:col-span-1 my-6">
@@ -145,13 +167,19 @@ const Page = () => {
       </div>
 
       <div className="grid gap-6 grid-cols-1 md:grid-cols-4 my-6">
-        <div className="w-full grid md:col-span-2">
-          <FixturesResults
-            fixtures={fixtures}
-            currentGwNumber={currentGwNumber}
-            teamsArr={teamsArr}
-            isLoading={isLoadingFixtures}
-          />
+        <div className="w-full md:col-span-2 relative">
+          <div className="flex flex-col gap-6 md:absolute md:inset-0">
+            <FixturesResults
+              fixtures={fixtures}
+              currentGwNumber={currentGwNumber}
+              teamsArr={teamsArr}
+              isLoading={isLoadingFixtures}
+            />
+
+            <div className="flex-1 min-h-0 flex flex-col">
+              <Injuries data={injuries} isLoading={isLoadingFplData} />
+            </div>
+          </div>
         </div>
 
         <div className="w-full md:col-span-2">

@@ -10,6 +10,7 @@ export async function POST(request: Request) {
 
     const userId = session?.user?.id;
     const userEmail = session?.user?.email;
+    const userName = session?.user?.user_name || 'there';
 
     const {
       team_selected,
@@ -22,19 +23,27 @@ export async function POST(request: Request) {
 
     const { rows } = await sql.query(
       `
-      SELECT
-            id AS game_id
-            , league_id
+      WITH games_numbered AS (
+        SELECT
+          id AS game_id,
+          league_id,
+          ROW_NUMBER() OVER (PARTITION BY league_id ORDER BY id) AS game_number
         FROM games
-        WHERE league_id = (
-            SELECT
-                league_id
-            FROM user_leagues
-            WHERE user_id = ($1)
-        )
-        ORDER BY id DESC
-        LIMIT 1;
-        `,
+      )
+      SELECT 
+        game_id
+        , league_id
+        , game_number
+      FROM games_numbered
+      WHERE league_id = (
+        SELECT 
+            league_id 
+        FROM user_leagues 
+        WHERE user_id = ($1)
+      )
+      ORDER BY game_id DESC
+      LIMIT 1;
+      `,
       [userId]
     );
 
@@ -42,7 +51,7 @@ export async function POST(request: Request) {
       throw new Error('User not part of a league');
     }
 
-    const { game_id, league_id } = rows[0];
+    const { game_id, league_id, game_number } = rows[0];
 
     await sql.query(
       `
@@ -88,7 +97,8 @@ export async function POST(request: Request) {
         bcc: [process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS || ''],
         subject: 'Prediction Submitted',
         html: `
-            <h2>Your prediction for Round ${round_number} has been submitted!</h2>
+            <h2>Hey ${userName} 👋🏻</h2>
+            <p>Your prediction for Game ${game_number}, Round ${round_number} has been submitted!</p>
             <ul>
             <li><strong>Team:</strong> ${team_selected}</li>
             <li><strong>Outcome:</strong> ${result_selected}</li>
@@ -96,7 +106,7 @@ export async function POST(request: Request) {
             <li><strong>Location:</strong> ${team_selected_location}</li>
             </ul>
 
-            <p>If you need to change your prediction, please email <a href="mailto:${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS}">${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS}</a></p>
+            <p>If you need to change your prediction, or that doesn't look right, please email <a href="mailto:${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS}">${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS}</a></p>
             `
       });
 
