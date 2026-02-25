@@ -35,7 +35,7 @@ type FplData = {
     "special": boolean,
     "squad_number": null | number,
     "status": string,
-    "team": 1,
+    "team": number,
     "team_code": number,
     "total_points": number,
     "transfers_in": number,
