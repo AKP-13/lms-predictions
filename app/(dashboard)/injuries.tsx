@@ -11,10 +11,17 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { Loader } from 'lucide-react';
+import { Injury } from '@/lib/definitions';
 
 const PAGE_SIZE = 10;
 
-const Injuries = ({ data, isLoading }: { data: any[]; isLoading: boolean }) => {
+const Injuries = ({
+  data,
+  isLoading
+}: {
+  data: Injury[];
+  isLoading: boolean;
+}) => {
   const [page, setPage] = useState(0);
   const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
   const paginatedData = data.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
@@ -42,7 +49,7 @@ const Injuries = ({ data, isLoading }: { data: any[]; isLoading: boolean }) => {
                 <TableHead
                   style={{
                     flex: 1,
-                    textAlign: 'left',
+                    textAlign: 'center',
                     alignContent: 'center'
                   }}
                 >
@@ -51,7 +58,7 @@ const Injuries = ({ data, isLoading }: { data: any[]; isLoading: boolean }) => {
                 <TableHead
                   style={{
                     flex: 1,
-                    textAlign: 'left',
+                    textAlign: 'center',
                     alignContent: 'center'
                   }}
                 >
@@ -60,7 +67,7 @@ const Injuries = ({ data, isLoading }: { data: any[]; isLoading: boolean }) => {
                 <TableHead
                   style={{
                     flex: 1,
-                    textAlign: 'left',
+                    textAlign: 'center',
                     alignContent: 'center'
                   }}
                 >
@@ -69,7 +76,7 @@ const Injuries = ({ data, isLoading }: { data: any[]; isLoading: boolean }) => {
                 <TableHead
                   style={{
                     flex: 1,
-                    textAlign: 'left',
+                    textAlign: 'center',
                     alignContent: 'center'
                   }}
                 >

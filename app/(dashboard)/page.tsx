@@ -25,7 +25,7 @@ import {
   TeamScore
 } from '@/components/ui/table';
 import { MIN_GW } from '@/lib/constants';
-import { FPLTeamName } from '@/lib/definitions';
+import { FPLTeamName, Injury } from '@/lib/definitions';
 import { useSession } from 'next-auth/react';
 import useResults from 'app/hooks/useResults';
 import useFixtures from 'app/hooks/useFixtures';
@@ -102,7 +102,7 @@ const Page = () => {
         )
       : 1;
 
-  const injuries =
+  const injuries: Injury[] =
     fplData?.elements?.reduce<
       {
         web_name: string;
