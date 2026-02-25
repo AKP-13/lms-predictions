@@ -169,15 +169,19 @@ const Page = () => {
       </div>
 
       <div className="grid gap-6 grid-cols-1 md:grid-cols-4 my-6">
-        <div className="w-full grid md:col-span-2">
-          <FixturesResults
-            fixtures={fixtures}
-            currentGwNumber={currentGwNumber}
-            teamsArr={teamsArr}
-            isLoading={isLoadingFixtures}
-          />
+        <div className="w-full md:col-span-2 relative">
+          <div className="flex flex-col gap-6 md:absolute md:inset-0">
+            <FixturesResults
+              fixtures={fixtures}
+              currentGwNumber={currentGwNumber}
+              teamsArr={teamsArr}
+              isLoading={isLoadingFixtures}
+            />
 
-          <Injuries data={injuries} isLoading={isLoadingFplData} />
+            <div className="flex-1 min-h-0 flex flex-col">
+              <Injuries data={injuries} isLoading={isLoadingFplData} />
+            </div>
+          </div>
         </div>
 
         <div className="w-full md:col-span-2">

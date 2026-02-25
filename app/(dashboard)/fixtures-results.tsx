@@ -39,7 +39,9 @@ const FixturesResults = ({
   }, [currentGwNumber]);
 
   // Group fixtures by date for the selected gameweek
-  const fixturesByDate = Array.isArray(fixtures) ? groupFixturesByDate(fixtures, selectedGw) : {};
+  const fixturesByDate = Array.isArray(fixtures)
+    ? groupFixturesByDate(fixtures, selectedGw)
+    : {};
 
   // Sort dates chronologically
   const sortedDates = getSortedDates(fixturesByDate);
@@ -169,7 +171,7 @@ const FixturesResults = ({
                         key={fixture.code}
                         className="border-b border-gray-100 last:border-0"
                       >
-                        <TableCell className="table-cell w-full px-2">
+                        <TableCell className="table-cell w-full px-2 py-1">
                           <div className="grid grid-cols-12 items-center gap-2">
                             {/* Left section - Home team */}
                             <div className="col-span-5 flex flex-col xl:flex-row items-center gap-2">
@@ -182,7 +184,7 @@ const FixturesResults = ({
                                   />
                                 </div>
                               )}
-                              <span className="flex-1 text-center xl:text-right">
+                              <span className="flex-1 text-center xl:text-right font-bold">
                                 {homeTeamName}
                               </span>
                             </div>
@@ -198,7 +200,8 @@ const FixturesResults = ({
                                 <div>
                                   {isStarted || isFinished ? (
                                     <>
-                                      {fixture.team_h_score} - {fixture.team_a_score}
+                                      {fixture.team_h_score} -{' '}
+                                      {fixture.team_a_score}
                                     </>
                                   ) : (
                                     kickoffTime
@@ -209,7 +212,7 @@ const FixturesResults = ({
 
                             {/* Right section - Away team */}
                             <div className="col-span-5 flex flex-col xl:flex-row items-center gap-2">
-                              <span className="flex-1 text-center xl:text-left">
+                              <span className="flex-1 text-center xl:text-left font-bold">
                                 {awayTeamName}
                               </span>
                               {selectedGw <= currentGwNumber && (
