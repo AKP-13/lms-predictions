@@ -10,7 +10,7 @@ export async function POST(request: Request) {
 
     const userId = session?.user?.id;
     const userEmail = session?.user?.email;
-    const userName = session?.user?.user_name;
+    const userName = session?.user?.user_name || 'there';
 
     const {
       team_selected,
