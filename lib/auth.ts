@@ -3,6 +3,12 @@ import NeonAdapter from '@auth/neon-adapter';
 import { Pool } from '@neondatabase/serverless';
 import Resend from 'next-auth/providers/resend';
 
+declare module 'next-auth' {
+  interface User {
+    user_name?: string | null;
+  }
+}
+
 declare global {
   // Reuse the pool across hot reloads to avoid exhausting connections
   // eslint-disable-next-line no-var
