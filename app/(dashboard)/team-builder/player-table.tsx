@@ -11,9 +11,8 @@ import {
 } from '@/components/ui/table';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  FplPlayerMetrics,
-  FplPosition,
-  POSITION_OPTIONS
+  ELEMENT_TYPE_LABELS,
+  FplPlayerMetrics
 } from '@/lib/fpl-team-builder/types';
 import TableToolbar from './table-toolbar';
 import { TableEmptyState, TableLoadingState, ValidationWarning } from './table-state';
@@ -24,34 +23,54 @@ type SortKey = keyof FplPlayerMetrics;
 type SortDirection = 'asc' | 'desc';
 
 const COLUMNS: { key: SortKey; label: string; isNumeric?: boolean }[] = [
-  { key: 'playerName', label: 'Player name' },
-  { key: 'position', label: 'Position' },
-  { key: 'fplPrice', label: 'FPL price', isNumeric: true },
-  { key: 'minutesPlayed', label: 'Minutes played', isNumeric: true },
-  { key: 'appearances', label: 'Appearances', isNumeric: true },
-  { key: 'goals', label: 'Goals', isNumeric: true },
-  { key: 'assists', label: 'Assists', isNumeric: true },
-  { key: 'xg', label: 'Expected Goals (XG)', isNumeric: true },
-  { key: 'xa', label: 'Expected Assists (XA)', isNumeric: true },
-  { key: 'defcon', label: 'Defensive Contributions (DEFCON)', isNumeric: true },
-  { key: 'xga', label: 'Expected Goals Against (XGA)', isNumeric: true },
-  { key: 'yellowCards', label: 'Yellow Cards', isNumeric: true },
-  { key: 'redCards', label: 'Red Cards', isNumeric: true }
+  { key: 'elementType', label: 'element_type', isNumeric: true },
+  { key: 'nowCost', label: 'now_cost', isNumeric: true },
+  { key: 'team', label: 'team', isNumeric: true },
+  { key: 'webName', label: 'web_name' },
+  { key: 'minutes', label: 'minutes', isNumeric: true },
+  { key: 'goalsScored', label: 'goals_scored', isNumeric: true },
+  { key: 'assists', label: 'assists', isNumeric: true },
+  { key: 'cleanSheets', label: 'clean_sheets', isNumeric: true },
+  { key: 'goalsConceded', label: 'goals_conceded', isNumeric: true },
+  { key: 'ownGoals', label: 'own_goals', isNumeric: true },
+  { key: 'yellowCards', label: 'yellow_cards', isNumeric: true },
+  { key: 'redCards', label: 'red_cards', isNumeric: true },
+  {
+    key: 'defensiveContribution',
+    label: 'defensive_contribution',
+    isNumeric: true
+  },
+  { key: 'starts', label: 'starts', isNumeric: true },
+  { key: 'expectedGoals', label: 'expected_goals', isNumeric: true },
+  { key: 'expectedAssists', label: 'expected_assists', isNumeric: true },
+  {
+    key: 'expectedGoalsConceded',
+    label: 'expected_goals_conceded',
+    isNumeric: true
+  }
 ];
 
 const formatValue = (player: FplPlayerMetrics, key: SortKey): string | number => {
-  if (key === 'playerName' || key === 'position') {
+  if (key === 'elementType') {
+    return ELEMENT_TYPE_LABELS[player.elementType];
+  }
+  if (typeof player[key] === 'string') {
     return player[key];
   }
 
   const value = player[key];
-  if (key === 'xg' || key === 'xa' || key === 'xga' || key === 'defcon') {
+  if (
+    key === 'expectedGoals' ||
+    key === 'expectedAssists' ||
+    key === 'expectedGoalsConceded' ||
+    key === 'defensiveContribution'
+  ) {
     return Number(value.toFixed(2));
   }
-  if (key === 'fplPrice') {
+  if (key === 'nowCost') {
     return Number(value.toFixed(1));
   }
-  return value;
+  return value as number;
 };
 
 const PlayerTable = ({
@@ -64,22 +83,15 @@ const PlayerTable = ({
   isLoading?: boolean;
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [positionFilter, setPositionFilter] =
-    useState<(typeof POSITION_OPTIONS)[number]>('All');
-  const [sortKey, setSortKey] = useState<SortKey>('fplPrice');
+  const [sortKey, setSortKey] = useState<SortKey>('nowCost');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [currentPage, setCurrentPage] = useState(1);
 
   const filteredPlayers = useMemo(() => {
-    return players.filter((player) => {
-      const searchMatch = player.playerName
-        .toLowerCase()
-        .includes(searchTerm.trim().toLowerCase());
-      const positionMatch =
-        positionFilter === 'All' || player.position === (positionFilter as FplPosition);
-      return searchMatch && positionMatch;
-    });
-  }, [players, searchTerm, positionFilter]);
+    return players.filter((player) =>
+      player.webName.toLowerCase().includes(searchTerm.trim().toLowerCase())
+    );
+  }, [players, searchTerm]);
 
   const sortedPlayers = useMemo(() => {
     const next = [...filteredPlayers];
@@ -118,8 +130,7 @@ const PlayerTable = ({
 
   const onReset = () => {
     setSearchTerm('');
-    setPositionFilter('All');
-    setSortKey('fplPrice');
+    setSortKey('nowCost');
     setSortDirection('asc');
     setCurrentPage(1);
   };
@@ -137,13 +148,8 @@ const PlayerTable = ({
 
         <TableToolbar
           searchTerm={searchTerm}
-          positionFilter={positionFilter}
           onSearchChange={(value) => {
             setSearchTerm(value);
-            setCurrentPage(1);
-          }}
-          onPositionChange={(value) => {
-            setPositionFilter(value);
             setCurrentPage(1);
           }}
           onReset={onReset}
@@ -178,7 +184,7 @@ const PlayerTable = ({
               </TableHeader>
               <TableBody>
                 {paginatedPlayers.map((player) => (
-                  <TableRow key={`${player.playerName}-${player.position}`}>
+                  <TableRow key={`${player.team}-${player.webName}`}>
                     {COLUMNS.map((column) => (
                       <TableCell key={column.key}>
                         {formatValue(player, column.key)}

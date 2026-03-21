@@ -3,19 +3,23 @@ import { validateCsvRow } from './schema';
 import { CsvRawRow } from './types';
 
 const validRow: CsvRawRow = {
-  player_name: 'Bukayo Saka',
-  position: 'MID',
-  fpl_price: '10.1',
-  minutes_played: '2950',
-  appearances: '34',
-  goals: '16',
+  element_type: '3',
+  now_cost: '10.1',
+  team: '1',
+  web_name: 'Saka',
+  minutes: '2950',
+  goals_scored: '16',
   assists: '10',
-  xg: '14.9',
-  xa: '8.2',
-  defcon: '24.2',
-  xga: '0',
+  clean_sheets: '10',
+  goals_conceded: '20',
+  own_goals: '0',
   yellow_cards: '5',
-  red_cards: '0'
+  red_cards: '0',
+  defensive_contribution: '24.2',
+  starts: '34',
+  expected_goals: '14.9',
+  expected_assists: '8.2',
+  expected_goals_conceded: '0'
 };
 
 describe('validateCsvRow', () => {
@@ -23,24 +27,32 @@ describe('validateCsvRow', () => {
     const parsed = validateCsvRow(validRow);
     expect(parsed.success).toBe(true);
     if (parsed.success) {
-      expect(parsed.data.playerName).toBe('Bukayo Saka');
-      expect(parsed.data.position).toBe('MID');
-      expect(parsed.data.fplPrice).toBe(10.1);
+      expect(parsed.data.elementType).toBe(3);
+      expect(parsed.data.webName).toBe('Saka');
+      expect(parsed.data.nowCost).toBe(10.1);
     }
   });
 
   it('rejects negative numeric values', () => {
     const parsed = validateCsvRow({
       ...validRow,
-      goals: '-1'
+      goals_scored: '-1'
     });
     expect(parsed.success).toBe(false);
   });
 
-  it('rejects unknown positions', () => {
+  it('requires web_name', () => {
     const parsed = validateCsvRow({
       ...validRow,
-      position: 'COACH'
+      web_name: ''
+    });
+    expect(parsed.success).toBe(false);
+  });
+
+  it('rejects invalid element_type', () => {
+    const parsed = validateCsvRow({
+      ...validRow,
+      element_type: '5'
     });
     expect(parsed.success).toBe(false);
   });
@@ -48,7 +60,7 @@ describe('validateCsvRow', () => {
   it('rejects malformed numeric fields', () => {
     const parsed = validateCsvRow({
       ...validRow,
-      fpl_price: 'n/a'
+      now_cost: 'n/a'
     });
     expect(parsed.success).toBe(false);
   });

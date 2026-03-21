@@ -1,37 +1,51 @@
-export const POSITION_OPTIONS = ['All', 'GK', 'DEF', 'MID', 'FWD'] as const;
+/** FPL element_type from CSV: 1 GK, 2 DEF, 3 MD, 4 STR */
+export type ElementTypeId = 1 | 2 | 3 | 4;
 
-export type FplPosition = Exclude<(typeof POSITION_OPTIONS)[number], 'All'>;
+export const ELEMENT_TYPE_LABELS: Record<ElementTypeId, string> = {
+  1: 'GK',
+  2: 'DEF',
+  3: 'MD',
+  4: 'STR'
+};
 
 export type FplPlayerMetrics = {
-  playerName: string;
-  position: FplPosition;
-  fplPrice: number;
-  minutesPlayed: number;
-  appearances: number;
-  goals: number;
+  elementType: ElementTypeId;
+  nowCost: number;
+  team: number;
+  webName: string;
+  minutes: number;
+  goalsScored: number;
   assists: number;
-  xg: number;
-  xa: number;
-  defcon: number;
-  xga: number;
+  cleanSheets: number;
+  goalsConceded: number;
+  ownGoals: number;
   yellowCards: number;
   redCards: number;
+  defensiveContribution: number;
+  starts: number;
+  expectedGoals: number;
+  expectedAssists: number;
+  expectedGoalsConceded: number;
 };
 
 export type CsvCanonicalHeader =
-  | 'player_name'
-  | 'position'
-  | 'fpl_price'
-  | 'minutes_played'
-  | 'appearances'
-  | 'goals'
+  | 'element_type'
+  | 'now_cost'
+  | 'team'
+  | 'web_name'
+  | 'minutes'
+  | 'goals_scored'
   | 'assists'
-  | 'xg'
-  | 'xa'
-  | 'defcon'
-  | 'xga'
+  | 'clean_sheets'
+  | 'goals_conceded'
+  | 'own_goals'
   | 'yellow_cards'
-  | 'red_cards';
+  | 'red_cards'
+  | 'defensive_contribution'
+  | 'starts'
+  | 'expected_goals'
+  | 'expected_assists'
+  | 'expected_goals_conceded';
 
 export type CsvRawRow = Record<CsvCanonicalHeader, string>;
 

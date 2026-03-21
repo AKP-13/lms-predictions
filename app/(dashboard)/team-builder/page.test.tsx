@@ -15,34 +15,42 @@ afterEach(() => {
 
 const players: FplPlayerMetrics[] = [
   {
-    playerName: 'Bukayo Saka',
-    position: 'MID',
-    fplPrice: 10.1,
-    minutesPlayed: 2950,
-    appearances: 34,
-    goals: 16,
+    elementType: 3,
+    nowCost: 10.1,
+    team: 1,
+    webName: 'Saka',
+    minutes: 2950,
+    goalsScored: 16,
     assists: 10,
-    xg: 14.9,
-    xa: 8.2,
-    defcon: 24.2,
-    xga: 0,
+    cleanSheets: 10,
+    goalsConceded: 20,
+    ownGoals: 0,
     yellowCards: 5,
-    redCards: 0
+    redCards: 0,
+    defensiveContribution: 24.2,
+    starts: 34,
+    expectedGoals: 14.9,
+    expectedAssists: 8.2,
+    expectedGoalsConceded: 0
   },
   {
-    playerName: 'William Saliba',
-    position: 'DEF',
-    fplPrice: 6.2,
-    minutesPlayed: 3200,
-    appearances: 36,
-    goals: 2,
+    elementType: 2,
+    nowCost: 6.2,
+    team: 1,
+    webName: 'Saliba',
+    minutes: 3200,
+    goalsScored: 2,
     assists: 1,
-    xg: 1.8,
-    xa: 0.9,
-    defcon: 71.3,
-    xga: 28.5,
+    cleanSheets: 15,
+    goalsConceded: 22,
+    ownGoals: 0,
     yellowCards: 6,
-    redCards: 0
+    redCards: 0,
+    defensiveContribution: 71.3,
+    starts: 36,
+    expectedGoals: 1.8,
+    expectedAssists: 0.9,
+    expectedGoalsConceded: 28.5
   }
 ];
 
@@ -50,26 +58,26 @@ describe('Team Builder table', () => {
   it('renders rows and filters by search', () => {
     render(<PlayerTable players={players} droppedRows={0} />);
 
-    expect(screen.getByText('Bukayo Saka')).toBeInTheDocument();
+    expect(screen.getByText('Saka')).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText('Search players'), {
       target: { value: 'saliba' }
     });
-    expect(screen.getByText('William Saliba')).toBeInTheDocument();
-    expect(screen.queryByText('Bukayo Saka')).not.toBeInTheDocument();
+    expect(screen.getByText('Saliba')).toBeInTheDocument();
+    expect(screen.queryByText('Saka')).not.toBeInTheDocument();
   });
 
-  it('filters by position and resets filters', async () => {
+  it('resets search after filtering', async () => {
     render(<PlayerTable players={players} droppedRows={0} />);
 
-    fireEvent.change(screen.getByLabelText('Position'), {
-      target: { value: 'DEF' }
+    fireEvent.change(screen.getByLabelText('Search players'), {
+      target: { value: 'saliba' }
     });
     await waitFor(() => {
-      expect(screen.getAllByText('William Saliba').length).toBeGreaterThan(0);
-      expect(screen.queryByText('Bukayo Saka')).not.toBeInTheDocument();
+      expect(screen.getAllByText('Saliba').length).toBeGreaterThan(0);
+      expect(screen.queryByText('Saka')).not.toBeInTheDocument();
     });
 
     fireEvent.click(screen.getByRole('button', { name: 'Reset filters' }));
-    expect(screen.getByText('Bukayo Saka')).toBeInTheDocument();
+    expect(screen.getByText('Saka')).toBeInTheDocument();
   });
 });

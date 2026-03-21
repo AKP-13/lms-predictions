@@ -1,46 +1,50 @@
 import { z } from 'zod';
-import { CsvCanonicalHeader, CsvRawRow, FplPlayerMetrics } from './types';
+import {
+  CsvCanonicalHeader,
+  CsvRawRow,
+  ElementTypeId,
+  FplPlayerMetrics
+} from './types';
 
 export const REQUIRED_CSV_HEADERS: CsvCanonicalHeader[] = [
-  'player_name',
-  'position',
-  'fpl_price',
-  'minutes_played',
-  'appearances',
-  'goals',
+  'element_type',
+  'now_cost',
+  'team',
+  'web_name',
+  'minutes',
+  'goals_scored',
   'assists',
-  'xg',
-  'xa',
-  'defcon',
-  'xga',
+  'clean_sheets',
+  'goals_conceded',
+  'own_goals',
   'yellow_cards',
-  'red_cards'
+  'red_cards',
+  'defensive_contribution',
+  'starts',
+  'expected_goals',
+  'expected_assists',
+  'expected_goals_conceded'
 ];
 
 export const CSV_HEADER_ALIASES: Record<string, CsvCanonicalHeader> = {
-  player_name: 'player_name',
-  playername: 'player_name',
-  name: 'player_name',
-  position: 'position',
-  pos: 'position',
-  fpl_price: 'fpl_price',
-  price: 'fpl_price',
-  minutes_played: 'minutes_played',
-  minutes: 'minutes_played',
-  appearances: 'appearances',
-  apps: 'appearances',
-  goals: 'goals',
+  element_type: 'element_type',
+  elemnt_type: 'element_type',
+  now_cost: 'now_cost',
+  team: 'team',
+  web_name: 'web_name',
+  minutes: 'minutes',
+  goals_scored: 'goals_scored',
   assists: 'assists',
-  xg: 'xg',
-  xa: 'xa',
-  defcon: 'defcon',
-  defensive_contributions: 'defcon',
-  xga: 'xga',
-  expected_goals_against: 'xga',
+  clean_sheets: 'clean_sheets',
+  goals_conceded: 'goals_conceded',
+  own_goals: 'own_goals',
   yellow_cards: 'yellow_cards',
-  yc: 'yellow_cards',
   red_cards: 'red_cards',
-  rc: 'red_cards'
+  defensive_contribution: 'defensive_contribution',
+  starts: 'starts',
+  expected_goals: 'expected_goals',
+  expected_assists: 'expected_assists',
+  expected_goals_conceded: 'expected_goals_conceded'
 };
 
 const nonNegativeNumber = z
@@ -65,24 +69,37 @@ const parseNumber = (value: unknown) => {
   return Number.NaN;
 };
 
+/** CSV element_type: 1 GK, 2 DEF, 3 MD, 4 STR */
+const elementTypeSchema = z.preprocess(
+  parseNumber,
+  z
+    .number({
+      invalid_type_error: 'element_type must be a number'
+    })
+    .int('element_type must be an integer')
+    .refine((n): n is ElementTypeId => n === 1 || n === 2 || n === 3 || n === 4, {
+      message: 'element_type must be 1 (GK), 2 (DEF), 3 (MD), or 4 (STR)'
+    })
+);
+
 const csvRowSchema = z.object({
-  player_name: z.string().trim().min(1, 'player_name is required'),
-  position: z
-    .string()
-    .trim()
-    .transform((value) => value.toUpperCase())
-    .pipe(z.enum(['GK', 'DEF', 'MID', 'FWD'])),
-  fpl_price: z.preprocess(parseNumber, nonNegativeNumber),
-  minutes_played: z.preprocess(parseNumber, integerNonNegativeNumber),
-  appearances: z.preprocess(parseNumber, integerNonNegativeNumber),
-  goals: z.preprocess(parseNumber, integerNonNegativeNumber),
+  element_type: elementTypeSchema,
+  now_cost: z.preprocess(parseNumber, nonNegativeNumber),
+  team: z.preprocess(parseNumber, integerNonNegativeNumber),
+  web_name: z.string().trim().min(1, 'web_name is required'),
+  minutes: z.preprocess(parseNumber, integerNonNegativeNumber),
+  goals_scored: z.preprocess(parseNumber, integerNonNegativeNumber),
   assists: z.preprocess(parseNumber, integerNonNegativeNumber),
-  xg: z.preprocess(parseNumber, nonNegativeNumber),
-  xa: z.preprocess(parseNumber, nonNegativeNumber),
-  defcon: z.preprocess(parseNumber, nonNegativeNumber),
-  xga: z.preprocess(parseNumber, nonNegativeNumber),
+  clean_sheets: z.preprocess(parseNumber, integerNonNegativeNumber),
+  goals_conceded: z.preprocess(parseNumber, integerNonNegativeNumber),
+  own_goals: z.preprocess(parseNumber, integerNonNegativeNumber),
   yellow_cards: z.preprocess(parseNumber, integerNonNegativeNumber),
-  red_cards: z.preprocess(parseNumber, integerNonNegativeNumber)
+  red_cards: z.preprocess(parseNumber, integerNonNegativeNumber),
+  defensive_contribution: z.preprocess(parseNumber, nonNegativeNumber),
+  starts: z.preprocess(parseNumber, integerNonNegativeNumber),
+  expected_goals: z.preprocess(parseNumber, nonNegativeNumber),
+  expected_assists: z.preprocess(parseNumber, nonNegativeNumber),
+  expected_goals_conceded: z.preprocess(parseNumber, nonNegativeNumber)
 });
 
 export const normalizeCsvHeader = (header: string): string =>
@@ -107,19 +124,23 @@ export const validateCsvRow = (
   return {
     success: true,
     data: {
-      playerName: data.player_name,
-      position: data.position,
-      fplPrice: data.fpl_price,
-      minutesPlayed: data.minutes_played,
-      appearances: data.appearances,
-      goals: data.goals,
+      elementType: data.element_type,
+      nowCost: data.now_cost,
+      team: data.team,
+      webName: data.web_name,
+      minutes: data.minutes,
+      goalsScored: data.goals_scored,
       assists: data.assists,
-      xg: data.xg,
-      xa: data.xa,
-      defcon: data.defcon,
-      xga: data.xga,
+      cleanSheets: data.clean_sheets,
+      goalsConceded: data.goals_conceded,
+      ownGoals: data.own_goals,
       yellowCards: data.yellow_cards,
-      redCards: data.red_cards
+      redCards: data.red_cards,
+      defensiveContribution: data.defensive_contribution,
+      starts: data.starts,
+      expectedGoals: data.expected_goals,
+      expectedAssists: data.expected_assists,
+      expectedGoalsConceded: data.expected_goals_conceded
     }
   };
 };

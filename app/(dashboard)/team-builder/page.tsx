@@ -4,7 +4,7 @@ import PlayerTable from './player-table';
 import { parseFplPlayerCsv } from '@/lib/fpl-team-builder/parse-csv';
 import { TableErrorState } from './table-state';
 
-const csvFilePath = path.join(process.cwd(), 'data', 'fpl-player-metrics.csv');
+const csvFilePath = path.join(process.cwd(), 'data', 'fplData.csv');
 
 const TeamBuilderPage = async () => {
   let csvContent = '';
@@ -14,7 +14,7 @@ const TeamBuilderPage = async () => {
     return (
       <TableErrorState
         title="Data file not found"
-        message="Expected data/fpl-player-metrics.csv. Add the CSV file with the required headers and refresh."
+        message="Expected data/fplData.csv. Add the CSV file with the required headers and refresh."
       />
     );
   }
@@ -30,7 +30,8 @@ const TeamBuilderPage = async () => {
   }
 
   if (parseResult.players.length === 0) {
-    const firstError = parseResult.validationErrors[0]?.message ?? 'No valid player rows found.';
+    const firstError =
+      parseResult.validationErrors[0]?.message ?? 'No valid player rows found.';
     return <TableErrorState title="No valid rows found" message={firstError} />;
   }
 
