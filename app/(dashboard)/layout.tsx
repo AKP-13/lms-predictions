@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import {
+  ClipboardList,
   Home,
   LineChart,
   MousePointerClickIcon,
@@ -87,6 +88,10 @@ async function DesktopNav() {
           <Table className="h-5 w-5" />
         </NavItem>
 
+        <NavItem href="/team-builder" label="Team Builder">
+          <ClipboardList className="h-5 w-5" />
+        </NavItem>
+
         {/* <NavItem href="#" label="Analytics">
           <LineChart className="h-5 w-5" />
         </NavItem> */}
@@ -149,6 +154,14 @@ function MobileNav() {
           >
             <Table className="h-5 w-5" />
             Results
+          </Link>
+
+          <Link
+            href="/team-builder"
+            className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+          >
+            <ClipboardList className="h-5 w-5" />
+            Team Builder
           </Link>
 
           <Link
