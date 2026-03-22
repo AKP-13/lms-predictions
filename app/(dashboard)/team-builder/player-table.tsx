@@ -25,9 +25,13 @@ type SortDirection = 'asc' | 'desc';
 const COLUMNS: { key: SortKey; label: string; isNumeric?: boolean }[] = [
   { key: 'elementType', label: 'element_type', isNumeric: true },
   { key: 'nowCost', label: 'now_cost', isNumeric: true },
-  { key: 'team', label: 'team', isNumeric: true },
   { key: 'webName', label: 'web_name' },
+  { key: 'teamEng', label: 'team_eng' },
   { key: 'minutes', label: 'minutes', isNumeric: true },
+  { key: 'mp', label: 'MP', isNumeric: true },
+  { key: 'starts', label: 'starts', isNumeric: true },
+  { key: 'subs', label: 'Subs', isNumeric: true },
+  { key: 'unsub', label: 'unSub', isNumeric: true },
   { key: 'goalsScored', label: 'goals_scored', isNumeric: true },
   { key: 'assists', label: 'assists', isNumeric: true },
   { key: 'cleanSheets', label: 'clean_sheets', isNumeric: true },
@@ -40,7 +44,6 @@ const COLUMNS: { key: SortKey; label: string; isNumeric?: boolean }[] = [
     label: 'defensive_contribution',
     isNumeric: true
   },
-  { key: 'starts', label: 'starts', isNumeric: true },
   { key: 'expectedGoals', label: 'expected_goals', isNumeric: true },
   { key: 'expectedAssists', label: 'expected_assists', isNumeric: true },
   {
@@ -53,6 +56,9 @@ const COLUMNS: { key: SortKey; label: string; isNumeric?: boolean }[] = [
 const formatValue = (player: FplPlayerMetrics, key: SortKey): string | number => {
   if (key === 'elementType') {
     return ELEMENT_TYPE_LABELS[player.elementType];
+  }
+  if (key === 'teamEng') {
+    return player.teamEng || '—';
   }
   if (typeof player[key] === 'string') {
     return player[key];
@@ -183,8 +189,10 @@ const PlayerTable = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedPlayers.map((player) => (
-                  <TableRow key={`${player.team}-${player.webName}`}>
+                {paginatedPlayers.map((player, rowIndex) => (
+                  <TableRow
+                    key={`${player.webName}-${player.teamEng}-${player.nowCost}-${player.mp}-${rowIndex}`}
+                  >
                     {COLUMNS.map((column) => (
                       <TableCell key={column.key}>
                         {formatValue(player, column.key)}

@@ -5,9 +5,13 @@ import { CsvRawRow } from './types';
 const validRow: CsvRawRow = {
   element_type: '3',
   now_cost: '10.1',
-  team: '1',
   web_name: 'Saka',
+  team_eng: 'Arsenal',
   minutes: '2950',
+  mp: '28',
+  starts: '34',
+  subs: '4',
+  unsub: '0',
   goals_scored: '16',
   assists: '10',
   clean_sheets: '10',
@@ -16,7 +20,6 @@ const validRow: CsvRawRow = {
   yellow_cards: '5',
   red_cards: '0',
   defensive_contribution: '24.2',
-  starts: '34',
   expected_goals: '14.9',
   expected_assists: '8.2',
   expected_goals_conceded: '0'
@@ -29,7 +32,11 @@ describe('validateCsvRow', () => {
     if (parsed.success) {
       expect(parsed.data.elementType).toBe(3);
       expect(parsed.data.webName).toBe('Saka');
+      expect(parsed.data.teamEng).toBe('Arsenal');
       expect(parsed.data.nowCost).toBe(10.1);
+      expect(parsed.data.mp).toBe(28);
+      expect(parsed.data.subs).toBe(4);
+      expect(parsed.data.unsub).toBe(0);
     }
   });
 

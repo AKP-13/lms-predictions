@@ -11,9 +11,14 @@ export const ELEMENT_TYPE_LABELS: Record<ElementTypeId, string> = {
 export type FplPlayerMetrics = {
   elementType: ElementTypeId;
   nowCost: number;
-  team: number;
   webName: string;
+  /** Club name in English (from CSV `team_eng`). */
+  teamEng: string;
   minutes: number;
+  mp: number;
+  starts: number;
+  subs: number;
+  unsub: number;
   goalsScored: number;
   assists: number;
   cleanSheets: number;
@@ -22,7 +27,6 @@ export type FplPlayerMetrics = {
   yellowCards: number;
   redCards: number;
   defensiveContribution: number;
-  starts: number;
   expectedGoals: number;
   expectedAssists: number;
   expectedGoalsConceded: number;
@@ -31,9 +35,13 @@ export type FplPlayerMetrics = {
 export type CsvCanonicalHeader =
   | 'element_type'
   | 'now_cost'
-  | 'team'
   | 'web_name'
+  | 'team_eng'
   | 'minutes'
+  | 'mp'
+  | 'starts'
+  | 'subs'
+  | 'unsub'
   | 'goals_scored'
   | 'assists'
   | 'clean_sheets'
@@ -42,7 +50,6 @@ export type CsvCanonicalHeader =
   | 'yellow_cards'
   | 'red_cards'
   | 'defensive_contribution'
-  | 'starts'
   | 'expected_goals'
   | 'expected_assists'
   | 'expected_goals_conceded';

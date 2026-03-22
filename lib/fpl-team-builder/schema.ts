@@ -9,9 +9,13 @@ import {
 export const REQUIRED_CSV_HEADERS: CsvCanonicalHeader[] = [
   'element_type',
   'now_cost',
-  'team',
   'web_name',
+  'team_eng',
   'minutes',
+  'mp',
+  'starts',
+  'subs',
+  'unsub',
   'goals_scored',
   'assists',
   'clean_sheets',
@@ -20,7 +24,6 @@ export const REQUIRED_CSV_HEADERS: CsvCanonicalHeader[] = [
   'yellow_cards',
   'red_cards',
   'defensive_contribution',
-  'starts',
   'expected_goals',
   'expected_assists',
   'expected_goals_conceded'
@@ -30,9 +33,14 @@ export const CSV_HEADER_ALIASES: Record<string, CsvCanonicalHeader> = {
   element_type: 'element_type',
   elemnt_type: 'element_type',
   now_cost: 'now_cost',
-  team: 'team',
   web_name: 'web_name',
+  team_eng: 'team_eng',
   minutes: 'minutes',
+  mp: 'mp',
+  starts: 'starts',
+  subs: 'subs',
+  unsub: 'unsub',
+  un_sub: 'unsub',
   goals_scored: 'goals_scored',
   assists: 'assists',
   clean_sheets: 'clean_sheets',
@@ -41,7 +49,6 @@ export const CSV_HEADER_ALIASES: Record<string, CsvCanonicalHeader> = {
   yellow_cards: 'yellow_cards',
   red_cards: 'red_cards',
   defensive_contribution: 'defensive_contribution',
-  starts: 'starts',
   expected_goals: 'expected_goals',
   expected_assists: 'expected_assists',
   expected_goals_conceded: 'expected_goals_conceded'
@@ -69,6 +76,18 @@ const parseNumber = (value: unknown) => {
   return Number.NaN;
 };
 
+/** FPL CSV/API often stores price as tenths of a million (e.g. 102 → £10.2m). */
+const parseNowCost = (value: unknown) => {
+  const n = parseNumber(value);
+  if (Number.isNaN(n)) {
+    return n;
+  }
+  if (Number.isInteger(n) && n >= 35 && n <= 200) {
+    return n / 10;
+  }
+  return n;
+};
+
 /** CSV element_type: 1 GK, 2 DEF, 3 MD, 4 STR */
 const elementTypeSchema = z.preprocess(
   parseNumber,
@@ -84,10 +103,14 @@ const elementTypeSchema = z.preprocess(
 
 const csvRowSchema = z.object({
   element_type: elementTypeSchema,
-  now_cost: z.preprocess(parseNumber, nonNegativeNumber),
-  team: z.preprocess(parseNumber, integerNonNegativeNumber),
+  now_cost: z.preprocess(parseNowCost, nonNegativeNumber),
   web_name: z.string().trim().min(1, 'web_name is required'),
+  team_eng: z.string().trim(),
   minutes: z.preprocess(parseNumber, integerNonNegativeNumber),
+  mp: z.preprocess(parseNumber, integerNonNegativeNumber),
+  starts: z.preprocess(parseNumber, integerNonNegativeNumber),
+  subs: z.preprocess(parseNumber, integerNonNegativeNumber),
+  unsub: z.preprocess(parseNumber, integerNonNegativeNumber),
   goals_scored: z.preprocess(parseNumber, integerNonNegativeNumber),
   assists: z.preprocess(parseNumber, integerNonNegativeNumber),
   clean_sheets: z.preprocess(parseNumber, integerNonNegativeNumber),
@@ -96,7 +119,6 @@ const csvRowSchema = z.object({
   yellow_cards: z.preprocess(parseNumber, integerNonNegativeNumber),
   red_cards: z.preprocess(parseNumber, integerNonNegativeNumber),
   defensive_contribution: z.preprocess(parseNumber, nonNegativeNumber),
-  starts: z.preprocess(parseNumber, integerNonNegativeNumber),
   expected_goals: z.preprocess(parseNumber, nonNegativeNumber),
   expected_assists: z.preprocess(parseNumber, nonNegativeNumber),
   expected_goals_conceded: z.preprocess(parseNumber, nonNegativeNumber)
@@ -107,7 +129,10 @@ export const normalizeCsvHeader = (header: string): string =>
 
 export const getCanonicalHeader = (
   rawHeader: string
-): CsvCanonicalHeader | undefined => CSV_HEADER_ALIASES[normalizeCsvHeader(rawHeader)];
+): CsvCanonicalHeader | undefined => {
+  const normalized = normalizeCsvHeader(rawHeader);
+  return CSV_HEADER_ALIASES[normalized];
+};
 
 export const validateCsvRow = (
   row: CsvRawRow
@@ -126,9 +151,13 @@ export const validateCsvRow = (
     data: {
       elementType: data.element_type,
       nowCost: data.now_cost,
-      team: data.team,
       webName: data.web_name,
+      teamEng: data.team_eng,
       minutes: data.minutes,
+      mp: data.mp,
+      starts: data.starts,
+      subs: data.subs,
+      unsub: data.unsub,
       goalsScored: data.goals_scored,
       assists: data.assists,
       cleanSheets: data.clean_sheets,
@@ -137,7 +166,6 @@ export const validateCsvRow = (
       yellowCards: data.yellow_cards,
       redCards: data.red_cards,
       defensiveContribution: data.defensive_contribution,
-      starts: data.starts,
       expectedGoals: data.expected_goals,
       expectedAssists: data.expected_assists,
       expectedGoalsConceded: data.expected_goals_conceded
