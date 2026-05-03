@@ -30,6 +30,7 @@ export type FplPlayerMetrics = {
   expectedGoals: number;
   expectedAssists: number;
   expectedGoalsConceded: number;
+  expectedPointsAppearance: number;
 };
 
 export type CsvCanonicalHeader =
@@ -62,7 +63,7 @@ export type CsvValidationError = {
 };
 
 export type ParseCsvResult = {
-  players: FplPlayerMetrics[];
+  players: Omit<FplPlayerMetrics, 'expectedPointsAppearance'>[];
   validationErrors: CsvValidationError[];
   missingHeaders: CsvCanonicalHeader[];
 };

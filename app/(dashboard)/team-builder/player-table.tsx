@@ -9,13 +9,23 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
 import {
   ELEMENT_TYPE_LABELS,
   FplPlayerMetrics
 } from '@/lib/fpl-team-builder/types';
 import TableToolbar from './table-toolbar';
-import { TableEmptyState, TableLoadingState, ValidationWarning } from './table-state';
+import {
+  TableEmptyState,
+  TableLoadingState,
+  ValidationWarning
+} from './table-state';
 
 const PAGE_SIZE = 25;
 
@@ -50,10 +60,18 @@ const COLUMNS: { key: SortKey; label: string; isNumeric?: boolean }[] = [
     key: 'expectedGoalsConceded',
     label: 'expected_goals_conceded',
     isNumeric: true
+  },
+  {
+    key: 'expectedPointsAppearance',
+    label: 'X App Pts',
+    isNumeric: true
   }
 ];
 
-const formatValue = (player: FplPlayerMetrics, key: SortKey): string | number => {
+const formatValue = (
+  player: FplPlayerMetrics,
+  key: SortKey
+): string | number => {
   if (key === 'elementType') {
     return ELEMENT_TYPE_LABELS[player.elementType];
   }
@@ -84,20 +102,34 @@ const PlayerTable = ({
   droppedRows,
   isLoading
 }: {
-  players: FplPlayerMetrics[];
+  players: Omit<FplPlayerMetrics, 'expectedPointsAppearance'>[];
   droppedRows: number;
   isLoading?: boolean;
 }) => {
+  console.log('players', players);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('nowCost');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [currentPage, setCurrentPage] = useState(1);
 
+  const playersWithAddedCols = players.map((player) => {
+    const expectedPointsAppearance =
+      player.mp === 0
+        ? 0
+        : Number((Math.min(player.minutes / player.mp / 60, 1) * 2).toFixed(2));
+    return {
+      ...player,
+      expectedPointsAppearance
+    };
+  });
+
+  console.log('playersWithAddedCols', playersWithAddedCols);
+
   const filteredPlayers = useMemo(() => {
-    return players.filter((player) =>
+    return playersWithAddedCols.filter((player) =>
       player.webName.toLowerCase().includes(searchTerm.trim().toLowerCase())
     );
-  }, [players, searchTerm]);
+  }, [playersWithAddedCols, searchTerm]);
 
   const sortedPlayers = useMemo(() => {
     const next = [...filteredPlayers];
@@ -189,17 +221,21 @@ const PlayerTable = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedPlayers.map((player, rowIndex) => (
-                  <TableRow
-                    key={`${player.webName}-${player.teamEng}-${player.nowCost}-${player.mp}-${rowIndex}`}
-                  >
-                    {COLUMNS.map((column) => (
-                      <TableCell key={column.key}>
-                        {formatValue(player, column.key)}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
+                {paginatedPlayers.map((player, rowIndex) => {
+                  return (
+                    <TableRow
+                      key={`${player.webName}-${player.teamEng}-${player.nowCost}-${player.mp}-${rowIndex}`}
+                    >
+                      {COLUMNS.map((column) => {
+                        return (
+                          <TableCell key={column.key}>
+                            {formatValue(player, column.key)}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
 

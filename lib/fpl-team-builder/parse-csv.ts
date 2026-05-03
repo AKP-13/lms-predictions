@@ -1,4 +1,8 @@
-import { getCanonicalHeader, validateCsvRow, REQUIRED_CSV_HEADERS } from './schema';
+import {
+  getCanonicalHeader,
+  validateCsvRow,
+  REQUIRED_CSV_HEADERS
+} from './schema';
 import {
   CsvCanonicalHeader,
   CsvRawRow,
@@ -58,8 +62,13 @@ export const parseFplPlayerCsv = (content: string): ParseCsvResult => {
   }
 
   const rawHeaders = splitCsvLine(rows[0]);
-  const canonicalHeaders = rawHeaders.map((header) => getCanonicalHeader(header));
-  const presentHeaders = canonicalHeaders.filter(Boolean) as CsvCanonicalHeader[];
+  const canonicalHeaders = rawHeaders.map((header) =>
+    getCanonicalHeader(header)
+  );
+  console.log('canonicalHeaders', canonicalHeaders);
+  const presentHeaders = canonicalHeaders.filter(
+    Boolean
+  ) as CsvCanonicalHeader[];
   const missingHeaders = REQUIRED_CSV_HEADERS.filter(
     (requiredHeader) => !presentHeaders.includes(requiredHeader)
   );
@@ -84,7 +93,11 @@ export const parseFplPlayerCsv = (content: string): ParseCsvResult => {
     const values = splitCsvLine(rows[rowIndex]);
     const row: Partial<CsvRawRow> = {};
 
-    for (let columnIndex = 0; columnIndex < canonicalHeaders.length; columnIndex += 1) {
+    for (
+      let columnIndex = 0;
+      columnIndex < canonicalHeaders.length;
+      columnIndex += 1
+    ) {
       const header = canonicalHeaders[columnIndex];
       if (!header) {
         continue;

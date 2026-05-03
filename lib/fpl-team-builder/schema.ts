@@ -96,9 +96,12 @@ const elementTypeSchema = z.preprocess(
       invalid_type_error: 'element_type must be a number'
     })
     .int('element_type must be an integer')
-    .refine((n): n is ElementTypeId => n === 1 || n === 2 || n === 3 || n === 4, {
-      message: 'element_type must be 1 (GK), 2 (DEF), 3 (MD), or 4 (STR)'
-    })
+    .refine(
+      (n): n is ElementTypeId => n === 1 || n === 2 || n === 3 || n === 4,
+      {
+        message: 'element_type must be 1 (GK), 2 (DEF), 3 (MD), or 4 (STR)'
+      }
+    )
 );
 
 const csvRowSchema = z.object({
@@ -125,7 +128,10 @@ const csvRowSchema = z.object({
 });
 
 export const normalizeCsvHeader = (header: string): string =>
-  header.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_');
+  header
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_');
 
 export const getCanonicalHeader = (
   rawHeader: string
@@ -136,7 +142,9 @@ export const getCanonicalHeader = (
 
 export const validateCsvRow = (
   row: CsvRawRow
-): { success: true; data: FplPlayerMetrics } | { success: false; message: string } => {
+):
+  | { success: true; data: Omit<FplPlayerMetrics, 'expectedPointsAppearance'> }
+  | { success: false; message: string } => {
   const parsed = csvRowSchema.safeParse(row);
   if (!parsed.success) {
     return {
