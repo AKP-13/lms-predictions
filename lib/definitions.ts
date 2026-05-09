@@ -99,3 +99,21 @@ export type Injury = {
   news: string;
   team_name: FPLTeamName | null;
 };
+
+export type Participant = {
+  id: string;
+  name: string | null;
+  email: string | null;
+};
+
+export type AdminPrediction = {
+  user_id: string;
+  team_selected: string;
+  team_opposing: string;
+  team_selected_location: string;
+  result_selected: string;
+  correct: boolean | null;
+  fpl_gw: number | null;
+  round_number: number;
+  prediction_submitted_time: string | null;
+};

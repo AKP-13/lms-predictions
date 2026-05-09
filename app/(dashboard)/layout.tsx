@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import {
+  ClipboardList,
   Home,
   LineChart,
   MousePointerClickIcon,
@@ -90,6 +91,13 @@ async function DesktopNav() {
         {/* <NavItem href="#" label="Analytics">
           <LineChart className="h-5 w-5" />
         </NavItem> */}
+
+        {!!process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS &&
+          session?.user?.email === process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS && (
+            <NavItem href="/admin" label="Admin">
+              <ClipboardList className="h-5 w-5" />
+            </NavItem>
+          )}
       </nav>
       <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
         <Tooltip>
