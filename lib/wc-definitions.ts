@@ -5,11 +5,9 @@ export type WcFixture = {
   home_team_id: number;
   home_team_name: string;
   home_team_short: string;
-  home_team_flag: string | null;
   away_team_id: number;
   away_team_name: string;
   away_team_short: string;
-  away_team_flag: string | null;
   kickoff_time: string;
   venue: string | null;
   home_team_score: number | null;
