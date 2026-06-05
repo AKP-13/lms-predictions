@@ -48,7 +48,7 @@ export default function WcPicksForm() {
 
   // Initialise drafts from server picks once loaded, then overlay localStorage
   useEffect(() => {
-    if (isLoadingWcPicks || draftsInitialised) return;
+    if (isLoadingWcPicks || draftsInitialised || !session) return;
 
     const base = initDrafts(wcPicks);
 
@@ -181,16 +181,11 @@ export default function WcPicksForm() {
       }
 
       setSuccess(true);
+      // Refresh server state (badges, is_correct) but keep drafts as-is — they
+      // already match what was just saved, so hasUnsavedDrafts resolves to false
+      // once the refetched picks land. Re-initialising here would race the
+      // refetch and re-seed stale drafts.
       setRefreshTrigger((t) => t + 1);
-      setDraftsInitialised(false); // re-init from server on next load
-
-      if (session?.user?.id) {
-        try {
-          localStorage.removeItem(`wc:draft:${session.user.id}`);
-        } catch {
-          // ignore
-        }
-      }
     } catch (err: unknown) {
       setError(
         err instanceof Error ? err.message : 'Something went wrong. Please try again.'

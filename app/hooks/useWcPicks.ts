@@ -6,7 +6,7 @@ const useWcPicks = ({ refreshTrigger }: { refreshTrigger: number }) => {
   const [wcPicks, setWcPicks] = useState<WcPick[]>([]);
   const [isLoadingWcPicks, setIsLoadingWcPicks] = useState(true);
 
-  const { data: session } = useSession();
+  const { status } = useSession();
 
   useEffect(() => {
     async function fetchPicks() {
@@ -21,12 +21,16 @@ const useWcPicks = ({ refreshTrigger }: { refreshTrigger: number }) => {
       setIsLoadingWcPicks(false);
     }
 
-    if (session) {
+    // Keep loading=true while the session is still resolving so the consumer
+    // never sees a premature "loaded but empty" state.
+    if (status === 'loading') return;
+
+    if (status === 'authenticated') {
       fetchPicks();
     } else {
       setIsLoadingWcPicks(false);
     }
-  }, [refreshTrigger, session]);
+  }, [refreshTrigger, status]);
 
   return { wcPicks, isLoadingWcPicks };
 };
