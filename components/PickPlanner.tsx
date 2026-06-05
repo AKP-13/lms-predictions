@@ -24,7 +24,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { FixturesData, Results } from '@/lib/definitions';
-import { TeamsArr } from 'app/(dashboard)/page';
+import { TeamsArr } from '@/lib/definitions';
 import { Session } from 'next-auth';
 
 // Constant - never changes

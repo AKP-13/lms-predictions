@@ -9,7 +9,7 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import { Select } from '@/components/ui/select';
-import { TeamsArr } from './page';
+import { TeamsArr } from '@/lib/definitions';
 import { FixturesData, Results } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
 import { Session } from 'next-auth';

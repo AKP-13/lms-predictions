@@ -99,3 +99,9 @@ export type Injury = {
   news: string;
   team_name: FPLTeamName | null;
 };
+
+export type TeamsArr = {
+  id: number;
+  name: FPLTeamName;
+  short_name: string;
+}[];
