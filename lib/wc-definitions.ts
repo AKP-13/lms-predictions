@@ -22,7 +22,6 @@ export type WcTeam = {
   name: string;
   short_name: string;
   group_name: string;
-  flag_emoji: string | null;
 };
 
 export type WcPick = {

@@ -24,3 +24,66 @@ export const WC_ROUND_GROUPS: Record<number, string[]> = {
   5: ['A', 'B', 'C', 'D', 'E', 'F'],
   6: ['G', 'H', 'I', 'J', 'K', 'L']
 };
+
+export const WC_TEAM_FLAGS: Record<string, string> = {
+  // Group A
+  Czechia: '🇨🇿',
+  Mexico: '🇲🇽',
+  'South Africa': '🇿🇦',
+  'South Korea': '🇰🇷',
+  // Group B
+  Switzerland: '🇨🇭',
+  'Bosnia and Herzegovina': '🇧🇦',
+  Canada: '🇨🇦',
+  Qatar: '🇶🇦',
+  // Group C
+  Scotland: '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+  Brazil: '🇧🇷',
+  Haiti: '🇭🇹',
+  Morocco: '🇲🇦',
+  // Group D
+  Türkiye: '🇹🇷',
+  Paraguay: '🇵🇾',
+  USA: '🇺🇸',
+  Australia: '🇦🇺',
+  // Group E
+  Germany: '🇩🇪',
+  Ecuador: '🇪🇨',
+  'Ivory Coast': '🇨🇮',
+  Curaçao: '🇨🇼',
+  // Group F
+  Sweden: '🇸🇪',
+  Netherlands: '🇳🇱',
+  Tunisia: '🇹🇳',
+  Japan: '🇯🇵',
+  // Group G
+  Belgium: '🇧🇪',
+  Egypt: '🇪🇬',
+  Iran: '🇮🇷',
+  'New Zealand': '🇳🇿',
+  // Group H
+  Spain: '🇪🇸',
+  Uruguay: '🇺🇾',
+  'Cape Verde': '🇨🇻',
+  'Saudi Arabia': '🇸🇦',
+  // Group I
+  France: '🇫🇷',
+  Norway: '🇳🇴',
+  Senegal: '🇸🇳',
+  Iraq: '🇮🇶',
+  // Group J
+  Austria: '🇦🇹',
+  Argentina: '🇦🇷',
+  Algeria: '🇩🇿',
+  Jordan: '🇯🇴',
+  // Group K
+  Portugal: '🇵🇹',
+  Colombia: '🇨🇴',
+  'DR Congo': '🇨🇩',
+  Uzbekistan: '🇺🇿',
+  // Group L
+  Croatia: '🇭🇷',
+  England: '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+  Ghana: '🇬🇭',
+  Panama: '🇵🇦'
+};
