@@ -13,6 +13,17 @@ export async function GET() {
   }
 
   try {
+    const leagueResult = await sql.query<{ league_id: number }>(
+      `SELECT league_id FROM user_leagues WHERE user_id = $1 LIMIT 1`,
+      [session.user.id]
+    );
+
+    if (!leagueResult.rows.length) {
+      return Response.json([]);
+    }
+
+    const { league_id } = leagueResult.rows[0];
+
     const { rows } = await sql.query<WcPick>(
       `SELECT
         p.round_number,
@@ -23,11 +34,9 @@ export async function GET() {
         p.last_amended_at
       FROM wc_picks p
       WHERE p.user_id = $1
-        AND p.league_id = (
-          SELECT league_id FROM user_leagues WHERE user_id = $1 LIMIT 1
-        )
+        AND p.league_id = $2
       ORDER BY p.round_number`,
-      [session.user.id]
+      [session.user.id, league_id]
     );
 
     return Response.json(rows);
