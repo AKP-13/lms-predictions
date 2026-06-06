@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import WcRoundCard from './wc-round-card';
 import { Button } from '@/components/ui/button';
 import { WcFixture, WcPick, PickDraft } from '@/lib/wc-definitions';
-import { WC_ROUND_DEADLINES } from '@/lib/wc-constants';
+import { WC_ROUND_DEADLINES, WC_TEAM_FLAGS } from '@/lib/wc-constants';
 
 interface WcPicksFormProps {
   wcPicks: WcPick[];
@@ -123,6 +123,16 @@ export default function WcPicksForm({
     };
     for (const f of wcFixtures) {
       if (map[f.round_number]) map[f.round_number].push(f);
+    }
+    return map;
+  }, [wcFixtures]);
+
+  // Map from team ID → flag emoji, built from fixture data
+  const teamIdToFlag = useMemo(() => {
+    const map: Record<number, string> = {};
+    for (const f of wcFixtures) {
+      if (f.home_team_name) map[f.home_team_id] = WC_TEAM_FLAGS[f.home_team_name] ?? '🏳';
+      if (f.away_team_name) map[f.away_team_id] = WC_TEAM_FLAGS[f.away_team_name] ?? '🏳';
     }
     return map;
   }, [wcFixtures]);
@@ -307,6 +317,35 @@ export default function WcPicksForm({
         </div>
       )}
 
+      {!isEliminated && (
+        <div className="flex flex-col gap-2">
+          <Button
+            onClick={handleSubmit}
+            disabled={isSubmitting || !hasUnsavedDrafts}
+            className="w-full"
+            size="lg"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader className="animate-spin mr-2 h-4 w-4" />
+                Saving...
+              </>
+            ) : (
+              'Save picks'
+            )}
+          </Button>
+          <p className="text-xs text-muted-foreground text-center">
+            Issues submitting?{' '}
+            <a
+              href={`mailto:${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS}?subject=World%20Cup%202026%20-%20Prediction%20Submission&body=Hi%2C%20please%20find%20my%20predictions%20below%3A%0A%0A`}
+              className="underline hover:text-foreground transition-colors"
+            >
+              Email your predictions instead
+            </a>
+          </p>
+        </div>
+      )}
+
       {/* Round navigation */}
       <div className="flex flex-col gap-2">
         <p className="text-xs text-muted-foreground text-center">
@@ -321,27 +360,38 @@ export default function WcPicksForm({
             <ChevronLeft className="h-4 w-4" />
           </button>
 
-          <div className="flex gap-2.5">
+          <div className="flex gap-2">
             {[1, 2, 3, 4, 5, 6].map((r) => {
               const existing = wcPicks.find((p) => p.round_number === r);
               const draft = drafts[r];
-              const dotColor =
-                existing?.is_correct === false ? 'bg-red-500' :
-                existing?.is_correct === true  ? 'bg-green-500' :
-                existing && draft && draft.picked_team_id === existing.picked_team_id ? 'bg-green-400' :
-                draft || (!draft && existing) ? 'bg-amber-400' :
-                'bg-gray-300';
+              const pickedId = draft?.picked_team_id ?? existing?.picked_team_id;
+              const flag = pickedId ? teamIdToFlag[pickedId] : null;
+
+              const borderColor =
+                existing?.is_correct === false ? 'border-red-500' :
+                existing?.is_correct === true  ? 'border-green-500' :
+                existing && draft && draft.picked_team_id === existing.picked_team_id ? 'border-green-400' :
+                draft || (!draft && existing) ? 'border-amber-400' :
+                'border-gray-200';
+
               return (
                 <button
                   key={r}
                   onClick={() => setActiveRound(r)}
                   aria-label={`Go to round ${r}`}
                   className={cn(
-                    'h-3 w-3 rounded-full transition-all',
-                    dotColor,
-                    r === activeRound && 'ring-2 ring-offset-2 ring-gray-400 scale-110'
+                    'h-9 w-9 rounded-full flex items-center justify-center transition-all',
+                    borderColor,
+                    flag ? 'bg-white' : 'bg-gray-100',
+                    r === activeRound ? 'border-4 scale-110' : 'border-2 opacity-60'
                   )}
-                />
+                >
+                  {flag ? (
+                    <span className="text-lg leading-none">{flag}</span>
+                  ) : (
+                    <span className="text-xs font-semibold text-gray-400">{r}</span>
+                  )}
+                </button>
               );
             })}
           </div>
@@ -369,23 +419,6 @@ export default function WcPicksForm({
         isEliminated={isEliminated}
       />
 
-      {!isEliminated && (
-        <Button
-          onClick={handleSubmit}
-          disabled={isSubmitting || !hasUnsavedDrafts}
-          className="w-full mt-2"
-          size="lg"
-        >
-          {isSubmitting ? (
-            <>
-              <Loader className="animate-spin mr-2 h-4 w-4" />
-              Saving...
-            </>
-          ) : (
-            'Save picks'
-          )}
-        </Button>
-      )}
     </div>
   );
 }
