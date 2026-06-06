@@ -167,10 +167,17 @@ export default function WcPicksForm({
       return !isLocked && !drafts[r] && wcPicks.some((p) => p.round_number === r);
     });
 
-    if (hasUnsavedDrafts || hasClearedPick) {
+    if (hasUnsavedDrafts) {
       return {
         message: 'You have unsaved changes — save your picks before the deadline!',
         className: 'bg-red-50 border-red-200 text-red-700'
+      } as const;
+    }
+
+    if (hasClearedPick) {
+      return {
+        message: 'You\'ve removed a selection — pick a replacement team before saving.',
+        className: 'bg-amber-50 border-amber-200 text-amber-800'
       } as const;
     }
 

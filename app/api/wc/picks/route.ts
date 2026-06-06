@@ -136,7 +136,7 @@ export async function POST(request: Request) {
     const replacedRounds = new Set(roundNumbers);
     const { rows: existingPicks } = await sql.query<{ round_number: number; picked_team_id: number }>(
       `SELECT round_number, picked_team_id FROM wc_picks
-       WHERE user_id = $1 AND league_id = $2 AND is_correct IS NULL`,
+       WHERE user_id = $1 AND league_id = $2`,
       [userId, league_id]
     );
     for (const existing of existingPicks) {
