@@ -8,6 +8,7 @@ import useWcPicks from 'app/hooks/useWcPicks';
 import WcRoundCard from './wc-round-card';
 import { Button } from '@/components/ui/button';
 import { WcFixture, WcPick, PickDraft } from '@/lib/wc-definitions';
+import { WC_ROUND_DEADLINES } from '@/lib/wc-constants';
 
 function initDrafts(picks: WcPick[]): Record<number, PickDraft | null> {
   const drafts: Record<number, PickDraft | null> = {
@@ -133,6 +134,42 @@ export default function WcPicksForm() {
     [drafts, wcPicks]
   );
 
+  const statusBanner = useMemo(() => {
+    if (isEliminated) return null; // has its own banner
+
+    const now = new Date();
+
+    // A round where the user had a saved pick but has since cleared the draft
+    const hasClearedPick = [1, 2, 3, 4, 5, 6].some((r) => {
+      const isLocked = now > WC_ROUND_DEADLINES[r];
+      return !isLocked && !drafts[r] && wcPicks.some((p) => p.round_number === r);
+    });
+
+    if (hasUnsavedDrafts || hasClearedPick) {
+      return {
+        message: 'You have unsaved changes — save your picks before the deadline!',
+        className: 'bg-red-50 border-red-200 text-red-700'
+      } as const;
+    }
+
+    const missingCount = [1, 2, 3, 4, 5, 6].filter((r) => {
+      const isLocked = now > WC_ROUND_DEADLINES[r];
+      return !isLocked && !drafts[r] && !wcPicks.some((p) => p.round_number === r);
+    }).length;
+
+    if (missingCount > 0) {
+      return {
+        message: `You still have ${missingCount} round${missingCount > 1 ? 's' : ''} without a prediction — pick a team for every round and save before the deadline.`,
+        className: 'bg-amber-50 border-amber-200 text-amber-800'
+      } as const;
+    }
+
+    return {
+      message: 'All predictions saved — good luck! 🎉',
+      className: 'bg-green-50 border-green-200 text-green-700'
+    } as const;
+  }, [isEliminated, hasUnsavedDrafts, drafts, wcPicks]);
+
   const handlePickTeam = useCallback(
     (round: number, fixtureId: number, teamId: number) => {
       setDrafts((prev) => {
@@ -224,15 +261,9 @@ export default function WcPicksForm() {
         </div>
       )}
 
-      {hasUnsavedDrafts && !isEliminated && (
-        <div className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-amber-800 text-sm font-medium">
-          You have unsaved picks — submit before the deadline!
-        </div>
-      )}
-
-      {success && (
-        <div className="rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-green-700 text-sm font-medium">
-          Picks saved! A confirmation email is on its way.
+      {statusBanner && (
+        <div className={`rounded-xl border px-4 py-3 text-sm font-medium ${statusBanner.className}`}>
+          {statusBanner.message}
         </div>
       )}
 
