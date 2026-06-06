@@ -57,6 +57,7 @@ function formatDeadline(date: Date): string {
 }
 
 const Page = () => {
+  const [activeTab, setActiveTab] = useState('rules');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const { wcFixtures, isLoadingWcFixtures } = useWcFixtures();
   const { wcPicks, isLoadingWcPicks } = useWcPicks({ refreshTrigger });
@@ -85,7 +86,7 @@ const Page = () => {
       </div>
 
       {/* ── Tabs ─────────────────────────────────────────────────────────── */}
-      <Tabs defaultValue="rules" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full mb-4">
           <TabsTrigger value="rules" className="flex-1">
             Rules
@@ -139,6 +140,12 @@ const Page = () => {
               <div className="border-l-4 border-amber-400 px-6 py-4 bg-amber-50">
                 <p className="text-xs font-bold tracking-widest text-amber-600 uppercase mb-0.5">Phase 1 · Rounds 1–6</p>
                 <h3 className="text-lg font-bold text-gray-900">The Group Stage</h3>
+                <button
+                  onClick={() => setActiveTab('group-stage')}
+                  className="mt-2 text-xs font-semibold text-amber-700 underline underline-offset-2 hover:text-amber-900 transition-colors"
+                >
+                  Submit your predictions →
+                </button>
               </div>
               <CardContent className="p-6 flex flex-col gap-4">
                 <p>
