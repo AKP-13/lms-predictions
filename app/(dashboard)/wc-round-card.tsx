@@ -130,6 +130,14 @@ export default function WcRoundCard({
   const isLocked = new Date() > deadline;
   const isInteractive = !isLocked && !isEliminated;
 
+  // True when the draft differs from what's saved (or one exists without the other)
+  const hasUnsavedChange =
+    !isLocked && (
+      (currentDraft && !existingPick) ||
+      (!currentDraft && !!existingPick) ||
+      (currentDraft && existingPick && currentDraft.picked_team_id !== existingPick.picked_team_id)
+    );
+
   // Group fixtures by group_name, sorted alphabetically
   const byGroup = fixtures.reduce<Record<string, WcFixture[]>>((acc, f) => {
     if (!acc[f.group_name]) acc[f.group_name] = [];
@@ -151,7 +159,14 @@ export default function WcRoundCard({
             currentDraft={currentDraft}
           />
         </div>
-        <p className="text-xs mt-1 text-red-500">
+        <p className={cn(
+          'text-xs mt-1',
+          isLocked
+            ? 'text-muted-foreground'
+            : hasUnsavedChange
+              ? 'text-red-500'
+              : 'text-muted-foreground'
+        )}>
           {isLocked
             ? 'Deadline for prediction / changes has passed'
             : `Deadline for prediction / changes: ${formatDeadline(deadline)}`}
