@@ -168,8 +168,7 @@ const Page = () => {
               </div>
               <CardContent className="p-6 flex flex-col gap-4">
                 <p>
-                  Survive the group stage and you&apos;re into the knockout phase. You can now{' '}
-                  <strong>pick any team again</strong> — the no-repeat rule no longer applies. Each knockout round you predict the score of <strong>any match</strong> in that round. Points stack up and the highest total after The Final wins.
+                  Survive the group stage and you&apos;re into the knockout phase. Everyone still in predicts the score of the <strong>same match</strong> each round — the last fixture played in that round. No team restrictions apply; you can pick freely. Points stack up and the highest total after The Final wins.
                 </p>
 
                 {/* Points cards */}
@@ -230,7 +229,10 @@ const Page = () => {
               <p className="text-4xl">🏆</p>
               <p className="text-lg font-semibold text-gray-800">Knockout stage — coming soon</p>
               <p className="text-sm text-muted-foreground max-w-sm">
-                Once the group stage is complete, surviving players will predict the scores of the knockout fixtures. Check back after 27 June.
+                Everyone who survives the group stage will predict the score of the same match each round — the last fixture played in that round. 5 points for a correct score, 2 for the correct result. The highest points total after The Final wins.
+              </p>
+              <p className="text-sm text-muted-foreground max-w-sm">
+                Check back after 27 June when the group stage is complete.
               </p>
             </CardContent>
           </Card>
