@@ -102,10 +102,10 @@ export async function POST(request: Request) {
       }
     }
 
-    // Validate each fixture_id exists and picked_team_id is a participant
+    // Validate each fixture_id exists, belongs to the correct round, and picked_team_id is a participant
     for (const pick of picks) {
-      const { rows } = await sql.query<{ home_team_id: number; away_team_id: number }>(
-        `SELECT home_team_id, away_team_id FROM wc_fixtures WHERE id = $1`,
+      const { rows } = await sql.query<{ home_team_id: number; away_team_id: number; round_number: number }>(
+        `SELECT home_team_id, away_team_id, round_number FROM wc_fixtures WHERE id = $1`,
         [pick.fixture_id]
       );
       if (!rows.length) {
@@ -114,7 +114,13 @@ export async function POST(request: Request) {
           { status: 400 }
         );
       }
-      const { home_team_id, away_team_id } = rows[0];
+      const { home_team_id, away_team_id, round_number: fixtureRound } = rows[0];
+      if (fixtureRound !== pick.round_number) {
+        return Response.json(
+          { error: `Fixture ${pick.fixture_id} does not belong to Round ${pick.round_number}` },
+          { status: 400 }
+        );
+      }
       if (pick.picked_team_id !== home_team_id && pick.picked_team_id !== away_team_id) {
         return Response.json(
           { error: `Team ${pick.picked_team_id} does not play in fixture ${pick.fixture_id}` },
@@ -183,18 +189,19 @@ export async function POST(request: Request) {
           .map((p) => `<li><strong>Round ${p.round_number}:</strong> ${teamNameById[p.picked_team_id]}</li>`)
           .join('');
 
+        const adminEmail = process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS;
         const resend = new Resend(process.env.AUTH_RESEND_KEY);
         await resend.emails.send({
           from: 'Last Player Standing <noreply@lmsiq.co.uk>',
           to: [userEmail],
-          bcc: [process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS || ''],
+          ...(adminEmail && { bcc: [adminEmail] }),
           subject: 'World Cup 2026 — picks submitted',
           html: `
             <h2>Hey ${userName} 👋🏻</h2>
             <p>Your World Cup 2026 picks have been saved!</p>
             <ul>${pickLines}</ul>
             <p>You can amend any pick up to 2 hours before that round's first kick-off.</p>
-            <p>If something looks wrong, email <a href="mailto:${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS}">${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS}</a></p>
+            ${adminEmail ? `<p>If something looks wrong, email <a href="mailto:${adminEmail}">${adminEmail}</a></p>` : ''}
           `
         });
       } catch (emailError) {

@@ -10,6 +10,12 @@ export async function POST(request: Request) {
     );
   }
 
+  const adminEmail = process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS;
+  if (!adminEmail) {
+    console.error('NEXT_PUBLIC_MY_EMAIL_ADDRESS is not configured');
+    return Response.json({ error: 'Server configuration error.' }, { status: 500 });
+  }
+
   try {
     const { email } = await request.json();
 
@@ -21,7 +27,7 @@ export async function POST(request: Request) {
 
     await resend.emails.send({
       from: 'Last Player Standing <noreply@lmsiq.co.uk>',
-      to: [process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS || ''],
+      to: [adminEmail],
       subject: `WC LPS: join request from ${email}`,
       html: `
         <h2>New join request</h2>
