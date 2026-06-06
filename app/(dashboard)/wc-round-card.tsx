@@ -203,7 +203,7 @@ function FixtureRow({
     usedTeamIds.has(fixture.away_team_id) && !awaySelected;
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-2">
       {/* Date/score header — desktop only (sits above the team buttons) */}
       <p className="hidden sm:block text-xs text-muted-foreground text-center mb-1.5">
         {fixture.is_complete
