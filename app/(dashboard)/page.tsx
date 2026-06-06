@@ -126,7 +126,7 @@ const Page = () => {
                     <span className="font-bold text-gray-400 shrink-0 w-4">2</span>
                     <div>
                       <p className="font-semibold text-gray-900">Knockout Stage — Score Prediction</p>
-                      <p className="text-muted-foreground text-xs mt-0.5">Predict the score of a predefined knockout stage match. Earn 5 points for the correct score and 2 points for the correct outcome. Highest points total after The Final wins the pot!</p>
+                      <p className="text-muted-foreground text-xs mt-0.5">Predict the score of predefined knockout stage matches. Earn 5 points for the correct score and 2 points for the correct outcome. Highest points total after The Final wins the pot!</p>
                     </div>
                   </li>
                 </ol>
