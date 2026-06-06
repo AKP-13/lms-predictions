@@ -80,8 +80,7 @@ const Page = () => {
           ⚽ World Cup 2026
         </h1>
         <p className="text-center text-xl font-light italic px-4 py-2">
-          Last Player Standing — pick a team to win each round. Use the same
-          team twice and you&apos;re out.
+          Survive the group stage then accumulate the most points to win.
         </p>
       </div>
 
