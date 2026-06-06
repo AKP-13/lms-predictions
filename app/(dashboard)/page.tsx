@@ -107,10 +107,24 @@ const Page = () => {
                   <span className="px-3 py-1 rounded-full bg-gray-800 text-white text-xs font-semibold">Winner takes all</span>
                   <span className="px-3 py-1 rounded-full bg-gray-800 text-white text-xs font-semibold">11 rounds</span>
                 </div>
-                <p>
-                  The game has two phases — a <strong>Last Player Standing group stage</strong> followed by a{' '}
-                  <strong>points-based score prediction knockout stage</strong> (like Super 6). Here&apos;s how it works.
-                </p>
+                <p>The game has two phases:</p>
+                <ol className="flex flex-col gap-3">
+                  <li className="flex gap-3">
+                    <span className="font-bold text-gray-400 shrink-0 w-4">1</span>
+                    <div>
+                      <p className="font-semibold text-gray-900">Group Stage — Last Player Standing style</p>
+                      <p className="text-muted-foreground text-xs mt-0.5">Predict 6 teams to win, incorrect prediction? You&apos;re eliminated. Standard LPS stuff.</p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="font-bold text-gray-400 shrink-0 w-4">2</span>
+                    <div>
+                      <p className="font-semibold text-gray-900">Knockout Stage — Score Prediction</p>
+                      <p className="text-muted-foreground text-xs mt-0.5">Predict the score of a predefined knockout stage match. Earn 5 points for the correct score and 2 points for the correct outcome. Highest points total after The Final wins the pot!</p>
+                    </div>
+                  </li>
+                </ol>
+                <p className="text-muted-foreground text-xs">Details below...</p>
               </CardContent>
             </Card>
 
@@ -124,7 +138,7 @@ const Page = () => {
                 <p>
                   The group stage is split into 6 rounds. Each round, pick a team to <strong>win</strong> from that round&apos;s fixtures. Incorrect prediction? Eliminated. Standard LPS stuff.
                 </p>
-                <p>
+                <p className="text-muted-foreground">
                   You can submit all 6 picks upfront and amend them right up to each round&apos;s deadline.
                 </p>
 
@@ -168,7 +182,7 @@ const Page = () => {
               </div>
               <CardContent className="p-6 flex flex-col gap-4">
                 <p>
-                  Survive the group stage and you&apos;re into the knockout phase. Everyone still in predicts the score of the <strong>same match</strong> each round — the last fixture played in that round. No team restrictions apply; you can pick freely. Points stack up and the highest total after The Final wins.
+                  Survive the group stage and you&apos;re in with a shot at winning. Each knockout round, everyone predicts the score of the same match. Points accumulate and the highest total after The Final takes the pot.
                 </p>
 
                 {/* Points cards */}
