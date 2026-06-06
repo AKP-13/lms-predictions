@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import WcPicksForm from './wc-picks-form';
 import useWcFixtures from 'app/hooks/useWcFixtures';
 import useWcPicks from 'app/hooks/useWcPicks';
-import { WC_ROUND_DEADLINES, WC_ROUND_LABELS } from '@/lib/wc-constants';
+import { WC_ROUND_DEADLINES, WC_ROUND_FIXTURE_LABELS } from '@/lib/wc-constants';
 
 // ─── FPL Last Player Standing (commented out for WC summer) ──────────────────
 // import { useEffect, useMemo, useState } from 'react';
@@ -97,72 +97,118 @@ const Page = () => {
 
         {/* ── Rules tab ──────────────────────────────────────────────────── */}
         <TabsContent value="rules">
-          <Card className="rounded-xl bg-white shadow-sm">
-            <CardHeader className="p-6 pb-2">
-              <CardTitle className="text-xl">How to play</CardTitle>
-            </CardHeader>
-            <CardContent className="p-6 pt-4 flex flex-col gap-6 text-sm text-gray-700 leading-relaxed">
+          <div className="flex flex-col gap-6 text-sm text-gray-700 leading-relaxed">
 
-              <section>
-                <h3 className="font-semibold text-base text-gray-900 mb-2">The basics</h3>
+            {/* Badges + intro */}
+            <Card className="rounded-xl bg-white shadow-sm">
+              <CardContent className="p-6 flex flex-col gap-4">
+                <div className="flex flex-wrap gap-2">
+                  <span className="px-3 py-1 rounded-full bg-amber-400 text-white text-xs font-semibold">£10 entry</span>
+                  <span className="px-3 py-1 rounded-full bg-gray-800 text-white text-xs font-semibold">Winner takes all</span>
+                  <span className="px-3 py-1 rounded-full bg-gray-800 text-white text-xs font-semibold">11 rounds</span>
+                </div>
                 <p>
-                  This is a <strong>Last Player Standing</strong> game for the World Cup 2026 group stage. There are <strong>6 rounds</strong>. Each round, you pick one team to <strong>win their match outright</strong> — draws don&apos;t count. Get it right and you survive; get it wrong and you&apos;re out.
+                  The game has two phases — a <strong>Last Player Standing group stage</strong> followed by a{' '}
+                  <strong>points-based score prediction knockout stage</strong> (like Super 6). Here&apos;s how it works.
                 </p>
-              </section>
+              </CardContent>
+            </Card>
 
-              <section>
-                <h3 className="font-semibold text-base text-gray-900 mb-2">The no-repeat rule</h3>
+            {/* Phase 1 */}
+            <Card className="rounded-xl bg-white shadow-sm overflow-hidden">
+              <div className="border-l-4 border-amber-400 px-6 py-4 bg-amber-50">
+                <p className="text-xs font-bold tracking-widest text-amber-600 uppercase mb-0.5">Phase 1 · Rounds 1–6</p>
+                <h3 className="text-lg font-bold text-gray-900">The Group Stage</h3>
+              </div>
+              <CardContent className="p-6 flex flex-col gap-4">
                 <p>
-                  You <strong>cannot pick the same team twice</strong> across all 6 rounds. Once you&apos;ve used a team, they&apos;re gone from your options for the rest of the group stage. Choose wisely.
+                  The group stage is split into 6 rounds. Each round, pick a team to <strong>win</strong> from that round&apos;s fixtures. Incorrect prediction? Eliminated. Standard LPS stuff.
                 </p>
-              </section>
-
-              <section>
-                <h3 className="font-semibold text-base text-gray-900 mb-2">How the rounds work</h3>
-                <p className="mb-2">
-                  The 6 rounds follow the group stage matchdays, alternating between two halves of the draw:
-                </p>
-                <ul className="flex flex-col gap-1 pl-1">
-                  {[1, 2, 3, 4, 5, 6].map((r) => (
-                    <li key={r} className="flex items-start gap-2">
-                      <span className="font-semibold text-gray-500 shrink-0 w-5 text-right">{r}.</span>
-                      <span>{WC_ROUND_LABELS[r]}</span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-
-              <section>
-                <h3 className="font-semibold text-base text-gray-900 mb-2">Submitting your picks</h3>
                 <p>
-                  You can submit all 6 predictions upfront — you don&apos;t have to wait for each round to finish. You can also come back and change any pick up to the deadline for that round. Once the deadline passes, your pick is locked.
+                  You can submit all 6 picks upfront and amend them right up to each round&apos;s deadline.
                 </p>
-              </section>
 
-              <section>
-                <h3 className="font-semibold text-base text-gray-900 mb-2">Deadlines</h3>
-                <ul className="flex flex-col gap-1 pl-1">
-                  {[1, 2, 3, 4, 5, 6].map((r) => (
-                    <li key={r} className="flex items-start gap-2">
-                      <span className="font-semibold text-gray-500 shrink-0 w-5 text-right">{r}.</span>
-                      <span>
-                        <span className="font-medium">Round {r}:</span>{' '}
-                        {formatDeadline(WC_ROUND_DEADLINES[r])}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
+                {/* Round table */}
+                <div className="rounded-lg border border-gray-200 overflow-hidden">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-200">
+                        <th className="text-left px-4 py-2.5 font-semibold text-gray-500 uppercase tracking-wide w-16">Round</th>
+                        <th className="text-left px-4 py-2.5 font-semibold text-gray-500 uppercase tracking-wide">Fixtures</th>
+                        <th className="text-right px-4 py-2.5 font-semibold text-gray-500 uppercase tracking-wide">Deadline</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[1, 2, 3, 4, 5, 6].map((r) => (
+                        <tr key={r} className="border-b border-gray-100 last:border-0">
+                          <td className="px-4 py-3 font-semibold text-gray-800">{r}</td>
+                          <td className="px-4 py-3 text-gray-700">{WC_ROUND_FIXTURE_LABELS[r]}</td>
+                          <td className="px-4 py-3 text-right text-gray-500 whitespace-nowrap">{formatDeadline(WC_ROUND_DEADLINES[r])}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
 
-              <section>
-                <h3 className="font-semibold text-base text-gray-900 mb-2">Knockout stage</h3>
+                {/* No duplicate callout */}
+                <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3">
+                  <p>
+                    <strong className="text-amber-800">No duplicate teams:</strong>{' '}
+                    <span className="text-amber-700">you can&apos;t pick the same team more than once across your 6 group stage picks.</span>
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Phase 2 */}
+            <Card className="rounded-xl bg-white shadow-sm overflow-hidden">
+              <div className="border-l-4 border-green-500 px-6 py-4 bg-green-50">
+                <p className="text-xs font-bold tracking-widest text-green-600 uppercase mb-0.5">Phase 2 · Rounds 7–11</p>
+                <h3 className="text-lg font-bold text-gray-900">The Knockout Stage</h3>
+              </div>
+              <CardContent className="p-6 flex flex-col gap-4">
                 <p>
-                  Players who survive all 6 group stage rounds advance to the knockout phase. That&apos;s a separate points-based game where everyone predicts the score of each knockout fixture — 5 points for the correct score, 2 points for the correct result. More details coming once the group stage is complete.
+                  Survive the group stage and you&apos;re into the knockout phase. You can now{' '}
+                  <strong>pick any team again</strong> — the no-repeat rule no longer applies. Each knockout round you predict the score of <strong>any match</strong> in that round. Points stack up and the highest total after The Final wins.
                 </p>
-              </section>
 
-            </CardContent>
-          </Card>
+                {/* Points cards */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-lg border-2 border-green-200 bg-green-50 p-4 text-center">
+                    <p className="text-2xl font-bold text-green-700">5 pts</p>
+                    <p className="text-xs text-green-600 mt-0.5">Correct score</p>
+                  </div>
+                  <div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-4 text-center">
+                    <p className="text-2xl font-bold text-amber-700">2 pts</p>
+                    <p className="text-xs text-amber-600 mt-0.5">Correct result</p>
+                  </div>
+                </div>
+
+                {/* Knockout round table */}
+                <div className="rounded-lg border border-gray-200 overflow-hidden">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-200">
+                        <th className="text-left px-4 py-2.5 font-semibold text-gray-500 uppercase tracking-wide w-16">Round</th>
+                        <th className="text-left px-4 py-2.5 font-semibold text-gray-500 uppercase tracking-wide">Fixtures</th>
+                        <th className="text-right px-4 py-2.5 font-semibold text-gray-500 uppercase tracking-wide">Deadline</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[7, 8, 9, 10, 11].map((r) => (
+                        <tr key={r} className={`border-b border-gray-100 last:border-0 ${r === 11 ? 'bg-amber-50' : ''}`}>
+                          <td className={`px-4 py-3 font-semibold ${r === 11 ? 'text-amber-700' : 'text-gray-800'}`}>{r}</td>
+                          <td className={`px-4 py-3 ${r === 11 ? 'font-semibold text-amber-700' : 'text-gray-700'}`}>{WC_ROUND_FIXTURE_LABELS[r]}</td>
+                          <td className={`px-4 py-3 text-right whitespace-nowrap ${r === 11 ? 'text-amber-600' : 'text-gray-500'}`}>{formatDeadline(WC_ROUND_DEADLINES[r])}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+
+          </div>
         </TabsContent>
 
         {/* ── Group Stage tab ────────────────────────────────────────────── */}
