@@ -99,6 +99,14 @@ function RoundStatusBadge({
       </Badge>
     );
   }
+  // User had a saved pick but cleared their draft — needs to re-select
+  if (!currentDraft && existingPick) {
+    return (
+      <Badge className="bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-100">
+        Pick a team to continue
+      </Badge>
+    );
+  }
   if (existingPick) {
     return (
       <Badge className="bg-green-100 text-green-800 border-green-200 hover:bg-green-100">
