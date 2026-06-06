@@ -168,8 +168,8 @@ export default function WcRoundCard({
               : 'text-muted-foreground'
         )}>
           {isLocked
-            ? 'Deadline for prediction / changes has passed'
-            : `Deadline for prediction / changes: ${formatDeadline(deadline)}`}
+            ? 'Deadline to make changes has passed'
+            : `Make changes by: ${formatDeadline(deadline)}`}
         </p>
       </CardHeader>
 
