@@ -10,7 +10,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { FixturesData, FPLTeamName } from '@/lib/definitions';
-import { TeamsArr } from './page';
+import { TeamsArr } from '@/lib/definitions';
 import { CircleCheck, CircleMinus, CircleX, Loader } from 'lucide-react';
 
 type LeagueTableRow = {

@@ -13,7 +13,7 @@ import {
 import { Loader } from 'lucide-react';
 import { FixturesData } from '@/lib/definitions';
 import { TeamForm } from '@/components/TeamForm';
-import { TeamsArr } from './page';
+import { TeamsArr } from '@/lib/definitions';
 import { MAX_GW, MIN_GW } from '@/lib/constants';
 import {
   groupFixturesByDate,
