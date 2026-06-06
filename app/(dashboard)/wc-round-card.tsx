@@ -215,6 +215,7 @@ function FixtureRow({
         <TeamButton
           teamId={fixture.home_team_id}
           teamName={fixture.home_team_name}
+          isHome={true}
           isSelected={homeSelected}
           isUsedElsewhere={homeUsedElsewhere}
           isInteractive={isInteractive}
@@ -242,6 +243,7 @@ function FixtureRow({
         <TeamButton
           teamId={fixture.away_team_id}
           teamName={fixture.away_team_name}
+          isHome={false}
           isSelected={awaySelected}
           isUsedElsewhere={awayUsedElsewhere}
           isInteractive={isInteractive}
@@ -255,6 +257,7 @@ function FixtureRow({
 function TeamButton({
   teamId,
   teamName,
+  isHome,
   isSelected,
   isUsedElsewhere,
   isInteractive,
@@ -262,6 +265,7 @@ function TeamButton({
 }: {
   teamId: number;
   teamName: string;
+  isHome: boolean;
   isSelected: boolean;
   isUsedElsewhere: boolean;
   isInteractive: boolean;
@@ -274,7 +278,8 @@ function TeamButton({
       type="button"
       onClick={isUsedElsewhere || !isInteractive ? undefined : onClick}
       className={cn(
-        'flex items-center gap-1.5 px-2.5 py-2 rounded-lg border text-xs font-medium transition-colors flex-1 min-w-0 text-left',
+        'flex items-center gap-1.5 px-2.5 py-2 rounded-lg border text-xs font-medium transition-colors flex-1 min-w-0',
+        isHome ? 'flex-row-reverse text-right' : 'flex-row text-left',
         isSelected
           ? 'bg-blue-50 border-blue-500 border-2 text-blue-800'
           : isUsedElsewhere
