@@ -143,15 +143,10 @@ export default function WcRoundCard({
             currentDraft={currentDraft}
           />
         </div>
-        <p
-          className={cn(
-            'text-xs mt-1',
-            isLocked ? 'text-red-500' : 'text-muted-foreground'
-          )}
-        >
+        <p className="text-xs mt-1 text-red-500">
           {isLocked
-            ? 'Deadline passed'
-            : `Deadline: ${formatDeadline(deadline)}`}
+            ? 'Deadline for prediction / changes has passed'
+            : `Deadline for prediction / changes: ${formatDeadline(deadline)}`}
         </p>
       </CardHeader>
 
