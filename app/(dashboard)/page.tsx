@@ -1,7 +1,12 @@
 'use client';
 
-// ─── World Cup 2026 ───────────────────────────────────────────────────────────
+import { useState } from 'react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import WcPicksForm from './wc-picks-form';
+import useWcFixtures from 'app/hooks/useWcFixtures';
+import useWcPicks from 'app/hooks/useWcPicks';
+import { WC_ROUND_DEADLINES, WC_ROUND_LABELS } from '@/lib/wc-constants';
 
 // ─── FPL Last Player Standing (commented out for WC summer) ──────────────────
 // import { useEffect, useMemo, useState } from 'react';
@@ -12,11 +17,7 @@ import WcPicksForm from './wc-picks-form';
 // import LeagueTable from './league-table';
 // import PickPlanner from '@/components/PickPlanner';
 // import {
-//   Card,
-//   CardContent,
 //   CardDescription,
-//   CardHeader,
-//   CardTitle
 // } from '@/components/ui/card';
 // import {
 //   Table,
@@ -38,13 +39,32 @@ import WcPicksForm from './wc-picks-form';
 // import useCurrentGameData from 'app/hooks/useCurrentGameData';
 // import Injuries from './injuries';
 
-// export type TeamsArr = {
-//   id: number;
-//   name: FPLTeamName;
-//   short_name: string;
-// }[];
+function formatDeadline(date: Date): string {
+  return date.toLocaleString('en-GB', {
+    timeZone: 'Europe/London',
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
 
 const Page = () => {
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const { wcFixtures, isLoadingWcFixtures } = useWcFixtures();
+  const { wcPicks, isLoadingWcPicks } = useWcPicks({ refreshTrigger });
+
+  // Amber dot: any open round (deadline not passed) has no saved pick
+  const now = new Date();
+  const showGroupStageIndicator =
+    !isLoadingWcPicks &&
+    [1, 2, 3, 4, 5, 6].some(
+      (r) =>
+        now < WC_ROUND_DEADLINES[r] &&
+        !wcPicks.some((p) => p.round_number === r)
+    );
+
   return (
     <main>
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
@@ -58,124 +78,121 @@ const Page = () => {
         </p>
       </div>
 
-      {/* ── Picks form ───────────────────────────────────────────────────── */}
-      <WcPicksForm />
+      {/* ── Tabs ─────────────────────────────────────────────────────────── */}
+      <Tabs defaultValue="rules" className="w-full">
+        <TabsList className="w-full mb-4">
+          <TabsTrigger value="rules" className="flex-1">
+            Rules
+          </TabsTrigger>
+          <TabsTrigger value="group-stage" className="flex-1">
+            Group Stage
+            {showGroupStageIndicator && (
+              <span className="ml-1.5 h-2 w-2 rounded-full bg-amber-400 inline-block" />
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="knockout" className="flex-1">
+            Knockout
+          </TabsTrigger>
+        </TabsList>
+
+        {/* ── Rules tab ──────────────────────────────────────────────────── */}
+        <TabsContent value="rules">
+          <Card className="rounded-xl bg-white shadow-sm">
+            <CardHeader className="p-6 pb-2">
+              <CardTitle className="text-xl">How to play</CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 pt-4 flex flex-col gap-6 text-sm text-gray-700 leading-relaxed">
+
+              <section>
+                <h3 className="font-semibold text-base text-gray-900 mb-2">The basics</h3>
+                <p>
+                  This is a <strong>Last Player Standing</strong> game for the World Cup 2026 group stage. There are <strong>6 rounds</strong>. Each round, you pick one team to <strong>win their match outright</strong> — draws don&apos;t count. Get it right and you survive; get it wrong and you&apos;re out.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-base text-gray-900 mb-2">The no-repeat rule</h3>
+                <p>
+                  You <strong>cannot pick the same team twice</strong> across all 6 rounds. Once you&apos;ve used a team, they&apos;re gone from your options for the rest of the group stage. Choose wisely.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-base text-gray-900 mb-2">How the rounds work</h3>
+                <p className="mb-2">
+                  The 6 rounds follow the group stage matchdays, alternating between two halves of the draw:
+                </p>
+                <ul className="flex flex-col gap-1 pl-1">
+                  {[1, 2, 3, 4, 5, 6].map((r) => (
+                    <li key={r} className="flex items-start gap-2">
+                      <span className="font-semibold text-gray-500 shrink-0 w-5 text-right">{r}.</span>
+                      <span>{WC_ROUND_LABELS[r]}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-base text-gray-900 mb-2">Submitting your picks</h3>
+                <p>
+                  You can submit all 6 predictions upfront — you don&apos;t have to wait for each round to finish. You can also come back and change any pick up to the deadline for that round. Once the deadline passes, your pick is locked.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-base text-gray-900 mb-2">Deadlines</h3>
+                <ul className="flex flex-col gap-1 pl-1">
+                  {[1, 2, 3, 4, 5, 6].map((r) => (
+                    <li key={r} className="flex items-start gap-2">
+                      <span className="font-semibold text-gray-500 shrink-0 w-5 text-right">{r}.</span>
+                      <span>
+                        <span className="font-medium">Round {r}:</span>{' '}
+                        {formatDeadline(WC_ROUND_DEADLINES[r])}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-base text-gray-900 mb-2">Knockout stage</h3>
+                <p>
+                  Players who survive all 6 group stage rounds advance to the knockout phase. That&apos;s a separate points-based game where everyone predicts the score of each knockout fixture — 5 points for the correct score, 2 points for the correct result. More details coming once the group stage is complete.
+                </p>
+              </section>
+
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── Group Stage tab ────────────────────────────────────────────── */}
+        <TabsContent value="group-stage">
+          <WcPicksForm
+            wcPicks={wcPicks}
+            isLoadingWcPicks={isLoadingWcPicks}
+            wcFixtures={wcFixtures}
+            isLoadingWcFixtures={isLoadingWcFixtures}
+            refreshTrigger={refreshTrigger}
+            setRefreshTrigger={setRefreshTrigger}
+          />
+        </TabsContent>
+
+        {/* ── Knockout tab ───────────────────────────────────────────────── */}
+        <TabsContent value="knockout">
+          <Card className="rounded-xl bg-white shadow-sm">
+            <CardContent className="p-12 flex flex-col items-center gap-3 text-center">
+              <p className="text-4xl">🏆</p>
+              <p className="text-lg font-semibold text-gray-800">Knockout stage — coming soon</p>
+              <p className="text-sm text-muted-foreground max-w-sm">
+                Once the group stage is complete, surviving players will predict the scores of the knockout fixtures. Check back after 27 June.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* ── FPL dashboard (commented out for the summer) ─────────────────── */}
-      {/* const [refreshTrigger, setRefreshTrigger] = useState(0);                */}
-      {/* ... restore by uncommenting the imports above and the block below ...   */}
-      {/*
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-4 my-6">
-        <div className="w-full grid md:col-span-3">
-          <CurrentGame
-            currentGameResults={currentGameResults}
-            leagueName={leagueName}
-            isLoading={isLoadingLeagueName || isLoadingCurrentGameData}
-          />
-        </div>
-        <div className="w-full md:col-span-1">
-          <Predictions
-            session={session}
-            teamsArr={teamsArr}
-            results={results}
-            predictionWeekFixtures={predictionWeekFixtures}
-            setRefreshTrigger={setRefreshTrigger}
-            isLoading={isLoadingResults || isLoadingFplData}
-            currentGameId={currentGameId}
-          />
-        </div>
-      </div>
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-4 my-6">
-        <div className="w-full md:col-span-2 relative">
-          <div className="flex flex-col gap-6 md:absolute md:inset-0">
-            <FixturesResults
-              fixtures={fixtures}
-              currentGwNumber={currentGwNumber}
-              teamsArr={teamsArr}
-              isLoading={isLoadingFixtures}
-            />
-            <div className="flex-1 min-h-0 flex flex-col">
-              <Injuries data={injuries} isLoading={isLoadingFplData} />
-            </div>
-          </div>
-        </div>
-        <div className="w-full md:col-span-2">
-          <LeagueTable
-            fixtures={fixtures}
-            isLoading={isLoadingFixtures}
-            teamsArr={teamsArr}
-          />
-        </div>
-      </div>
-      <div className="w-full overflow-x-auto my-6">
-        <PickPlanner
-          teams={teamsArr}
-          fixtures={fixtures || []}
-          currentGwNumber={currentGwNumber}
-          numWeeks={numWeeks}
-          setNumWeeks={setNumWeeks}
-          results={results || {}}
-          session={session}
-          currentGameId={currentGameId}
-        />
-      </div>
-      <Card className="rounded-xl bg-white p-2 my-6 shadow-sm overflow-auto md:hidden">
-        <CardHeader className="p-2 md:p-6">
-          <CardTitle>Results</CardTitle>
-          <CardDescription>View your previous results</CardDescription>
-        </CardHeader>
-        <CardContent className="p-2 md:p-6 md:pt-0">
-          {session === null ? (
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <a
-                style={{ color: 'blue', fontWeight: 600, textAlign: 'center' }}
-                href="/api/auth/signin"
-              >
-                Sign in to get started
-              </a>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Game</TableHead>
-                  {Array.from(Array(maxGameWeeks)).map((_, gameWeek) => (
-                    <TableHead key={`gw-headcell-${gameWeek + 1}`}>
-                      {`Round ${gameWeek + 1}`}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {Object.values(results).map((gameResults, gameIdx) => (
-                  <TableRow key={`game-row-${gameResults[0].game_id}`}>
-                    <TableCell className="font-medium">{gameIdx + 1}</TableCell>
-                    {gameResults.map((prediction, predictionIdx) => (
-                      <TableCell
-                        key={`gw-cell-${gameIdx}-${predictionIdx}`}
-                        className={`table-cell ${prediction.correct ? 'bg-green-200' : 'bg-red-200'}`}
-                      >
-                        <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'center' }}>
-                          <div>
-                            <TeamName location="Home" prediction={prediction} /> v{' '}
-                            <TeamName location="Away" prediction={prediction} />
-                          </div>
-                          <div>
-                            <TeamScore location="Home" prediction={prediction} />{' '}
-                            <span className="font-thin">v</span>{' '}
-                            <TeamScore location="Away" prediction={prediction} />
-                          </div>
-                        </div>
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
-      */}
+      {/* ... restore by uncommenting the imports at the top ...              */}
     </main>
   );
 };

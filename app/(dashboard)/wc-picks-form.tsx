@@ -1,14 +1,21 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, Dispatch, SetStateAction } from 'react';
 import { useSession } from 'next-auth/react';
 import { Loader } from 'lucide-react';
-import useWcFixtures from 'app/hooks/useWcFixtures';
-import useWcPicks from 'app/hooks/useWcPicks';
 import WcRoundCard from './wc-round-card';
 import { Button } from '@/components/ui/button';
 import { WcFixture, WcPick, PickDraft } from '@/lib/wc-definitions';
 import { WC_ROUND_DEADLINES } from '@/lib/wc-constants';
+
+interface WcPicksFormProps {
+  wcPicks: WcPick[];
+  isLoadingWcPicks: boolean;
+  wcFixtures: WcFixture[];
+  isLoadingWcFixtures: boolean;
+  refreshTrigger: number;
+  setRefreshTrigger: Dispatch<SetStateAction<number>>;
+}
 
 function initDrafts(picks: WcPick[]): Record<number, PickDraft | null> {
   const drafts: Record<number, PickDraft | null> = {
@@ -28,11 +35,15 @@ function initDrafts(picks: WcPick[]): Record<number, PickDraft | null> {
   return drafts;
 }
 
-export default function WcPicksForm() {
+export default function WcPicksForm({
+  wcPicks,
+  isLoadingWcPicks,
+  wcFixtures,
+  isLoadingWcFixtures,
+  refreshTrigger,
+  setRefreshTrigger
+}: WcPicksFormProps) {
   const { data: session } = useSession();
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const { wcFixtures, isLoadingWcFixtures } = useWcFixtures();
-  const { wcPicks, isLoadingWcPicks } = useWcPicks({ refreshTrigger });
 
   const [drafts, setDrafts] = useState<Record<number, PickDraft | null>>({
     1: null,
@@ -45,7 +56,6 @@ export default function WcPicksForm() {
   const [draftsInitialised, setDraftsInitialised] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   // Initialise drafts from server picks once loaded, then overlay localStorage
   useEffect(() => {
@@ -181,7 +191,6 @@ export default function WcPicksForm() {
         return { ...prev, [round]: { fixture_id: fixtureId, picked_team_id: teamId } };
       });
       setError(null);
-      setSuccess(false);
     },
     []
   );
@@ -189,7 +198,6 @@ export default function WcPicksForm() {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setError(null);
-    setSuccess(false);
 
     const picks = Object.entries(drafts)
       .filter(([, draft]) => draft !== null)
@@ -217,11 +225,9 @@ export default function WcPicksForm() {
         throw new Error(data.error || 'Failed to save picks');
       }
 
-      setSuccess(true);
       // Refresh server state (badges, is_correct) but keep drafts as-is — they
       // already match what was just saved, so hasUnsavedDrafts resolves to false
-      // once the refetched picks land. Re-initialising here would race the
-      // refetch and re-seed stale drafts.
+      // once the refetched picks land.
       setRefreshTrigger((t) => t + 1);
     } catch (err: unknown) {
       setError(
