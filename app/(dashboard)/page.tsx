@@ -133,6 +133,8 @@ function RegisterInterestCard() {
             <p className="text-xs text-muted-foreground">
               Already have an account?{' '}
               <a href="/api/auth/signin" className="text-blue-600 underline">Sign in</a>
+              {' · '}
+              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline">Privacy policy</a>
             </p>
           </>
         ) : (

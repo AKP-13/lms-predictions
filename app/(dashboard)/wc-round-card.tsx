@@ -187,6 +187,7 @@ export default function WcRoundCard({
                     fixture={fixture}
                     currentDraft={currentDraft}
                     usedTeamIds={usedTeamIds}
+                    clearedPickTeamId={!currentDraft && existingPick ? existingPick.picked_team_id : null}
                     onPickTeam={onPickTeam}
                     isInteractive={isInteractive}
                   />
@@ -204,21 +205,27 @@ function FixtureRow({
   fixture,
   currentDraft,
   usedTeamIds,
+  clearedPickTeamId,
   onPickTeam,
   isInteractive
 }: {
   fixture: WcFixture;
   currentDraft: PickDraft | null;
   usedTeamIds: Set<number>;
+  clearedPickTeamId: number | null;
   onPickTeam: (fixtureId: number, teamId: number) => void;
   isInteractive: boolean;
 }) {
   const homeSelected = currentDraft?.picked_team_id === fixture.home_team_id;
   const awaySelected = currentDraft?.picked_team_id === fixture.away_team_id;
+  // Exclude the cleared pick team from "used elsewhere" within this round's card
+  // so the user can re-select it without it appearing greyed out.
   const homeUsedElsewhere =
-    usedTeamIds.has(fixture.home_team_id) && !homeSelected;
+    usedTeamIds.has(fixture.home_team_id) && !homeSelected &&
+    fixture.home_team_id !== clearedPickTeamId;
   const awayUsedElsewhere =
-    usedTeamIds.has(fixture.away_team_id) && !awaySelected;
+    usedTeamIds.has(fixture.away_team_id) && !awaySelected &&
+    fixture.away_team_id !== clearedPickTeamId;
 
   return (
     <div className="flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-2">

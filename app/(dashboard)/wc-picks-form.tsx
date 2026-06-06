@@ -137,16 +137,23 @@ export default function WcPicksForm({
     return map;
   }, [wcFixtures]);
 
-  // Set of all team IDs currently selected across all rounds
-  const usedTeamIds = useMemo(
-    () =>
-      new Set(
-        Object.values(drafts)
-          .filter((d): d is PickDraft => d !== null)
-          .map((d) => d.picked_team_id)
-      ),
-    [drafts]
-  );
+  // Set of all team IDs considered "used" across all rounds.
+  // If a draft exists for a round, use it. If the draft has been cleared but
+  // a saved pick exists for that round, treat the saved team as still used —
+  // otherwise the UI would allow re-selecting it in another round.
+  const usedTeamIds = useMemo(() => {
+    const ids = new Set<number>();
+    for (let r = 1; r <= 6; r++) {
+      const draft = drafts[r];
+      if (draft) {
+        ids.add(draft.picked_team_id);
+      } else {
+        const existing = wcPicks.find((p) => p.round_number === r);
+        if (existing) ids.add(existing.picked_team_id);
+      }
+    }
+    return ids;
+  }, [drafts, wcPicks]);
 
   const isEliminated = wcPicks.some((p) => p.is_correct === false);
 
@@ -220,13 +227,6 @@ export default function WcPicksForm({
         }
         return { ...prev, [round]: { fixture_id: fixtureId, picked_team_id: teamId } };
       });
-
-      // Auto-advance to next round after picking (not on deselect)
-      if (!isDeselect) {
-        setTimeout(() => {
-          setActiveRound((r) => Math.min(r + 1, 6));
-        }, 300);
-      }
 
       setError(null);
     },
@@ -334,15 +334,17 @@ export default function WcPicksForm({
               'Save picks'
             )}
           </Button>
-          <p className="text-xs text-muted-foreground text-center">
-            Issues submitting?{' '}
-            <a
-              href={`mailto:${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS}?subject=World%20Cup%202026%20-%20Prediction%20Submission&body=Hi%2C%20please%20find%20my%20predictions%20below%3A%0A%0A`}
-              className="underline hover:text-foreground transition-colors"
-            >
-              Email your predictions instead
-            </a>
-          </p>
+          {process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS && (
+            <p className="text-xs text-muted-foreground text-center">
+              Issues submitting?{' '}
+              <a
+                href={`mailto:${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS}?subject=World%20Cup%202026%20-%20Prediction%20Submission&body=Hi%2C%20please%20find%20my%20predictions%20below%3A%0A%0A`}
+                className="underline hover:text-foreground transition-colors"
+              >
+                Email your predictions instead
+              </a>
+            </p>
+          )}
         </div>
       )}
 
@@ -558,6 +560,8 @@ function GuestView({
             <p className="text-xs text-muted-foreground">
               Already have an account?{' '}
               <a href="/api/auth/signin" className="text-blue-600 underline">Sign in</a>
+              {' · '}
+              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline">Privacy policy</a>
             </p>
           </>
         ) : (
@@ -569,6 +573,8 @@ function GuestView({
             <p className="text-xs text-muted-foreground">
               Already have an account?{' '}
               <a href="/api/auth/signin" className="text-blue-600 underline">Sign in</a>
+              {' · '}
+              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline">Privacy policy</a>
             </p>
           </>
         )}
