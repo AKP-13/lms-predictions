@@ -108,7 +108,7 @@ const Page = () => {
             {/* Badges + intro */}
             <Card className="rounded-xl bg-white shadow-sm">
               <CardContent className="p-6 flex flex-col gap-4">
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 justify-center">
                   <span className="px-3 py-1 rounded-full bg-amber-400 text-white text-xs font-semibold">£10 entry</span>
                   <span className="px-3 py-1 rounded-full bg-gray-800 text-white text-xs font-semibold">Winner takes all</span>
                   <span className="px-3 py-1 rounded-full bg-gray-800 text-white text-xs font-semibold">11 rounds</span>
