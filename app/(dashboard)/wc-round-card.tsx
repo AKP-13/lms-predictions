@@ -79,7 +79,7 @@ function RoundStatusBadge({
     return <Badge variant="secondary">Awaiting result</Badge>;
   }
   if (isLocked) {
-    return <Badge variant="secondary">Locked</Badge>;
+    return <Badge variant="secondary">No prediction made</Badge>;
   }
   if (
     currentDraft &&
@@ -88,25 +88,25 @@ function RoundStatusBadge({
   ) {
     return (
       <Badge className="bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-100">
-        Unsaved change
+        Prediction changed
       </Badge>
     );
   }
   if (currentDraft && !existingPick) {
     return (
       <Badge className="bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-100">
-        Unsaved
+        Prediction unsaved
       </Badge>
     );
   }
   if (existingPick) {
     return (
       <Badge className="bg-green-100 text-green-800 border-green-200 hover:bg-green-100">
-        Saved
+        Prediction saved
       </Badge>
     );
   }
-  return <Badge variant="outline">Open</Badge>;
+  return <Badge variant="outline">No prediction yet</Badge>;
 }
 
 export default function WcRoundCard({
@@ -162,7 +162,7 @@ export default function WcRoundCard({
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
                 Group {group}
               </p>
-              <div className="flex flex-col gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                 {byGroup[group].map((fixture) => (
                   <FixtureRow
                     key={fixture.id}
@@ -203,39 +203,51 @@ function FixtureRow({
     usedTeamIds.has(fixture.away_team_id) && !awaySelected;
 
   return (
-    <div className="flex items-center gap-2">
-      <TeamButton
-        teamId={fixture.home_team_id}
-        teamName={fixture.home_team_name}
-        isSelected={homeSelected}
-        isUsedElsewhere={homeUsedElsewhere}
-        isInteractive={isInteractive}
-        onClick={() => onPickTeam(fixture.id, fixture.home_team_id)}
-      />
+    <div className="flex flex-col">
+      {/* Date/score header — desktop only (sits above the team buttons) */}
+      <p className="hidden sm:block text-xs text-muted-foreground text-center mb-1.5">
+        {fixture.is_complete
+          ? `${fixture.home_team_score}–${fixture.away_team_score}`
+          : formatKickoff(fixture.kickoff_time)}
+      </p>
 
-      <div className="flex flex-col items-center min-w-[3.5rem] text-center shrink-0">
-        {fixture.is_complete ? (
-          <span className="text-sm font-semibold text-gray-700">
-            {fixture.home_team_score}–{fixture.away_team_score}
+      <div className="flex items-center gap-2">
+        <TeamButton
+          teamId={fixture.home_team_id}
+          teamName={fixture.home_team_name}
+          isSelected={homeSelected}
+          isUsedElsewhere={homeUsedElsewhere}
+          isInteractive={isInteractive}
+          onClick={() => onPickTeam(fixture.id, fixture.home_team_id)}
+        />
+
+        {/* Centre column — score/date inline for mobile, just "vs" on desktop */}
+        <div className="flex flex-col items-center min-w-[3rem] text-center shrink-0">
+          <span className="text-xs text-muted-foreground">
+            {fixture.is_complete ? (
+              <span className="sm:hidden font-semibold text-gray-700">
+                {fixture.home_team_score}–{fixture.away_team_score}
+              </span>
+            ) : (
+              'vs'
+            )}
           </span>
-        ) : (
-          <>
-            <span className="text-xs text-muted-foreground">vs</span>
-            <span className="text-[10px] text-muted-foreground leading-tight">
+          {!fixture.is_complete && (
+            <span className="text-[10px] text-muted-foreground leading-tight sm:hidden">
               {formatKickoff(fixture.kickoff_time)}
             </span>
-          </>
-        )}
-      </div>
+          )}
+        </div>
 
-      <TeamButton
-        teamId={fixture.away_team_id}
-        teamName={fixture.away_team_name}
-        isSelected={awaySelected}
-        isUsedElsewhere={awayUsedElsewhere}
-        isInteractive={isInteractive}
-        onClick={() => onPickTeam(fixture.id, fixture.away_team_id)}
-      />
+        <TeamButton
+          teamId={fixture.away_team_id}
+          teamName={fixture.away_team_name}
+          isSelected={awaySelected}
+          isUsedElsewhere={awayUsedElsewhere}
+          isInteractive={isInteractive}
+          onClick={() => onPickTeam(fixture.id, fixture.away_team_id)}
+        />
+      </div>
     </div>
   );
 }
