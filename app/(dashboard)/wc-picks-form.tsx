@@ -1,6 +1,13 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback, Dispatch, SetStateAction } from 'react';
+import {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  Dispatch,
+  SetStateAction
+} from 'react';
 import { useSession } from 'next-auth/react';
 import { ChevronLeft, ChevronRight, Loader } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -73,8 +80,7 @@ export default function WcPicksForm({
           for (const [roundStr, localDraft] of Object.entries(local)) {
             const round = Number(roundStr);
             const existing = wcPicks.find((p) => p.round_number === round);
-            const isSettled =
-              existing != null && existing.is_correct != null;
+            const isSettled = existing != null && existing.is_correct != null;
             if (!isSettled && localDraft) {
               base[round] = localDraft;
             }
@@ -131,8 +137,10 @@ export default function WcPicksForm({
   const teamIdToFlag = useMemo(() => {
     const map: Record<number, string> = {};
     for (const f of wcFixtures) {
-      if (f.home_team_name) map[f.home_team_id] = WC_TEAM_FLAGS[f.home_team_name] ?? '🏳';
-      if (f.away_team_name) map[f.away_team_id] = WC_TEAM_FLAGS[f.away_team_name] ?? '🏳';
+      if (f.home_team_name)
+        map[f.home_team_id] = WC_TEAM_FLAGS[f.home_team_name] ?? '🏳';
+      if (f.away_team_name)
+        map[f.away_team_id] = WC_TEAM_FLAGS[f.away_team_name] ?? '🏳';
     }
     return map;
   }, [wcFixtures]);
@@ -181,26 +189,32 @@ export default function WcPicksForm({
     // A round where the user had a saved pick but has since cleared the draft
     const hasClearedPick = [1, 2, 3, 4, 5, 6].some((r) => {
       const isLocked = now > WC_ROUND_DEADLINES[r];
-      return !isLocked && !drafts[r] && wcPicks.some((p) => p.round_number === r);
+      return (
+        !isLocked && !drafts[r] && wcPicks.some((p) => p.round_number === r)
+      );
     });
 
     if (hasUnsavedDrafts) {
       return {
-        message: 'You have unsaved changes — save your picks before the deadline!',
+        message:
+          'You have unsaved changes — save your picks before the deadline!',
         className: 'bg-red-50 border-red-200 text-red-700'
       } as const;
     }
 
     if (hasClearedPick) {
       return {
-        message: 'You\'ve removed a selection — pick a replacement team before saving.',
+        message:
+          "You've removed a selection — pick a replacement team before saving.",
         className: 'bg-amber-50 border-amber-200 text-amber-800'
       } as const;
     }
 
     const missingCount = [1, 2, 3, 4, 5, 6].filter((r) => {
       const isLocked = now > WC_ROUND_DEADLINES[r];
-      return !isLocked && !drafts[r] && !wcPicks.some((p) => p.round_number === r);
+      return (
+        !isLocked && !drafts[r] && !wcPicks.some((p) => p.round_number === r)
+      );
     }).length;
 
     if (missingCount > 0) {
@@ -225,7 +239,10 @@ export default function WcPicksForm({
         if (current?.picked_team_id === teamId) {
           return { ...prev, [round]: null };
         }
-        return { ...prev, [round]: { fixture_id: fixtureId, picked_team_id: teamId } };
+        return {
+          ...prev,
+          [round]: { fixture_id: fixtureId, picked_team_id: teamId }
+        };
       });
 
       setError(null);
@@ -269,7 +286,9 @@ export default function WcPicksForm({
       setRefreshTrigger((t) => t + 1);
     } catch (err: unknown) {
       setError(
-        err instanceof Error ? err.message : 'Something went wrong. Please try again.'
+        err instanceof Error
+          ? err.message
+          : 'Something went wrong. Please try again.'
       );
     } finally {
       setIsSubmitting(false);
@@ -301,12 +320,15 @@ export default function WcPicksForm({
     <div className="flex flex-col gap-4">
       {isEliminated && (
         <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-sm font-medium">
-          You have been eliminated. Your remaining picks are shown for reference only.
+          You have been eliminated. Your remaining picks are shown for reference
+          only.
         </div>
       )}
 
       {statusBanner && (
-        <div className={`rounded-xl border px-4 py-3 text-sm font-medium ${statusBanner.className}`}>
+        <div
+          className={`rounded-xl border px-4 py-3 text-sm font-medium ${statusBanner.className}`}
+        >
           {statusBanner.message}
         </div>
       )}
@@ -366,15 +388,22 @@ export default function WcPicksForm({
             {[1, 2, 3, 4, 5, 6].map((r) => {
               const existing = wcPicks.find((p) => p.round_number === r);
               const draft = drafts[r];
-              const pickedId = draft?.picked_team_id ?? existing?.picked_team_id;
+              const pickedId =
+                draft?.picked_team_id ?? existing?.picked_team_id;
               const flag = pickedId ? teamIdToFlag[pickedId] : null;
 
               const borderColor =
-                existing?.is_correct === false ? 'border-red-500' :
-                existing?.is_correct === true  ? 'border-green-500' :
-                existing && draft && draft.picked_team_id === existing.picked_team_id ? 'border-green-400' :
-                draft || (!draft && existing) ? 'border-amber-400' :
-                'border-gray-200';
+                existing?.is_correct === false
+                  ? 'border-red-500'
+                  : existing?.is_correct === true
+                    ? 'border-green-500'
+                    : existing &&
+                        draft &&
+                        draft.picked_team_id === existing.picked_team_id
+                      ? 'border-green-400'
+                      : draft || (!draft && existing)
+                        ? 'border-amber-400'
+                        : 'border-gray-200';
 
               return (
                 <button
@@ -385,13 +414,17 @@ export default function WcPicksForm({
                     'h-9 w-9 rounded-full flex items-center justify-center transition-all',
                     borderColor,
                     flag ? 'bg-white' : 'bg-gray-100',
-                    r === activeRound ? 'border-4 scale-110' : 'border-2 opacity-60'
+                    r === activeRound
+                      ? 'border-4 scale-110'
+                      : 'border-2 opacity-60'
                   )}
                 >
                   {flag ? (
                     <span className="text-lg leading-none">{flag}</span>
                   ) : (
-                    <span className="text-xs font-semibold text-gray-400">{r}</span>
+                    <span className="text-xs font-semibold text-gray-400">
+                      {r}
+                    </span>
                   )}
                 </button>
               );
@@ -413,14 +446,15 @@ export default function WcPicksForm({
         roundNumber={activeRound}
         fixtures={fixturesByRound[activeRound] ?? []}
         currentDraft={drafts[activeRound] ?? null}
-        existingPick={wcPicks.find((p) => p.round_number === activeRound) ?? null}
+        existingPick={
+          wcPicks.find((p) => p.round_number === activeRound) ?? null
+        }
         usedTeamIds={usedTeamIds}
         onPickTeam={(fixtureId, teamId) =>
           handlePickTeam(activeRound, fixtureId, teamId)
         }
         isEliminated={isEliminated}
       />
-
     </div>
   );
 }
@@ -442,7 +476,9 @@ function GuestView({
 }) {
   const registrationOpen = new Date() < WC_ROUND_DEADLINES[1];
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<
+    'idle' | 'submitting' | 'success' | 'error'
+  >('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleRegister = async () => {
@@ -481,15 +517,28 @@ function GuestView({
           Round {activeRound} of 6
         </p>
         <div className="flex items-center justify-between gap-3">
-          <button className="p-2 rounded-lg border border-gray-200 text-gray-400" disabled>
+          <button
+            className="p-2 rounded-lg border border-gray-200 text-gray-400"
+            disabled
+          >
             <ChevronLeft className="h-4 w-4" />
           </button>
           <div className="flex gap-2.5">
             {[1, 2, 3, 4, 5, 6].map((r) => (
-              <span key={r} className={cn('h-3 w-3 rounded-full bg-gray-300', r === activeRound && 'ring-2 ring-offset-2 ring-gray-300 scale-110')} />
+              <span
+                key={r}
+                className={cn(
+                  'h-3 w-3 rounded-full bg-gray-300',
+                  r === activeRound &&
+                    'ring-2 ring-offset-2 ring-gray-300 scale-110'
+                )}
+              />
             ))}
           </div>
-          <button className="p-2 rounded-lg border border-gray-200 text-gray-400" disabled>
+          <button
+            className="p-2 rounded-lg border border-gray-200 text-gray-400"
+            disabled
+          >
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>
@@ -510,7 +559,11 @@ function GuestView({
         </div>
         <div className="absolute inset-0 flex items-center justify-center rounded-xl">
           <span className="bg-white/90 text-gray-600 text-sm font-medium px-4 py-2 rounded-full shadow-sm border border-gray-200">
-            🔒 Sign in to make picks
+            🔒{' '}
+            <a href="/api/auth/signin" className="text-blue-600 underline">
+              Sign in
+            </a>{' '}
+            to make picks
           </span>
         </div>
       </div>
@@ -522,7 +575,8 @@ function GuestView({
             <div>
               <p className="font-semibold text-gray-900">Want to play?</p>
               <p className="text-sm text-muted-foreground mt-0.5">
-                Register your interest and you&apos;ll be added to the game before the deadline.
+                Register your interest and you&apos;ll be added to the game
+                before the deadline.
               </p>
             </div>
 
@@ -559,22 +613,43 @@ function GuestView({
 
             <p className="text-xs text-muted-foreground">
               Already have an account?{' '}
-              <a href="/api/auth/signin" className="text-blue-600 underline">Sign in</a>
+              <a href="/api/auth/signin" className="text-blue-600 underline">
+                Sign in
+              </a>
               {' · '}
-              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline">Privacy policy</a>
+              <a
+                href="/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                Privacy policy
+              </a>
             </p>
           </>
         ) : (
           <>
-            <p className="font-semibold text-gray-900">Registration is closed</p>
+            <p className="font-semibold text-gray-900">
+              Registration is closed
+            </p>
             <p className="text-sm text-muted-foreground">
-              The game has already started and new registrations are no longer being accepted.
+              The game has already started and new registrations are no longer
+              being accepted.
             </p>
             <p className="text-xs text-muted-foreground">
               Already have an account?{' '}
-              <a href="/api/auth/signin" className="text-blue-600 underline">Sign in</a>
+              <a href="/api/auth/signin" className="text-blue-600 underline">
+                Sign in
+              </a>
               {' · '}
-              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline">Privacy policy</a>
+              <a
+                href="/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                Privacy policy
+              </a>
             </p>
           </>
         )}
