@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import WcPicksForm from './wc-picks-form';
 import useWcFixtures from 'app/hooks/useWcFixtures';
@@ -59,96 +58,29 @@ function formatDeadline(date: Date): string {
   });
 }
 
-function RegisterInterestCard() {
+function SignInCard() {
   const { data: session, status } = useSession();
-  const [email, setEmail] = useState('');
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
-  const [errorMsg, setErrorMsg] = useState('');
 
-  // Don't show anything while session is loading or if already signed in
   if (status === 'loading' || session) return null;
-
-  const registrationOpen = new Date() < WC_ROUND_DEADLINES[1];
-
-  const handleRegister = async () => {
-    setSubmitStatus('submitting');
-    setErrorMsg('');
-    try {
-      const res = await fetch('/api/wc/register-interest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Something went wrong.');
-      }
-      setSubmitStatus('success');
-    } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Something went wrong.');
-      setSubmitStatus('error');
-    }
-  };
 
   return (
     <Card className="rounded-xl bg-white shadow-sm">
       <CardContent className="p-6 flex flex-col gap-4">
-        {registrationOpen ? (
-          <>
-            <div>
-              <p className="font-semibold text-gray-900">Want to play?</p>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                Register your interest and you&apos;ll be added to the game before the deadline.
-              </p>
-            </div>
-            {submitStatus === 'success' ? (
-              <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-green-700 text-sm font-medium">
-                Request sent! You&apos;ll hear back before the deadline.
-              </div>
-            ) : (
-              <div className="flex gap-2">
-                <input
-                  type="email"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <Button
-                  onClick={handleRegister}
-                  disabled={submitStatus === 'submitting' || !email.includes('@')}
-                  size="sm"
-                >
-                  {submitStatus === 'submitting' ? (
-                    <Loader className="animate-spin h-4 w-4" />
-                  ) : (
-                    'Register interest'
-                  )}
-                </Button>
-              </div>
-            )}
-            {submitStatus === 'error' && (
-              <p className="text-red-600 text-xs">{errorMsg}</p>
-            )}
-            <p className="text-xs text-muted-foreground">
-              Already have an account?{' '}
-              <a href="/api/auth/signin" className="text-blue-600 underline">Sign in</a>
-              {' · '}
-              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline">Privacy policy</a>
-            </p>
-          </>
-        ) : (
-          <>
-            <p className="font-semibold text-gray-900">Registration is closed</p>
-            <p className="text-sm text-muted-foreground">
-              The game has already started and new registrations are no longer being accepted.
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Already have an account?{' '}
-              <a href="/api/auth/signin" className="text-blue-600 underline">Sign in</a>
-            </p>
-          </>
-        )}
+        <div>
+          <p className="font-semibold text-gray-900">Want to play?</p>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Sign in with your email — we&apos;ll send you a magic link.
+          </p>
+        </div>
+        <Button asChild>
+          <a href="/api/auth/signin">Sign in</a>
+        </Button>
+        <p className="text-xs text-muted-foreground">
+          By signing in, you agree to the{' '}
+          <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline">
+            privacy policy
+          </a>.
+        </p>
       </CardContent>
     </Card>
   );
@@ -203,8 +135,8 @@ const Page = () => {
         <TabsContent value="rules">
           <div className="flex flex-col gap-6 text-sm text-gray-700 leading-relaxed">
 
-            {/* Register interest — only shown to guests */}
-            <RegisterInterestCard />
+            {/* Sign-in CTA — only shown to guests */}
+            <SignInCard />
 
             {/* Badges + intro */}
             <Card className="rounded-xl bg-white shadow-sm">
