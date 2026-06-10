@@ -58,7 +58,7 @@ function formatDeadline(date: Date): string {
   });
 }
 
-function RegisterInterestCard() {
+function SignInCard() {
   const { data: session, status } = useSession();
 
   if (status === 'loading' || session) return null;
@@ -135,8 +135,8 @@ const Page = () => {
         <TabsContent value="rules">
           <div className="flex flex-col gap-6 text-sm text-gray-700 leading-relaxed">
 
-            {/* Register interest — only shown to guests */}
-            <RegisterInterestCard />
+            {/* Sign-in CTA — only shown to guests */}
+            <SignInCard />
 
             {/* Badges + intro */}
             <Card className="rounded-xl bg-white shadow-sm">

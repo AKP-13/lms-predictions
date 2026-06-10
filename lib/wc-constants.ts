@@ -1,3 +1,5 @@
+export const WC_LEAGUE_ID = 3;
+
 export const WC_ROUND_DEADLINES: Record<number, Date> = {
   // Group stage
   1: new Date('2026-06-11T17:00:00Z'), // 6pm BST
