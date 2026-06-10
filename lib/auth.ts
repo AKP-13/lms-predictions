@@ -71,6 +71,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
 
         return true; // default behavior
       }
+    },
+    events: {
+      async createUser({ user }) {
+        if (!user.id) return;
+        try {
+          await pool.query(
+            'INSERT INTO user_leagues (user_id, league_id, joined_at) VALUES ($1, $2, NOW()) ON CONFLICT DO NOTHING',
+            [user.id, 3]
+          );
+        } catch (error) {
+          // Don't fail the sign-in — log so the user can be backfilled manually
+          console.error(
+            `Failed to add user ${user.id} (${user.email}) to user_leagues:`,
+            error
+          );
+        }
+      }
     }
   };
 });
