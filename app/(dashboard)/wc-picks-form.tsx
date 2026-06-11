@@ -341,6 +341,9 @@ export default function WcPicksForm({
 
       {!isEliminated && (
         <div className="flex flex-col gap-2">
+          <div className="rounded-lg bg-blue-50 border border-blue-200 px-4 py-2.5 text-xs text-blue-800 text-center">
+            <strong>Group stage only:</strong> you can&apos;t pick the same team more than once across rounds 1–6.
+          </div>
           <Button
             onClick={handleSubmit}
             disabled={isSubmitting || !hasUnsavedDrafts}
