@@ -1,17 +1,23 @@
 import { sql } from '@vercel/postgres';
+import { auth } from '@/lib/auth';
+import { isAdminEmail } from '@/lib/admin';
 
 // PATCH /api/wc/admin
-// Marks a fixture complete, records the score, and resolves all picks for it.
+// Records a fixture score, marks it complete, and resolves all picks for it.
+// Re-submitting a completed fixture overwrites the score and re-resolves picks.
 // Body: { fixture_id: number, home_team_score: number, away_team_score: number }
 //
 // A pick is correct if the picked team won (higher score after 90 min).
 // Draws = everyone who picked either team is incorrect (only wins count).
-// Guarded by WC_ADMIN_SECRET header to prevent accidental use.
+// Auth: WC_ADMIN_SECRET header (curl) or a signed-in admin session (/admin UI).
 
 export async function PATCH(request: Request) {
   const secret = request.headers.get('x-admin-secret');
   if (secret !== process.env.WC_ADMIN_SECRET) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const session = await auth();
+    if (!isAdminEmail(session?.user?.email)) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
   }
 
   try {
@@ -43,14 +49,7 @@ export async function PATCH(request: Request) {
       return Response.json({ error: `Fixture ${fixture_id} not found` }, { status: 404 });
     }
 
-    if (fixtures[0].is_complete) {
-      return Response.json(
-        { error: `Fixture ${fixture_id} is already marked complete` },
-        { status: 409 }
-      );
-    }
-
-    const { home_team_id, away_team_id } = fixtures[0];
+    const { home_team_id, away_team_id, is_complete: was_complete } = fixtures[0];
 
     // Determine winning team (null = draw, draws eliminate everyone)
     const winner_team_id =
@@ -68,13 +67,13 @@ export async function PATCH(request: Request) {
       [home_team_score, away_team_score, fixture_id]
     );
 
-    // Resolve all pending picks for this fixture
+    // Resolve all picks for this fixture, recomputing from scratch so a
+    // corrected score also corrects previously-resolved picks
     // A pick is correct only if the picked team won outright
     const { rowCount } = await sql.query(
       `UPDATE wc_picks
        SET is_correct = (picked_team_id = $1)
-       WHERE fixture_id = $2
-         AND is_correct IS NULL`,
+       WHERE fixture_id = $2`,
       [winner_team_id ?? -1, fixture_id] // -1 means no winner → all picks = false
     );
 
@@ -84,7 +83,8 @@ export async function PATCH(request: Request) {
       home_team_score,
       away_team_score,
       winner_team_id,
-      picks_resolved: rowCount ?? 0
+      picks_resolved: rowCount ?? 0,
+      was_complete
     });
   } catch (error) {
     console.error('WC admin error:', error);
