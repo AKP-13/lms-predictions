@@ -35,3 +35,14 @@ export type PickDraft = {
   fixture_id: number;
   picked_team_id: number;
 };
+
+// Response from PATCH /api/wc/admin after recording a fixture result
+export type WcAdminResultResponse = {
+  success: boolean;
+  fixture_id: number;
+  home_team_score: number;
+  away_team_score: number;
+  winner_team_id: number | null;
+  picks_resolved: number;
+  was_complete: boolean;
+};
