@@ -56,7 +56,7 @@ export default function AdminResultsForm({
     }
     return init;
   });
-  const [submitting, setSubmitting] = useState<number | null>(null);
+  const [submitting, setSubmitting] = useState<Set<number>>(new Set());
   const [feedback, setFeedback] = useState<Record<number, Feedback>>({});
 
   // Round numbers present in the data, ascending (knockout rounds appear once seeded)
@@ -130,7 +130,7 @@ export default function AdminResultsForm({
 
     const home = Number(draft.home);
     const away = Number(draft.away);
-    setSubmitting(fixture.id);
+    setSubmitting((prev) => new Set(prev).add(fixture.id));
     try {
       const res = await fetch('/api/wc/admin', {
         method: 'PATCH',
@@ -167,13 +167,14 @@ export default function AdminResultsForm({
         )
       );
       const verb = result.was_complete ? 'Corrected' : 'Saved';
+      const noun = result.was_complete ? 're-resolved' : 'resolved';
       setFeedback((prev) => ({
         ...prev,
         [fixture.id]: {
           type: 'success',
           msg: `${verb} ${home}–${away} · ${result.picks_resolved} pick${
             result.picks_resolved === 1 ? '' : 's'
-          } resolved`
+          } ${noun}`
         }
       }));
     } catch {
@@ -182,7 +183,11 @@ export default function AdminResultsForm({
         [fixture.id]: { type: 'error', msg: 'Network error — try again.' }
       }));
     } finally {
-      setSubmitting(null);
+      setSubmitting((prev) => {
+        const next = new Set(prev);
+        next.delete(fixture.id);
+        return next;
+      });
     }
   }
 
@@ -235,7 +240,7 @@ export default function AdminResultsForm({
                   fixture={fixture}
                   draft={scores[fixture.id]}
                   feedback={feedback[fixture.id]}
-                  submitting={submitting === fixture.id}
+                  submitting={submitting.has(fixture.id)}
                   onScore={setScore}
                   onSubmit={submitFixture}
                 />

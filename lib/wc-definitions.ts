@@ -43,6 +43,7 @@ export type WcAdminResultResponse = {
   home_team_score: number;
   away_team_score: number;
   winner_team_id: number | null;
+  // Count of all picks on this fixture that were (re-)resolved by this request
   picks_resolved: number;
   was_complete: boolean;
 };
