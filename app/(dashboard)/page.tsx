@@ -279,6 +279,9 @@ const Page = () => {
             refreshTrigger={refreshTrigger}
             setRefreshTrigger={setRefreshTrigger}
           />
+          <p className="text-xs text-muted-foreground text-center mt-4">
+            Probabilities are from Opta
+          </p>
         </TabsContent>
 
         {/* ── Knockout tab ───────────────────────────────────────────────── */}

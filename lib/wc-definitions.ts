@@ -13,6 +13,8 @@ export type WcFixture = {
   home_team_score: number | null;
   away_team_score: number | null;
   is_complete: boolean;
+  home_win_probability: number | null;
+  away_win_probability: number | null;
 };
 
 export type WcTeam = {

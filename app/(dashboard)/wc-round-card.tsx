@@ -275,6 +275,36 @@ function FixtureRow({
           onClick={() => onPickTeam(fixture.id, fixture.away_team_id)}
         />
       </div>
+
+      <WinProbabilityBar fixture={fixture} />
+    </div>
+  );
+}
+
+function WinProbabilityBar({ fixture }: { fixture: WcFixture }) {
+  const home = fixture.home_win_probability;
+  const away = fixture.away_win_probability;
+  // Missing or partial data → render nothing; card identical to before
+  if (home == null || away == null) return null;
+
+  const draw = Math.max(0, Math.round((100 - home - away) * 10) / 10);
+
+  return (
+    <div className="mt-1.5">
+      <div
+        role="img"
+        aria-label={`Win probability: ${fixture.home_team_name} ${home}%, draw ${draw}%, ${fixture.away_team_name} ${away}%`}
+        className="flex h-1.5 w-full gap-0.5 overflow-hidden rounded-full"
+      >
+        <div className="basis-0 rounded-full bg-blue-500" style={{ flexGrow: home }} />
+        <div className="basis-0 rounded-full bg-gray-300" style={{ flexGrow: draw }} />
+        <div className="basis-0 rounded-full bg-rose-400" style={{ flexGrow: away }} />
+      </div>
+      <div aria-hidden="true" className="mt-0.5 grid grid-cols-3 text-[10px]">
+        <span className="text-left font-medium text-blue-600">{home}%</span>
+        <span className="text-center text-muted-foreground">Draw {draw}%</span>
+        <span className="text-right font-medium text-rose-600">{away}%</span>
+      </div>
     </div>
   );
 }

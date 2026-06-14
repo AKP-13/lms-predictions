@@ -13,6 +13,8 @@ export async function GET() {
         f.home_team_score,
         f.away_team_score,
         f.is_complete,
+        f.home_win_probability::float AS home_win_probability,
+        f.away_win_probability::float AS away_win_probability,
         ht.id         AS home_team_id,
         ht.name       AS home_team_name,
         ht.short_name AS home_team_short,
