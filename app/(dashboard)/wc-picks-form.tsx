@@ -15,6 +15,7 @@ import WcRoundCard from './wc-round-card';
 import { Button } from '@/components/ui/button';
 import { WcFixture, WcPick, PickDraft } from '@/lib/wc-definitions';
 import { WC_ROUND_DEADLINES, WC_TEAM_FLAGS } from '@/lib/wc-constants';
+import { buildSubmittablePicks, computeHasUnsavedDrafts } from './wc-picks-utils';
 
 interface WcPicksFormProps {
   wcPicks: WcPick[];
@@ -165,20 +166,10 @@ export default function WcPicksForm({
 
   const isEliminated = wcPicks.some((p) => p.is_correct === false);
 
-  const hasUnsavedDrafts = useMemo(() => {
-    const now = new Date();
-    return Object.entries(drafts).some(([roundStr, draft]) => {
-      if (!draft) return false;
-      const round = Number(roundStr);
-      if (now > WC_ROUND_DEADLINES[round]) return false;
-      const existing = wcPicks.find((p) => p.round_number === round);
-      if (!existing) return true;
-      return (
-        existing.picked_team_id !== draft.picked_team_id ||
-        existing.fixture_id !== draft.fixture_id
-      );
-    });
-  }, [drafts, wcPicks]);
+  const hasUnsavedDrafts = useMemo(
+    () => computeHasUnsavedDrafts(drafts, wcPicks, WC_ROUND_DEADLINES),
+    [drafts, wcPicks]
+  );
 
   const statusBanner = useMemo(() => {
     if (isEliminated) return null; // has its own banner
@@ -253,17 +244,7 @@ export default function WcPicksForm({
     setIsSubmitting(true);
     setError(null);
 
-    const now = new Date();
-    const picks = Object.entries(drafts)
-      .filter(([roundStr, draft]) => {
-        if (!draft) return false;
-        return now < WC_ROUND_DEADLINES[Number(roundStr)];
-      })
-      .map(([roundStr, draft]) => ({
-        round_number: Number(roundStr),
-        fixture_id: draft!.fixture_id,
-        picked_team_id: draft!.picked_team_id
-      }));
+    const picks = buildSubmittablePicks(drafts, WC_ROUND_DEADLINES);
 
     if (picks.length === 0) {
       setError('No picks selected.');
