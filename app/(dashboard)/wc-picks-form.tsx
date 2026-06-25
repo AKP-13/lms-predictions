@@ -165,21 +165,20 @@ export default function WcPicksForm({
 
   const isEliminated = wcPicks.some((p) => p.is_correct === false);
 
-  const hasUnsavedDrafts = useMemo(
-    () =>
-      Object.entries(drafts).some(([roundStr, draft]) => {
-        if (!draft) return false;
-        const existing = wcPicks.find(
-          (p) => p.round_number === Number(roundStr)
-        );
-        if (!existing) return true;
-        return (
-          existing.picked_team_id !== draft.picked_team_id ||
-          existing.fixture_id !== draft.fixture_id
-        );
-      }),
-    [drafts, wcPicks]
-  );
+  const hasUnsavedDrafts = useMemo(() => {
+    const now = new Date();
+    return Object.entries(drafts).some(([roundStr, draft]) => {
+      if (!draft) return false;
+      const round = Number(roundStr);
+      if (now > WC_ROUND_DEADLINES[round]) return false;
+      const existing = wcPicks.find((p) => p.round_number === round);
+      if (!existing) return true;
+      return (
+        existing.picked_team_id !== draft.picked_team_id ||
+        existing.fixture_id !== draft.fixture_id
+      );
+    });
+  }, [drafts, wcPicks]);
 
   const statusBanner = useMemo(() => {
     if (isEliminated) return null; // has its own banner
@@ -254,8 +253,12 @@ export default function WcPicksForm({
     setIsSubmitting(true);
     setError(null);
 
+    const now = new Date();
     const picks = Object.entries(drafts)
-      .filter(([, draft]) => draft !== null)
+      .filter(([roundStr, draft]) => {
+        if (!draft) return false;
+        return now < WC_ROUND_DEADLINES[Number(roundStr)];
+      })
       .map(([roundStr, draft]) => ({
         round_number: Number(roundStr),
         fixture_id: draft!.fixture_id,
