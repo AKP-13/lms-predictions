@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   buildSubmittablePicks,
   computeHasUnsavedDrafts
@@ -59,7 +59,33 @@ describe('buildSubmittablePicks', () => {
 
     expect(result).toHaveLength(1);
     expect(result[0].round_number).toBe(6);
+    expect(result[0].fixture_id).toBe(106);
     expect(result[0].picked_team_id).toBe(6);
+  });
+
+  it('includes a round whose deadline is exactly now (matches server boundary)', () => {
+    const now = new Date('2026-06-26T17:00:00Z');
+    const drafts: Record<number, PickDraft | null> = {
+      1: null,
+      2: null,
+      3: null,
+      4: null,
+      5: null,
+      6: makeDraft(106, 6)
+    };
+    // Round 6 deadline == now; server rejects only when now > deadline, so this
+    // should still be submittable.
+    const deadlines: Record<number, Date> = { ...MIXED_DEADLINES, 6: now };
+
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
+    try {
+      const result = buildSubmittablePicks(drafts, deadlines);
+      expect(result).toHaveLength(1);
+      expect(result[0].round_number).toBe(6);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('includes all rounds when all deadlines are in the future', () => {

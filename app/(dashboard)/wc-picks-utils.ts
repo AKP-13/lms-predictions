@@ -1,10 +1,4 @@
-import { PickDraft, WcPick } from '@/lib/wc-definitions';
-
-type PickInput = {
-  round_number: number;
-  fixture_id: number;
-  picked_team_id: number;
-};
+import { PickDraft, PickInput, WcPick } from '@/lib/wc-definitions';
 
 export function buildSubmittablePicks(
   drafts: Record<number, PickDraft | null>,
@@ -14,7 +8,9 @@ export function buildSubmittablePicks(
   return Object.entries(drafts)
     .filter(([roundStr, draft]) => {
       if (!draft) return false;
-      return now < deadlines[Number(roundStr)];
+      // Mirror the server's boundary (route.ts rejects only when now > deadline),
+      // and keep this consistent with computeHasUnsavedDrafts below.
+      return now <= deadlines[Number(roundStr)];
     })
     .map(([roundStr, draft]) => ({
       round_number: Number(roundStr),

@@ -38,6 +38,13 @@ export type PickDraft = {
   picked_team_id: number;
 };
 
+// A single pick as submitted to POST /api/wc/picks
+export type PickInput = {
+  round_number: number;
+  fixture_id: number;
+  picked_team_id: number;
+};
+
 // Response from PATCH /api/wc/admin after recording a fixture result
 export type WcAdminResultResponse = {
   success: boolean;
