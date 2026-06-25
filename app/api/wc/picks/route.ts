@@ -1,7 +1,7 @@
 import { auth } from '@/lib/auth';
 import { sql } from '@vercel/postgres';
 import { Resend } from 'resend';
-import { WcPick } from '@/lib/wc-definitions';
+import { PickInput, WcPick } from '@/lib/wc-definitions';
 import { WC_ROUND_DEADLINES } from '@/lib/wc-constants';
 
 // ── GET: fetch current user's picks ──────────────────────────────────────────
@@ -48,12 +48,6 @@ export async function GET() {
 
 // ── POST: submit / amend picks (all rounds at once) ───────────────────────────
 
-type PickInput = {
-  round_number: number;
-  fixture_id: number;
-  picked_team_id: number;
-};
-
 export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -78,17 +72,26 @@ export async function POST(request: Request) {
       [userId]
     );
     if (!leagueResult.rows.length) {
-      return Response.json({ error: 'User is not part of a league' }, { status: 400 });
+      return Response.json(
+        { error: 'User is not part of a league' },
+        { status: 400 }
+      );
     }
     const { league_id } = leagueResult.rows[0];
 
     // Validate round numbers are in range and unique within the submission
     const roundNumbers = picks.map((p) => p.round_number);
     if (roundNumbers.some((r) => r < 1 || r > 6)) {
-      return Response.json({ error: 'Round number must be between 1 and 6' }, { status: 400 });
+      return Response.json(
+        { error: 'Round number must be between 1 and 6' },
+        { status: 400 }
+      );
     }
     if (new Set(roundNumbers).size !== roundNumbers.length) {
-      return Response.json({ error: 'Duplicate round numbers in submission' }, { status: 400 });
+      return Response.json(
+        { error: 'Duplicate round numbers in submission' },
+        { status: 400 }
+      );
     }
 
     // Check deadlines — reject any pick for a locked round
@@ -104,7 +107,11 @@ export async function POST(request: Request) {
 
     // Validate each fixture_id exists, belongs to the correct round, and picked_team_id is a participant
     for (const pick of picks) {
-      const { rows } = await sql.query<{ home_team_id: number; away_team_id: number; round_number: number }>(
+      const { rows } = await sql.query<{
+        home_team_id: number;
+        away_team_id: number;
+        round_number: number;
+      }>(
         `SELECT home_team_id, away_team_id, round_number FROM wc_fixtures WHERE id = $1`,
         [pick.fixture_id]
       );
@@ -114,16 +121,27 @@ export async function POST(request: Request) {
           { status: 400 }
         );
       }
-      const { home_team_id, away_team_id, round_number: fixtureRound } = rows[0];
+      const {
+        home_team_id,
+        away_team_id,
+        round_number: fixtureRound
+      } = rows[0];
       if (fixtureRound !== pick.round_number) {
         return Response.json(
-          { error: `Fixture ${pick.fixture_id} does not belong to Round ${pick.round_number}` },
+          {
+            error: `Fixture ${pick.fixture_id} does not belong to Round ${pick.round_number}`
+          },
           { status: 400 }
         );
       }
-      if (pick.picked_team_id !== home_team_id && pick.picked_team_id !== away_team_id) {
+      if (
+        pick.picked_team_id !== home_team_id &&
+        pick.picked_team_id !== away_team_id
+      ) {
         return Response.json(
-          { error: `Team ${pick.picked_team_id} does not play in fixture ${pick.fixture_id}` },
+          {
+            error: `Team ${pick.picked_team_id} does not play in fixture ${pick.fixture_id}`
+          },
           { status: 400 }
         );
       }
@@ -140,7 +158,10 @@ export async function POST(request: Request) {
 
     // Also check against existing picks for rounds NOT being replaced
     const replacedRounds = new Set(roundNumbers);
-    const { rows: existingPicks } = await sql.query<{ round_number: number; picked_team_id: number }>(
+    const { rows: existingPicks } = await sql.query<{
+      round_number: number;
+      picked_team_id: number;
+    }>(
       `SELECT round_number, picked_team_id FROM wc_picks
        WHERE user_id = $1 AND league_id = $2`,
       [userId, league_id]
@@ -149,7 +170,9 @@ export async function POST(request: Request) {
       if (!replacedRounds.has(existing.round_number)) {
         if (submittedTeamIds.includes(existing.picked_team_id)) {
           return Response.json(
-            { error: `That team is already picked in Round ${existing.round_number}` },
+            {
+              error: `That team is already picked in Round ${existing.round_number}`
+            },
             { status: 400 }
           );
         }
@@ -168,7 +191,13 @@ export async function POST(request: Request) {
            picked_team_id = EXCLUDED.picked_team_id,
            last_amended_at = NOW()
          WHERE wc_picks.is_correct IS NULL`,
-        [userId, league_id, pick.round_number, pick.fixture_id, pick.picked_team_id]
+        [
+          userId,
+          league_id,
+          pick.round_number,
+          pick.fixture_id,
+          pick.picked_team_id
+        ]
       );
       savedCount += result.rowCount ?? 0;
     }
@@ -178,15 +207,22 @@ export async function POST(request: Request) {
       try {
         // Fetch team names for the email summary
         const teamIds = [...new Set(picks.map((p) => p.picked_team_id))];
-        const { rows: teamRows } = await sql.query<{ id: number; name: string }>(
-          `SELECT id, name FROM wc_teams WHERE id = ANY($1::int[])`,
-          [teamIds]
+        const { rows: teamRows } = await sql.query<{
+          id: number;
+          name: string;
+        }>(`SELECT id, name FROM wc_teams WHERE id = ANY($1::int[])`, [
+          teamIds
+        ]);
+        const teamNameById = Object.fromEntries(
+          teamRows.map((t) => [t.id, t.name])
         );
-        const teamNameById = Object.fromEntries(teamRows.map((t) => [t.id, t.name]));
 
         const pickLines = picks
           .sort((a, b) => a.round_number - b.round_number)
-          .map((p) => `<li><strong>Round ${p.round_number}:</strong> ${teamNameById[p.picked_team_id]}</li>`)
+          .map(
+            (p) =>
+              `<li><strong>Round ${p.round_number}:</strong> ${teamNameById[p.picked_team_id]}</li>`
+          )
           .join('');
 
         const adminEmail = process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS;
@@ -206,7 +242,10 @@ export async function POST(request: Request) {
         });
       } catch (emailError) {
         // Don't fail the request if email sending fails
-        console.error('Failed to send WC picks confirmation email:', emailError);
+        console.error(
+          'Failed to send WC picks confirmation email:',
+          emailError
+        );
       }
     }
 
