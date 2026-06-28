@@ -208,6 +208,25 @@ export default function KnockoutPicksForm({
       pickByRound.get(f.round_number)?.points == null
   );
 
+  // Enable Save only when an open round has valid scores that differ from what's
+  // already saved (a new or changed prediction).
+  const hasSomethingToSave =
+    canPlay &&
+    predicted.some((f) => {
+      if (now > getKnockoutDeadline(f.kickoff_time)) return false;
+      const pick = pickByRound.get(f.round_number);
+      if (pick?.points != null) return false; // already scored
+      const draft = drafts[f.round_number];
+      if (!draft || !isValidScore(draft.home) || !isValidScore(draft.away)) {
+        return false;
+      }
+      return (
+        !pick ||
+        Number(draft.home) !== pick.home_score ||
+        Number(draft.away) !== pick.away_score
+      );
+    });
+
   return (
     <div className="flex flex-col gap-4">
       {!isAuthenticated && (
@@ -227,6 +246,26 @@ export default function KnockoutPicksForm({
             not submit predictions.
           </CardContent>
         </Card>
+      )}
+
+      {canPlay && hasOpenRound && (
+        <Button
+          onClick={save}
+          disabled={submitting || !hasSomethingToSave}
+          className="w-full"
+        >
+          {submitting ? 'Saving…' : 'Save predictions'}
+        </Button>
+      )}
+
+      {feedback && (
+        <p
+          className={`text-sm text-center ${
+            feedback.type === 'success' ? 'text-green-600' : 'text-red-600'
+          }`}
+        >
+          {feedback.msg}
+        </p>
       )}
 
       {predicted.map((f) => {
@@ -318,21 +357,6 @@ export default function KnockoutPicksForm({
         );
       })}
 
-      {feedback && (
-        <p
-          className={`text-sm text-center ${
-            feedback.type === 'success' ? 'text-green-600' : 'text-red-600'
-          }`}
-        >
-          {feedback.msg}
-        </p>
-      )}
-
-      {canPlay && hasOpenRound && (
-        <Button onClick={save} disabled={submitting} className="w-full">
-          {submitting ? 'Saving…' : 'Save predictions'}
-        </Button>
-      )}
     </div>
   );
 }
