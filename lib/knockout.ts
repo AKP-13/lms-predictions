@@ -1,5 +1,18 @@
 import { sql } from '@vercel/postgres';
 
+// Knockout scoring: 5 for the exact score, 2 for the correct result (W/D/L),
+// 0 otherwise. Single source of the scoring rule (used by the admin result API).
+export function computeKnockoutPoints(
+  predHome: number,
+  predAway: number,
+  actHome: number,
+  actAway: number
+): 0 | 2 | 5 {
+  if (predHome === actHome && predAway === actAway) return 5;
+  if (Math.sign(predHome - predAway) === Math.sign(actHome - actAway)) return 2;
+  return 0;
+}
+
 // A user "survived" the group stage — and so may submit knockout picks in the
 // original game — iff they have a correct pick in all 6 group rounds and none
 // incorrect. (The parallel knockout game is open to everyone, so this check is
