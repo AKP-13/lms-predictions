@@ -2,7 +2,7 @@ import NextAuth from 'next-auth';
 import NeonAdapter from '@auth/neon-adapter';
 import { Pool } from '@neondatabase/serverless';
 import Resend from 'next-auth/providers/resend';
-import { WC_LEAGUE_ID } from '@/lib/wc-constants';
+import { WC_LEAGUE_ID, WC_PARALLEL_LEAGUE_ID } from '@/lib/wc-constants';
 
 declare module 'next-auth' {
   interface User {
@@ -77,9 +77,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
       async createUser({ user }) {
         if (!user.id) return;
         try {
+          // Enrol into both games: the original (Game 1) and the parallel
+          // knockout-only game (Game 2). Spectator in any game they can't play.
           await pool.query(
-            'INSERT INTO user_leagues (user_id, league_id, joined_at) VALUES ($1, $2, NOW()) ON CONFLICT DO NOTHING',
-            [user.id, WC_LEAGUE_ID]
+            `INSERT INTO user_leagues (user_id, league_id, joined_at)
+             VALUES ($1, $2, NOW()), ($1, $3, NOW())
+             ON CONFLICT DO NOTHING`,
+            [user.id, WC_LEAGUE_ID, WC_PARALLEL_LEAGUE_ID]
           );
         } catch (error) {
           // Don't fail the sign-in — log so the user can be backfilled manually
