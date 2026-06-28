@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth';
-import { sql } from '@vercel/postgres';
+import { sql, db } from '@vercel/postgres';
 import { Resend } from 'resend';
 import { KnockoutPickInput, WcKnockoutPick } from '@/lib/wc-definitions';
 import {
@@ -168,29 +168,42 @@ export async function POST(request: Request) {
       }
     }
 
-    // Upsert — never overwrite a pick that has already been scored (points set).
+    // Upsert all rounds atomically — never overwrite a pick that has already
+    // been scored (points set). fixture_id is rewritten on conflict so an
+    // amendment re-points the pick at the current predicted fixture.
     let savedCount = 0;
-    for (const pick of picks) {
-      const result = await sql.query(
-        `INSERT INTO wc_knockout_picks
-           (user_id, league_id, round_number, fixture_id, home_score, away_score)
-         VALUES ($1, $2, $3, $4, $5, $6)
-         ON CONFLICT (user_id, league_id, round_number)
-         DO UPDATE SET
-           home_score      = EXCLUDED.home_score,
-           away_score      = EXCLUDED.away_score,
-           last_amended_at = NOW()
-         WHERE wc_knockout_picks.points IS NULL`,
-        [
-          userId,
-          leagueId,
-          pick.round_number,
-          pick.fixture_id,
-          pick.home_score,
-          pick.away_score
-        ]
-      );
-      savedCount += result.rowCount ?? 0;
+    const client = await db.connect();
+    try {
+      await client.query('BEGIN');
+      for (const pick of picks) {
+        const result = await client.query(
+          `INSERT INTO wc_knockout_picks
+             (user_id, league_id, round_number, fixture_id, home_score, away_score)
+           VALUES ($1, $2, $3, $4, $5, $6)
+           ON CONFLICT (user_id, league_id, round_number)
+           DO UPDATE SET
+             fixture_id      = EXCLUDED.fixture_id,
+             home_score      = EXCLUDED.home_score,
+             away_score      = EXCLUDED.away_score,
+             last_amended_at = NOW()
+           WHERE wc_knockout_picks.points IS NULL`,
+          [
+            userId,
+            leagueId,
+            pick.round_number,
+            pick.fixture_id,
+            pick.home_score,
+            pick.away_score
+          ]
+        );
+        savedCount += result.rowCount ?? 0;
+      }
+      await client.query('COMMIT');
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
     }
 
     // Confirmation email (best-effort).

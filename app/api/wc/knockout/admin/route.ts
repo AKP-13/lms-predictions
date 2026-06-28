@@ -35,8 +35,13 @@ export async function PATCH(request: Request) {
       );
     }
 
-    const { rows: fixtures } = await sql.query<{ is_complete: boolean }>(
-      `SELECT is_complete FROM wc_knockout_fixtures WHERE id = $1`,
+    const { rows: fixtures } = await sql.query<{
+      round_number: number;
+      is_predicted: boolean;
+      is_complete: boolean;
+    }>(
+      `SELECT round_number, is_predicted, is_complete
+       FROM wc_knockout_fixtures WHERE id = $1`,
       [fixture_id]
     );
     if (!fixtures.length) {
@@ -45,7 +50,11 @@ export async function PATCH(request: Request) {
         { status: 404 }
       );
     }
-    const was_complete = fixtures[0].is_complete;
+    const {
+      round_number: roundNumber,
+      is_predicted: isPredicted,
+      is_complete: was_complete
+    } = fixtures[0];
 
     // Atomically record the result and (re)score every prediction on it, so we
     // can't end up with a completed fixture whose picks were never scored. Picks
@@ -61,34 +70,39 @@ export async function PATCH(request: Request) {
         [home_team_score, away_team_score, fixture_id]
       );
 
-      const { rows: picks } = await client.query<{
-        user_id: number;
-        league_id: number;
-        round_number: number;
-        home_score: number;
-        away_score: number;
-      }>(
-        `SELECT user_id, league_id, round_number, home_score, away_score
-         FROM wc_knockout_picks
-         WHERE fixture_id = $1`,
-        [fixture_id]
-      );
+      // Score picks by round (not fixture_id) so that moving the predicted flag
+      // to a different match never orphans previously-saved picks. Only the
+      // round's predicted match scores its picks.
+      if (isPredicted) {
+        const { rows: picks } = await client.query<{
+          user_id: number;
+          league_id: number;
+          round_number: number;
+          home_score: number;
+          away_score: number;
+        }>(
+          `SELECT user_id, league_id, round_number, home_score, away_score
+           FROM wc_knockout_picks
+           WHERE round_number = $1`,
+          [roundNumber]
+        );
 
-      for (const p of picks) {
-        const points = computeKnockoutPoints(
-          p.home_score,
-          p.away_score,
-          home_team_score,
-          away_team_score
-        );
-        await client.query(
-          `UPDATE wc_knockout_picks
-           SET points = $1
-           WHERE user_id = $2 AND league_id = $3 AND round_number = $4`,
-          [points, p.user_id, p.league_id, p.round_number]
-        );
+        for (const p of picks) {
+          const points = computeKnockoutPoints(
+            p.home_score,
+            p.away_score,
+            home_team_score,
+            away_team_score
+          );
+          await client.query(
+            `UPDATE wc_knockout_picks
+             SET points = $1
+             WHERE user_id = $2 AND league_id = $3 AND round_number = $4`,
+            [points, p.user_id, p.league_id, p.round_number]
+          );
+        }
+        picks_scored = picks.length;
       }
-      picks_scored = picks.length;
       await client.query('COMMIT');
     } catch (e) {
       await client.query('ROLLBACK');
