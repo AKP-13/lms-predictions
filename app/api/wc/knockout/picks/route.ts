@@ -5,6 +5,7 @@ import { KnockoutPickInput, WcKnockoutPick } from '@/lib/wc-definitions';
 import {
   WC_LEAGUES,
   WC_KNOCKOUT_ROUNDS,
+  WC_ROUND_FIXTURE_LABELS,
   getKnockoutDeadline
 } from '@/lib/wc-constants';
 import { isSurvivor } from '@/lib/knockout';
@@ -201,7 +202,7 @@ export async function POST(request: Request) {
           .map((p) => {
             const f = fixtureByRound.get(p.round_number);
             const matchup = `${f?.home_team_name ?? 'TBD'} v ${f?.away_team_name ?? 'TBD'}`;
-            return `<li><strong>Round ${p.round_number}</strong> (${matchup}): ${p.home_score}–${p.away_score}</li>`;
+            return `<li><strong>${WC_ROUND_FIXTURE_LABELS[p.round_number]}</strong> (${matchup}): ${p.home_score}–${p.away_score}</li>`;
           })
           .join('');
 
