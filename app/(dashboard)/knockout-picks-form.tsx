@@ -260,7 +260,7 @@ export default function KnockoutPicksForm({
 
               <div className="flex items-center justify-center gap-2 text-sm font-medium">
                 <span className="flex-1 text-right">
-                  {flagFor(f.home_team_name)} {f.home_team_name ?? 'TBD'}
+                  {f.home_team_name ?? 'TBD'} {flagFor(f.home_team_name)}
                 </span>
                 {editable ? (
                   <ScoreInput
@@ -288,7 +288,7 @@ export default function KnockoutPicksForm({
                   </span>
                 )}
                 <span className="flex-1 text-left">
-                  {f.away_team_name ?? 'TBD'} {flagFor(f.away_team_name)}
+                  {flagFor(f.away_team_name)} {f.away_team_name ?? 'TBD'}
                 </span>
               </div>
 

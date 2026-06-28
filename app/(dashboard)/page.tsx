@@ -7,12 +7,14 @@ import { Button } from '@/components/ui/button';
 import { useSession } from 'next-auth/react';
 import WcPicksForm from './wc-picks-form';
 import KnockoutPicksForm from './knockout-picks-form';
+import KnockoutStandings from './knockout-standings';
 import GameSelector from './game-selector';
 import useWcFixtures from 'app/hooks/useWcFixtures';
 import useWcPicks from 'app/hooks/useWcPicks';
 import useWcLeagues from 'app/hooks/useWcLeagues';
 import useWcKnockoutFixtures from 'app/hooks/useWcKnockoutFixtures';
 import useWcKnockoutPicks from 'app/hooks/useWcKnockoutPicks';
+import useWcKnockoutStandings from 'app/hooks/useWcKnockoutStandings';
 import {
   WC_ROUND_DEADLINES,
   WC_ROUND_FIXTURE_LABELS
@@ -115,6 +117,8 @@ const Page = () => {
     leagueId: selectedLeagueId,
     refreshTrigger
   });
+  const { wcKnockoutStandings, isLoadingWcKnockoutStandings } =
+    useWcKnockoutStandings({ leagueId: selectedLeagueId, refreshTrigger });
 
   // Default to the user's active game: survivors → Game 1, everyone else → Game 2.
   useEffect(() => {
@@ -418,15 +422,25 @@ const Page = () => {
 
         {/* ── Knockout tab ───────────────────────────────────────────────── */}
         <TabsContent value="knockout">
-          <KnockoutPicksForm
-            leagueId={selectedLeagueId}
-            eligible={selectedLeague?.eligible ?? false}
-            fixtures={wcKnockoutFixtures}
-            isLoadingFixtures={isLoadingWcKnockoutFixtures}
-            picks={wcKnockoutPicks}
-            isLoadingPicks={isLoadingWcKnockoutPicks}
-            setRefreshTrigger={setRefreshTrigger}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+            <div className="md:col-span-2">
+              <KnockoutPicksForm
+                leagueId={selectedLeagueId}
+                eligible={selectedLeague?.eligible ?? false}
+                fixtures={wcKnockoutFixtures}
+                isLoadingFixtures={isLoadingWcKnockoutFixtures}
+                picks={wcKnockoutPicks}
+                isLoadingPicks={isLoadingWcKnockoutPicks}
+                setRefreshTrigger={setRefreshTrigger}
+              />
+            </div>
+            <div className="md:col-span-1 md:sticky md:top-4">
+              <KnockoutStandings
+                standings={wcKnockoutStandings}
+                isLoading={isLoadingWcKnockoutStandings}
+              />
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
 
