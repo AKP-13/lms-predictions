@@ -1,5 +1,35 @@
 export const WC_LEAGUE_ID = 3;
 
+// Parallel knockout-only game running alongside the original. Requires a matching
+// `leagues` row with this id and all users enrolled via `user_leagues` (see DB setup).
+export const WC_PARALLEL_LEAGUE_ID = 4;
+
+// Display metadata for the game selector. `knockoutOnly` games hide the Group Stage tab.
+export const WC_LEAGUES: Record<
+  number,
+  { name: string; knockoutOnly: boolean }
+> = {
+  [WC_LEAGUE_ID]: { name: 'World Cup 2026 Game 1', knockoutOnly: false },
+  [WC_PARALLEL_LEAGUE_ID]: {
+    name: 'World Cup 2026 Game 2 (Knockout only)',
+    knockoutOnly: true
+  }
+};
+
+// The knockout (score-prediction) rounds.
+export const WC_KNOCKOUT_ROUNDS = [7, 8, 9, 10, 11] as const;
+
+// Knockout picks close this long before the predicted match kicks off.
+export const KNOCKOUT_DEADLINE_OFFSET_MS = 60 * 60 * 1000; // 1 hour
+
+// A knockout round's deadline is derived from its predicted fixture's kickoff time,
+// so editing the fixture (e.g. from a phone) moves the deadline automatically.
+export function getKnockoutDeadline(kickoffTime: Date | string): Date {
+  const ko =
+    typeof kickoffTime === 'string' ? new Date(kickoffTime) : kickoffTime;
+  return new Date(ko.getTime() - KNOCKOUT_DEADLINE_OFFSET_MS);
+}
+
 export const WC_ROUND_DEADLINES: Record<number, Date> = {
   // Group stage
   1: new Date('2026-06-11T17:00:00Z'), // 6pm BST
