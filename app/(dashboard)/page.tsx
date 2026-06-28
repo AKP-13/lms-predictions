@@ -6,10 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useSession } from 'next-auth/react';
 import WcPicksForm from './wc-picks-form';
+import KnockoutPicksForm from './knockout-picks-form';
 import GameSelector from './game-selector';
 import useWcFixtures from 'app/hooks/useWcFixtures';
 import useWcPicks from 'app/hooks/useWcPicks';
 import useWcLeagues from 'app/hooks/useWcLeagues';
+import useWcKnockoutFixtures from 'app/hooks/useWcKnockoutFixtures';
+import useWcKnockoutPicks from 'app/hooks/useWcKnockoutPicks';
 import {
   WC_ROUND_DEADLINES,
   WC_ROUND_FIXTURE_LABELS
@@ -105,6 +108,13 @@ const Page = () => {
   const { wcLeagues } = useWcLeagues();
 
   const [selectedLeagueId, setSelectedLeagueId] = useState<number | null>(null);
+
+  const { wcKnockoutFixtures, isLoadingWcKnockoutFixtures } =
+    useWcKnockoutFixtures();
+  const { wcKnockoutPicks, isLoadingWcKnockoutPicks } = useWcKnockoutPicks({
+    leagueId: selectedLeagueId,
+    refreshTrigger
+  });
 
   // Default to the user's active game: survivors → Game 1, everyone else → Game 2.
   useEffect(() => {
@@ -408,23 +418,15 @@ const Page = () => {
 
         {/* ── Knockout tab ───────────────────────────────────────────────── */}
         <TabsContent value="knockout">
-          <Card className="rounded-xl bg-white shadow-sm">
-            <CardContent className="p-12 flex flex-col items-center gap-3 text-center">
-              <p className="text-4xl">🏆</p>
-              <p className="text-lg font-semibold text-gray-800">
-                Knockout stage — coming soon
-              </p>
-              <p className="text-sm text-muted-foreground max-w-sm">
-                Everyone who survives the group stage will predict the score of
-                the same match each round — the last fixture played in that
-                round. 5 points for a correct score, 2 for the correct result.
-                The highest points total after The Final wins.
-              </p>
-              <p className="text-sm text-muted-foreground max-w-sm">
-                Check back after 27 June when the group stage is complete.
-              </p>
-            </CardContent>
-          </Card>
+          <KnockoutPicksForm
+            leagueId={selectedLeagueId}
+            eligible={selectedLeague?.eligible ?? false}
+            fixtures={wcKnockoutFixtures}
+            isLoadingFixtures={isLoadingWcKnockoutFixtures}
+            picks={wcKnockoutPicks}
+            isLoadingPicks={isLoadingWcKnockoutPicks}
+            setRefreshTrigger={setRefreshTrigger}
+          />
         </TabsContent>
       </Tabs>
 
