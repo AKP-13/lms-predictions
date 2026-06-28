@@ -17,7 +17,8 @@ import useWcKnockoutPicks from 'app/hooks/useWcKnockoutPicks';
 import useWcKnockoutStandings from 'app/hooks/useWcKnockoutStandings';
 import {
   WC_ROUND_DEADLINES,
-  WC_ROUND_FIXTURE_LABELS
+  WC_ROUND_FIXTURE_LABELS,
+  getKnockoutDeadline
 } from '@/lib/wc-constants';
 
 // ─── FPL Last Player Standing (commented out for WC summer) ──────────────────
@@ -149,6 +150,16 @@ const Page = () => {
         now < WC_ROUND_DEADLINES[r] &&
         !wcPicks.some((p) => p.round_number === r)
     );
+
+  // Knockout deadlines are derived from each round's predicted fixture kickoff.
+  const knockoutDeadlineByRound: Record<number, Date> = {};
+  for (const f of wcKnockoutFixtures) {
+    if (f.is_predicted) {
+      knockoutDeadlineByRound[f.round_number] = getKnockoutDeadline(
+        f.kickoff_time
+      );
+    }
+  }
 
   return (
     <main>
@@ -393,7 +404,9 @@ const Page = () => {
                           <td
                             className={`px-4 py-3 text-right whitespace-nowrap ${r === 11 ? 'text-amber-600' : 'text-gray-500'}`}
                           >
-                            {formatDeadline(WC_ROUND_DEADLINES[r])}
+                            {knockoutDeadlineByRound[r]
+                              ? formatDeadline(knockoutDeadlineByRound[r])
+                              : 'TBC'}
                           </td>
                         </tr>
                       ))}

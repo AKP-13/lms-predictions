@@ -30,20 +30,16 @@ export function getKnockoutDeadline(kickoffTime: Date | string): Date {
   return new Date(ko.getTime() - KNOCKOUT_DEADLINE_OFFSET_MS);
 }
 
+// Group-stage deadlines only. Knockout deadlines are derived live from each
+// round's predicted fixture kickoff (see getKnockoutDeadline), so they are not
+// hardcoded here.
 export const WC_ROUND_DEADLINES: Record<number, Date> = {
-  // Group stage
   1: new Date('2026-06-11T17:00:00Z'), // 6pm BST
   2: new Date('2026-06-15T14:00:00Z'), // 3pm BST
   3: new Date('2026-06-18T14:00:00Z'),
   4: new Date('2026-06-21T14:00:00Z'),
   5: new Date('2026-06-24T17:00:00Z'), // 6pm BST
-  6: new Date('2026-06-26T17:00:00Z'),
-  // Knockout stage
-  7: new Date('2026-06-28T18:00:00Z'), // 7pm BST — Round of 32
-  8: new Date('2026-07-04T16:00:00Z'), // 5pm BST — Round of 16
-  9: new Date('2026-07-09T19:00:00Z'), // 8pm BST — Quarter-Finals
-  10: new Date('2026-07-14T18:00:00Z'), // 7pm BST — Semi-Finals
-  11: new Date('2026-07-19T18:00:00Z') // 7pm BST — The Final
+  6: new Date('2026-06-26T17:00:00Z')
 };
 
 export const WC_ROUND_LABELS: Record<number, string> = {

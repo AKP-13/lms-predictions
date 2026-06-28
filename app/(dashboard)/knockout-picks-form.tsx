@@ -181,9 +181,17 @@ export default function KnockoutPicksForm({
         setFeedback({ type: 'error', msg: data.error || 'Failed to save.' });
         return;
       }
+      const saved: number = data.savedCount ?? toSubmit.length;
+      if (saved === 0) {
+        setFeedback({
+          type: 'error',
+          msg: 'No open predictions were saved.'
+        });
+        return;
+      }
       setFeedback({
         type: 'success',
-        msg: `Saved ${toSubmit.length} prediction${toSubmit.length === 1 ? '' : 's'} — confirmation emailed.`
+        msg: `Saved ${saved} prediction${saved === 1 ? '' : 's'} — confirmation emailed.`
       });
       setRefreshTrigger((n) => n + 1);
     } catch {

@@ -28,5 +28,7 @@ describe('computeKnockoutPoints', () => {
   it('prefers the exact-score bonus over the result points', () => {
     // Exact draw scoreline still scores 5, not 2
     expect(computeKnockoutPoints(1, 1, 1, 1)).toBe(5);
+    // Non-draw exact score still scores 5, not the 2-point result award
+    expect(computeKnockoutPoints(2, 0, 2, 0)).toBe(5);
   });
 });
