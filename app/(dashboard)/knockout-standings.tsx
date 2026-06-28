@@ -1,23 +1,39 @@
 import { useSession } from 'next-auth/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { WcKnockoutStanding } from '@/lib/wc-definitions';
+import { WC_LEAGUES } from '@/lib/wc-constants';
 
 export default function KnockoutStandings({
   standings,
-  isLoading
+  isLoading,
+  leagueId
 }: {
   standings: WcKnockoutStanding[];
   isLoading: boolean;
+  leagueId: number | null;
 }) {
   const { data: session } = useSession();
   const myId = session?.user?.id;
 
+  // Fixed pot if the game has one configured (e.g. Game 1's group-stage pool),
+  // otherwise £10 per player who has predicted.
+  const pot =
+    (leagueId != null ? WC_LEAGUES[leagueId]?.pot : undefined) ??
+    standings.length * 10;
+
   return (
     <Card className="rounded-xl bg-white shadow-sm">
       <CardContent className="p-4">
-        <h3 className="text-sm font-bold uppercase tracking-wide text-gray-500 mb-3">
-          Standings
-        </h3>
+        <div className="flex items-baseline justify-between mb-3">
+          <h3 className="text-sm font-bold uppercase tracking-wide text-gray-500">
+            Standings
+          </h3>
+          {!isLoading && (
+            <span className="text-sm font-semibold text-gray-800">
+              £{pot.toLocaleString('en-GB')} pot
+            </span>
+          )}
+        </div>
 
         {isLoading ? (
           <p className="text-sm text-muted-foreground text-center py-4">

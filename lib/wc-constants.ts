@@ -4,12 +4,20 @@ export const WC_LEAGUE_ID = 3;
 // `leagues` row with this id and all users enrolled via `user_leagues` (see DB setup).
 export const WC_PARALLEL_LEAGUE_ID = 4;
 
-// Display metadata for the game selector. `knockoutOnly` games hide the Group Stage tab.
+// Display metadata for the game selector. `knockoutOnly` games hide the Group
+// Stage tab. `pot` is a fixed prize pool (£) for games where it isn't simply
+// £10 × current knockout entrants — e.g. Game 1's pot is the original group-stage
+// pool (18 entrants), even though only the 3 survivors play the knockout. Games
+// without a `pot` fall back to £10 × players who've predicted.
 export const WC_LEAGUES: Record<
   number,
-  { name: string; knockoutOnly: boolean }
+  { name: string; knockoutOnly: boolean; pot?: number }
 > = {
-  [WC_LEAGUE_ID]: { name: 'World Cup 2026 Game 1', knockoutOnly: false },
+  [WC_LEAGUE_ID]: {
+    name: 'World Cup 2026 Game 1',
+    knockoutOnly: false,
+    pot: 180
+  },
   [WC_PARALLEL_LEAGUE_ID]: {
     name: 'World Cup 2026 Game 2 (Knockout only)',
     knockoutOnly: true

@@ -451,6 +451,7 @@ const Page = () => {
               <KnockoutStandings
                 standings={wcKnockoutStandings}
                 isLoading={isLoadingWcKnockoutStandings}
+                leagueId={selectedLeagueId}
               />
             </div>
           </div>

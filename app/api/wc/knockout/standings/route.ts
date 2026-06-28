@@ -31,16 +31,30 @@ export async function GET(request: Request) {
   }
 
   try {
+    // Roster = anyone who has made a knockout pick in this league, plus the
+    // league's group-stage survivors (so the players who are "in" the game show
+    // at 0 points before they've predicted). For knockout-only games there are
+    // no group picks, so the roster is just the predictors.
     const { rows } = await sql.query<WcKnockoutStanding>(
-      `SELECT
-        kp.user_id,
+      `WITH roster AS (
+        SELECT DISTINCT user_id FROM wc_knockout_picks WHERE league_id = $1
+        UNION
+        SELECT user_id FROM wc_picks
+          WHERE league_id = $1 AND round_number BETWEEN 1 AND 6
+          GROUP BY user_id
+          HAVING COUNT(*) FILTER (WHERE is_correct = true) = 6
+             AND COUNT(*) FILTER (WHERE is_correct = false) = 0
+      )
+      SELECT
+        r.user_id,
         COALESCE(u.user_name, u.name, u.email) AS user_name,
-        SUM(COALESCE(kp.points, 0))::int AS points
-      FROM wc_knockout_picks kp
-      JOIN users u ON u.id = kp.user_id
-      WHERE kp.league_id = $1
-        AND u.test_user IS NOT TRUE
-      GROUP BY kp.user_id, u.user_name, u.name, u.email
+        COALESCE(SUM(kp.points), 0)::int AS points
+      FROM roster r
+      JOIN users u ON u.id = r.user_id
+      LEFT JOIN wc_knockout_picks kp
+        ON kp.user_id = r.user_id AND kp.league_id = $1
+      WHERE u.test_user IS NOT TRUE
+      GROUP BY r.user_id, u.user_name, u.name, u.email
       ORDER BY points DESC, user_name ASC`,
       [leagueId]
     );
