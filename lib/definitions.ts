@@ -1,5 +1,8 @@
 export type TeamLocation = 'Home' | 'Away';
 
+// Every team that has appeared in our data, not just the current season's 20.
+// Stored results name the teams that were in the league when they were played,
+// so names are only ever added here - never removed when a team is relegated.
 export type FPLTeamName =
   | 'Arsenal'
   | 'Aston Villa'
@@ -8,8 +11,12 @@ export type FPLTeamName =
   | 'Brighton'
   | 'Burnley'
   | 'Chelsea'
+  | 'Coventry City'
   | 'Crystal Palace'
+  | 'Everton'
   | 'Fulham'
+  | 'Hull City'
+  | 'Ipswich Town'
   | 'Leeds'
   | 'Liverpool'
   | 'Man City'
