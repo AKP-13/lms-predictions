@@ -24,8 +24,12 @@ import {
   TeamName,
   TeamScore
 } from '@/components/ui/table';
-import { MIN_GW } from '@/lib/constants';
 import { FPLTeamName, Injury, TeamsArr } from '@/lib/definitions';
+import {
+  resolvePredictionGameweek,
+  resolveResultsGameweek,
+  returnIsPastSubmissionDeadline
+} from '@/lib/gameweek';
 import { useSession } from 'next-auth/react';
 import useResults from 'app/hooks/useResults';
 import useFixtures from 'app/hooks/useFixtures';
@@ -66,14 +70,21 @@ const Page = () => {
   const { currentGameResults, currentGameId, isLoadingCurrentGameData } =
     useCurrentGameData({ refreshTrigger });
 
-  const currentGwNumber =
-    !isLoadingFplData && fplData
-      ? fplData.events.find((obj) => obj.is_current === true)?.id || MIN_GW
-      : MIN_GW;
+  const gameweekEvents = !isLoadingFplData && fplData ? fplData.events : null;
 
-  const predictionWeekFixtures = fixtures?.filter(
-    (fixture) => fixture.event === currentGwNumber + 1
-  );
+  // The gameweek players are picking for
+  const predictionGwNumber = resolvePredictionGameweek(gameweekEvents);
+  // The most recent started gameweek, for the Fixtures panel
+  const resultsGwNumber = resolveResultsGameweek(gameweekEvents);
+
+  const predictionWeekFixtures =
+    predictionGwNumber === null
+      ? []
+      : fixtures.filter((fixture) => fixture.event === predictionGwNumber);
+
+  const isPastSubmissionDeadline = returnIsPastSubmissionDeadline({
+    predictionWeekFixtures
+  });
 
   const teamsArr: TeamsArr = useMemo(
     () =>
@@ -153,8 +164,12 @@ const Page = () => {
             teamsArr={teamsArr}
             results={results}
             predictionWeekFixtures={predictionWeekFixtures}
+            predictionGwNumber={predictionGwNumber}
+            isPastSubmissionDeadline={isPastSubmissionDeadline}
             setRefreshTrigger={setRefreshTrigger}
-            isLoading={isLoadingResults || isLoadingFplData}
+            isLoading={
+              isLoadingResults || isLoadingFplData || isLoadingFixtures
+            }
             currentGameId={currentGameId}
           />
         </div>
@@ -165,7 +180,7 @@ const Page = () => {
           <div className="flex flex-col gap-6 md:absolute md:inset-0">
             <FixturesResults
               fixtures={fixtures}
-              currentGwNumber={currentGwNumber}
+              currentGwNumber={resultsGwNumber}
               teamsArr={teamsArr}
               isLoading={isLoadingFixtures}
             />
@@ -189,7 +204,8 @@ const Page = () => {
         <PickPlanner
           teams={teamsArr}
           fixtures={fixtures || []}
-          currentGwNumber={currentGwNumber}
+          predictionGwNumber={predictionGwNumber}
+          isPastSubmissionDeadline={isPastSubmissionDeadline}
           numWeeks={numWeeks}
           setNumWeeks={setNumWeeks}
           results={results || {}}

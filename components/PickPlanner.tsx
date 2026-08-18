@@ -39,7 +39,8 @@ const DIFFICULTY_BG_CLASS_MAP: { [key: number]: string } = {
 interface PickPlannerProps {
   teams: TeamsArr;
   fixtures: FixturesData[];
-  currentGwNumber: number;
+  predictionGwNumber: number | null;
+  isPastSubmissionDeadline: boolean;
   numWeeks?: number;
   setNumWeeks?: Dispatch<SetStateAction<number>>;
   results: Record<number, Results[]>;
@@ -89,7 +90,8 @@ const WeekPicker = ({
 const PickPlanner: FC<PickPlannerProps> = ({
   teams,
   fixtures,
-  currentGwNumber,
+  predictionGwNumber,
+  isPastSubmissionDeadline,
   numWeeks = 5,
   results,
   session,
@@ -145,24 +147,44 @@ const PickPlanner: FC<PickPlannerProps> = ({
     return map;
   }, [fixtures, teams]);
 
-  // Create O(1) lookup Set for previously predicted team IDs
-  const previouslyPredictedTeamIds = useMemo(() => {
-    const previousPicksArr =
-      typeof currentGameId === 'number'
-        ? (results[currentGameId]?.map((val) => val?.team_selected) ?? [])
-        : [];
+  // Create O(1) lookups for the player's submitted picks: every team they have
+  // used, and which team they used in each gameweek
+  const { previouslyPredictedTeamIds, submittedTeamIdByGw } = useMemo(() => {
+    const previousPicks =
+      typeof currentGameId === 'number' ? (results[currentGameId] ?? []) : [];
 
     // Create a Map of teams indexed by name for O(1) lookups
     const teamsByName = new Map(teams.map((team) => [team.name, team]));
 
     const teamIdSet = new Set<number>();
-    previousPicksArr.forEach((teamName) => {
-      const team = teamsByName.get(teamName);
-      if (team) teamIdSet.add(team.id);
+    const teamIdByGw = new Map<number, number>();
+
+    previousPicks.forEach((pick) => {
+      const team = teamsByName.get(pick?.team_selected);
+      if (!team) return;
+
+      teamIdSet.add(team.id);
+      if (pick.fpl_gw !== null) teamIdByGw.set(pick.fpl_gw, team.id);
     });
 
-    return teamIdSet;
+    return {
+      previouslyPredictedTeamIds: teamIdSet,
+      submittedTeamIdByGw: teamIdByGw
+    };
   }, [currentGameId, results, teams]);
+
+  // The gameweeks the planner shows: the one being predicted for, then the next
+  // consecutive ones
+  const plannerGameweeks = useMemo(
+    () =>
+      predictionGwNumber === null
+        ? []
+        : Array.from(
+            { length: numWeeks },
+            (_, idx) => predictionGwNumber + idx
+          ),
+    [predictionGwNumber, numWeeks]
+  );
 
   // Helper: get fixture for a team in a given GW - now O(1)
   const getFixture = ({ gw, teamId }: { gw: number; teamId: number }) =>
@@ -215,27 +237,40 @@ const PickPlanner: FC<PickPlannerProps> = ({
     }
   };
 
-  const getClassName = (
-    isTeamPlannedThisGw: boolean,
-    isPreviouslyPredicted: boolean,
-    isTeamPlanned: boolean,
-    fixtureText: string | undefined,
-    difficulty: number | undefined
-  ) => {
+  const getClassName = ({
+    isSubmittedThisGw,
+    isTeamPlannedThisGw,
+    isPreviouslyPredicted,
+    isTeamPlanned,
+    isInteractive,
+    fixtureText,
+    difficulty
+  }: {
+    isSubmittedThisGw: boolean;
+    isTeamPlannedThisGw: boolean;
+    isPreviouslyPredicted: boolean;
+    isTeamPlanned: boolean;
+    isInteractive: boolean;
+    fixtureText: string | undefined;
+    difficulty: number | undefined;
+  }) => {
     const baseStyles =
       'border-[0.25rem] text-center duration-150 ease-in-out rounded-[1rem] p-1 md:p-4 m-[2px]';
+    const cursor = isInteractive ? 'cursor-pointer' : 'cursor-not-allowed';
     // Always include a 0.25rem solid border on cells with 2px margin to prevent overlap; border color varies based on the cell's state (e.g., blue for planned cells, white otherwise)
-    if (isTeamPlannedThisGw)
-      return `${baseStyles} border-blue-500 bg-blue-100 transition-colors cursor-pointer`;
+    // A pick already submitted for this gameweek keeps the blue treatment so it
+    // reads as the player's pick, not as a team greyed out from an earlier round
+    if (isSubmittedThisGw || isTeamPlannedThisGw)
+      return `${baseStyles} border-blue-500 bg-blue-100 transition-colors ${cursor}`;
     if (isPreviouslyPredicted)
-      return `${baseStyles} border-white cursor-not-allowed bg-gray-500 transition-colors`;
+      return `${baseStyles} border-white ${cursor} bg-gray-500 transition-colors`;
     if (isTeamPlanned)
-      return `${baseStyles} border-white cursor-pointer bg-gray-500 transition-colors`;
+      return `${baseStyles} border-white ${cursor} bg-gray-500 transition-colors`;
     if (difficulty !== undefined) {
       const bgClass = DIFFICULTY_BG_CLASS_MAP[difficulty] || 'bg-white';
-      return `${baseStyles} cursor-pointer ${bgClass} border-white transition-all`;
+      return `${baseStyles} ${cursor} ${bgClass} border-white transition-all`;
     }
-    return `${baseStyles} cursor-pointer bg-white border-white${fixtureText ? '' : ' opacity-50'} transition-colors`;
+    return `${baseStyles} ${cursor} bg-white border-white${fixtureText ? '' : ' opacity-50'} transition-colors`;
   };
 
   return (
@@ -352,7 +387,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
               Sign in to get started
             </a>
           </div>
-        ) : fixtures.length === 0 ? (
+        ) : fixtures.length === 0 || predictionGwNumber === null ? (
           <p className="text-center">
             The site is being updated. Please check back later.
           </p>
@@ -364,8 +399,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
                   Team
                 </TableHead>
                 <AnimatePresence initial={false}>
-                  {[...Array(numWeeks)].map((_, idx) => {
-                    const gw = currentGwNumber + 1 + idx;
+                  {plannerGameweeks.map((gw) => {
                     return (
                       <TableHead
                         key={gw}
@@ -394,8 +428,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
                     <span className="md:hidden">{team.short_name}</span>
                   </TableCell>
                   <AnimatePresence initial={false}>
-                    {[...Array(numWeeks)].map((_, weekIdx) => {
-                      const gw = currentGwNumber + 1 + weekIdx;
+                    {plannerGameweeks.map((gw) => {
                       const fixtureData = getFixture({ teamId: team.id, gw });
                       const {
                         fixtureText,
@@ -409,38 +442,48 @@ const PickPlanner: FC<PickPlannerProps> = ({
                       );
                       const isTeamPlannedThisGw = picks[gw] === team.id;
 
-                      const className = getClassName(
+                      // Once the deadline passes, the gameweek being predicted
+                      // for is settled - show it, but take no more input
+                      const isLockedColumn =
+                        isPastSubmissionDeadline && gw === predictionGwNumber;
+                      const isSubmittedThisGw =
+                        submittedTeamIdByGw.get(gw) === team.id;
+                      const isInteractive =
+                        !isLockedColumn &&
+                        !isPreviouslyPredicted &&
+                        !!fixtureText;
+
+                      const className = getClassName({
+                        isSubmittedThisGw,
                         isTeamPlannedThisGw,
                         isPreviouslyPredicted,
                         isTeamPlanned,
+                        isInteractive,
                         fixtureText,
                         difficulty
-                      );
+                      });
 
                       return (
                         <TableCell
                           key={`${team.id}-${gw}`}
                           className={`${className} w-28 outline-2 outline-offset-[-2px] outline-transparent focus-visible:outline-blue-500`}
-                          aria-disabled={isPreviouslyPredicted || !fixtureText}
+                          aria-disabled={!isInteractive}
                           onClick={() =>
-                            !isPreviouslyPredicted &&
-                            fixtureText &&
-                            handlePick(team.id, gw)
+                            isInteractive && handlePick(team.id, gw)
                           }
-                          tabIndex={
-                            isPreviouslyPredicted || !fixtureText ? -1 : 0
+                          tabIndex={isInteractive ? 0 : -1}
+                          aria-pressed={
+                            isSubmittedThisGw || isTeamPlannedThisGw
                           }
-                          aria-pressed={isTeamPlannedThisGw}
                           aria-label={
                             fixtureText
-                              ? `GW ${gw}, ${team.name}, ${fixtureText}${isPreviouslyPredicted ? ', already used' : ''}`
+                              ? `GW ${gw}, ${team.name}, ${fixtureText}${isSubmittedThisGw ? ', submitted' : isPreviouslyPredicted ? ', already used' : ''}${isLockedColumn ? ', locked' : ''}`
                               : `GW ${gw}, ${team.name}, no fixture`
                           }
                           onKeyDown={(e) => {
                             if (
                               (e.key === 'Enter' || e.key === ' ') &&
-                              !isPreviouslyPredicted &&
-                              fixtureText
+                              isInteractive
                             ) {
                               e.preventDefault();
                               handlePick(team.id, gw);
