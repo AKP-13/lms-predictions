@@ -36,10 +36,12 @@ export async function POST(request: Request) {
         , game_number
       FROM games_numbered
       WHERE league_id = (
-        SELECT 
-            league_id 
-        FROM user_leagues 
+        SELECT
+            league_id
+        FROM user_leagues
         WHERE user_id = ($1)
+        ORDER BY league_id
+        LIMIT 1
       )
       ORDER BY game_id DESC
       LIMIT 1;

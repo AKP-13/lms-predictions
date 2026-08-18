@@ -82,7 +82,7 @@ async function DesktopNav() {
           <Home className="h-5 w-5" />
         </NavItem>
 
-        <NavItem href="/results" label="Results" disabled>
+        <NavItem href="/results" label="Results">
           <Table className="h-5 w-5" />
         </NavItem>
 
@@ -95,7 +95,7 @@ async function DesktopNav() {
         </NavItem> */}
       </nav>
       <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
-        <NavItem href="/settings" label="Settings" disabled>
+        <NavItem href="#" label="Settings">
           <Settings className="h-5 w-5" />
         </NavItem>
 
