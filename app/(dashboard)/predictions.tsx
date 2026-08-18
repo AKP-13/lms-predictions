@@ -40,7 +40,7 @@ const returnIsPastSubmissionDeadline = ({
 
   const firstFixtureDate = predictionWeekFixtures[0]?.kickoff_time;
   const submissionDeadlineTimestamp =
-    new Date(firstFixtureDate).getTime() - 12 * 60 * 60 * 1000; // 12 hours before first fixture
+    new Date(firstFixtureDate).getTime() - 2 * 60 * 60 * 1000; // 2 hours before first fixture
 
   return currentDate > submissionDeadlineTimestamp;
 };
