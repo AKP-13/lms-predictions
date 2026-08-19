@@ -57,7 +57,9 @@ export async function fetchCurrentGameData({
         SELECT
             league_id
         FROM user_leagues
-        WHERE user_id = ($1);
+        WHERE user_id = ($1)
+        ORDER BY league_id
+        LIMIT 1;
       `,
       [userId]
     );
@@ -374,6 +376,8 @@ export async function fetchLeagueInfo({
                 league_id
             FROM user_leagues
             WHERE user_id = ($1)
+            ORDER BY league_id
+            LIMIT 1
         );
       `,
       [userId]

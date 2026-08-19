@@ -32,6 +32,8 @@ const FixturesResults = ({
   currentGwNumber: number;
   teamsArr: TeamsArr;
 }) => {
+  // The most recent started gameweek, which is one behind the gameweek being
+  // predicted for. Deliberately does not track the prediction gameweek.
   const [selectedGw, setSelectedGw] = useState(currentGwNumber);
 
   useEffect(() => {

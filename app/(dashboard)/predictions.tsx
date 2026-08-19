@@ -22,27 +22,11 @@ type Props = {
   teamsArr: TeamsArr;
   session: Session | null;
   predictionWeekFixtures: FixturesData[];
+  predictionGwNumber: number | null;
+  isPastSubmissionDeadline: boolean;
   setRefreshTrigger: Dispatch<SetStateAction<number>>;
   isLoading: boolean;
   currentGameId: number | null;
-};
-
-const returnIsPastSubmissionDeadline = ({
-  predictionWeekFixtures
-}: {
-  predictionWeekFixtures: FixturesData[];
-}) => {
-  const currentDate = new Date().getTime();
-
-  if (predictionWeekFixtures.length === 0) {
-    return false;
-  }
-
-  const firstFixtureDate = predictionWeekFixtures[0]?.kickoff_time;
-  const submissionDeadlineTimestamp =
-    new Date(firstFixtureDate).getTime() - 12 * 60 * 60 * 1000; // 12 hours before first fixture
-
-  return currentDate > submissionDeadlineTimestamp;
 };
 
 const Predictions = ({
@@ -50,6 +34,8 @@ const Predictions = ({
   teamsArr,
   session,
   predictionWeekFixtures,
+  predictionGwNumber,
+  isPastSubmissionDeadline,
   setRefreshTrigger,
   isLoading,
   currentGameId
@@ -59,10 +45,6 @@ const Predictions = ({
     typeof currentGameId === 'number'
       ? (results[currentGameId]?.map((val) => val?.team_selected) ?? [])
       : [];
-
-  const isPastSubmissionDeadline = returnIsPastSubmissionDeadline({
-    predictionWeekFixtures
-  });
 
   const isEliminated =
     typeof currentGameId === 'number' &&
@@ -84,6 +66,12 @@ const Predictions = ({
   const [success, setSuccess] = useState(false);
 
   const isLoadingCombined = isLoading || isSubmitting;
+
+  // Either the bootstrap gave us nothing usable, or the gameweek it resolved to
+  // has no fixtures. Both mean we cannot say what anyone is predicting for.
+  const isGameweekUnresolved =
+    !isLoadingCombined &&
+    (predictionGwNumber === null || predictionWeekFixtures.length === 0);
 
   const selectedTeamFixture = predictionWeekFixtures?.find(
     (fixture) =>
@@ -110,6 +98,15 @@ const Predictions = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Never submit against a gameweek we could not resolve
+    if (predictionGwNumber === null || !selectedTeamFixture) {
+      setError(
+        'Predictions are unavailable right now. Please try again shortly.'
+      );
+      return;
+    }
+
     setIsSubmitting(true);
     setError(null);
     setSuccess(false);
@@ -124,7 +121,7 @@ const Predictions = ({
           team_opposing: opposingTeamName,
           team_selected_location: selectedTeamLocation,
           result_selected: selectedOutcome,
-          fpl_gw: selectedTeamFixture?.event,
+          fpl_gw: predictionGwNumber,
           round_number: previousPicksArr.length + 1
         })
       });
@@ -159,17 +156,23 @@ const Predictions = ({
         </CardTitle>
 
         <CardDescription
-          className={isPastSubmissionDeadline ? 'text-red-500' : ''}
+          className={
+            isPastSubmissionDeadline || isGameweekUnresolved
+              ? 'text-red-500'
+              : ''
+          }
         >
           {isLoadingCombined
             ? 'Loading...'
             : isEliminated
               ? 'You are unable to make a prediction as you have been eliminated.'
-              : isPending
-                ? 'Prediction submitted. Good luck!'
-                : isPastSubmissionDeadline
-                  ? 'The submission deadline has passed for this gameweek.'
-                  : 'Submit your prediction for this gameweek.'}
+              : isGameweekUnresolved
+                ? 'Predictions are unavailable right now. Please try again shortly.'
+                : isPending
+                  ? 'Prediction submitted. Good luck!'
+                  : isPastSubmissionDeadline
+                    ? 'The submission deadline has passed for this gameweek.'
+                    : 'Submit your prediction for this gameweek.'}
         </CardDescription>
       </CardHeader>
 
@@ -219,6 +222,7 @@ const Predictions = ({
                     isEliminated ||
                     isPending ||
                     isPastSubmissionDeadline ||
+                    isGameweekUnresolved ||
                     isLoadingCombined
                   }
                 />
@@ -241,35 +245,39 @@ const Predictions = ({
                     isEliminated ||
                     isPending ||
                     isPastSubmissionDeadline ||
+                    isGameweekUnresolved ||
                     isLoadingCombined
                   }
                 />
               </div>
             </div>
 
-            {selectedTeam !== 'Select' && selectedOutcome !== 'Select' && (
-              <div className="my-2">
-                Are you sure you want to predict a
-                {['a', 'e', 'i', 'o', 'u'].includes(
-                  selectedTeam[0].toLowerCase()
-                )
-                  ? 'n'
-                  : ''}{' '}
-                <strong>
-                  {selectedTeam} {selectedOutcome.toLowerCase()} vs{' '}
-                  {opposingTeamName}
-                  {selectedTeamLocation === 'Home' ? ' at home' : ' away'}?
-                </strong>{' '}
-                If this doesn't look right, please email your prediction{' '}
-                <a
-                  href={`mailto:${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS}?subject=Last%20Player%20Standing%20Prediction%20Week%20${selectedTeamFixture ? selectedTeamFixture.event : 'Undefined'}&body=My%20prediction%20this%20week%20is...`}
-                  style={{ color: 'blue', textDecoration: 'underline' }}
-                >
-                  here
-                </a>
-                .
-              </div>
-            )}
+            {selectedTeam !== 'Select' &&
+              selectedOutcome !== 'Select' &&
+              predictionGwNumber !== null && (
+                <div className="my-2">
+                  Are you sure you want to predict a
+                  {['a', 'e', 'i', 'o', 'u'].includes(
+                    selectedTeam[0].toLowerCase()
+                  )
+                    ? 'n'
+                    : ''}{' '}
+                  <strong>
+                    {selectedTeam} {selectedOutcome.toLowerCase()} vs{' '}
+                    {opposingTeamName}
+                    {selectedTeamLocation === 'Home' ? ' at home' : ' away'} in
+                    GW{predictionGwNumber}?
+                  </strong>{' '}
+                  If this doesn't look right, please email your prediction{' '}
+                  <a
+                    href={`mailto:${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS}?subject=Last%20Player%20Standing%20Prediction%20Week%20${predictionGwNumber}&body=My%20prediction%20this%20week%20is...`}
+                    style={{ color: 'blue', textDecoration: 'underline' }}
+                  >
+                    here
+                  </a>
+                  .
+                </div>
+              )}
             <Button
               type="submit"
               disabled={
@@ -278,6 +286,7 @@ const Predictions = ({
                 selectedOutcome === 'Select' ||
                 isEliminated ||
                 isPastSubmissionDeadline ||
+                isGameweekUnresolved ||
                 isLoadingCombined
               }
             >
