@@ -16,3 +16,10 @@ _Avoid_: Register, create account
 The flow where a returning user proves their identity, using either an existing password or a magic link.
 _Avoid_: Log in, login
 
+**Default league**:
+The league the app enrols every new user in as soon as their account exists, whatever their auth method. The user does not choose it.
+_Avoid_: Shared league, WC league
+
+**Enrol**:
+To place a user in a league without the user choosing it. Contrast with join, where the user picks the league.
+_Avoid_: Auto-enrol, add to a league
