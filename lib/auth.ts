@@ -2,7 +2,7 @@ import NextAuth from 'next-auth';
 import NeonAdapter from '@auth/neon-adapter';
 import { Pool } from '@neondatabase/serverless';
 import Resend from 'next-auth/providers/resend';
-import { DEFAULT_LEAGUE_ID } from '@/lib/constants';
+import { enrolInDefaultLeague } from '@/lib/leagues';
 
 declare module 'next-auth' {
   interface User {
@@ -76,20 +76,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
     events: {
       async createUser({ user }) {
         if (!user.id) return;
-        try {
-          await pool.query(
-            `INSERT INTO user_leagues (user_id, league_id, joined_at)
-             VALUES ($1, $2, NOW())
-             ON CONFLICT DO NOTHING`,
-            [user.id, DEFAULT_LEAGUE_ID]
-          );
-        } catch (error) {
-          // Don't fail the sign-in — log so the user can be backfilled manually
-          console.error(
-            `Failed to add user ${user.id} to user_leagues:`,
-            error
-          );
-        }
+        await enrolInDefaultLeague(user.id);
       }
     }
   };
