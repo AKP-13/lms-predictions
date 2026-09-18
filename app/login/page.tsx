@@ -7,6 +7,7 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import { signIn } from '@/lib/auth';
+import Link from 'next/link';
 
 export default function LoginPage() {
   return (
@@ -39,6 +40,14 @@ export default function LoginPage() {
             <input type="text" name="email" placeholder="Email" />
             <button type="submit">Signin with Resend</button>
           </form>
+        </CardFooter>
+        <CardFooter>
+          <p className="text-sm text-muted-foreground">
+            New here?{' '}
+            <Link href="/signup" className="underline">
+              Sign up with a password
+            </Link>
+          </p>
         </CardFooter>
       </Card>
     </div>
