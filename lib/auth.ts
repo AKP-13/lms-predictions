@@ -39,6 +39,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
       newUser: '/' // redirects on login
     },
     session: {
+      strategy: 'jwt', // required by the Credentials provider; see ADR 0001
       maxAge: 60 * 60 * 24 // 1 day in seconds
     },
     callbacks: {
