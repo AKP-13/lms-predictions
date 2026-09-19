@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { normaliseEmail, passwordLengthError } from './signup-utils';
+import { normaliseEmail, passwordLengthError } from './credentials';
 
 // ── passwordLengthError ──────────────────────────────────────────────────────
 

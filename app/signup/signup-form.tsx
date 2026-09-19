@@ -4,7 +4,7 @@ import { useActionState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { signUp, SignUpState } from './actions';
-import { MIN_PASSWORD_LENGTH } from './signup-utils';
+import { MIN_PASSWORD_LENGTH } from '@/lib/credentials';
 
 const INITIAL_STATE: SignUpState = { error: null, email: '' };
 

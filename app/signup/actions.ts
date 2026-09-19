@@ -3,7 +3,7 @@
 import { signIn } from '@/lib/auth';
 import { enrolInDefaultLeague } from '@/lib/leagues';
 import { createUserWithPassword } from '@/lib/users';
-import { normaliseEmail, passwordLengthError } from './signup-utils';
+import { normaliseEmail, passwordLengthError } from '@/lib/credentials';
 
 export type SignUpState = { error: string | null; email: string };
 
