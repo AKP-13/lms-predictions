@@ -16,6 +16,10 @@ _Avoid_: Register, create account
 The flow where a returning user proves their identity, using either an existing password or a magic link.
 _Avoid_: Log in, login
 
+**Breach check**:
+The test that refuses a password which appears in a public list of breached passwords. It sends the first five characters of the password's hash to the Have I Been Pwned range API, then matches the rest of the hash itself. Neither the password nor its whole hash leaves the server.
+_Avoid_: Pwned check, HIBP check
+
 **Default league**:
 The league the app enrols every new user in as soon as their account exists, whatever their auth method. The user does not choose it.
 _Avoid_: Shared league, WC league

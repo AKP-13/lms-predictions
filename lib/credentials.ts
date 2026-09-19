@@ -8,6 +8,28 @@ export function passwordLengthError(password: string): string | null {
   return null;
 }
 
+// One hash suffix per line, each followed by a colon and a count.
+export type BreachLookup =
+  | { answered: true; body: string }
+  | { answered: false };
+
+const BREACHED_PASSWORD =
+  'This password has appeared in a data breach. Choose a different one.';
+
+// A lookup that did not answer accepts the password.
+export function breachLookupError(
+  hashSuffix: string,
+  lookup: BreachLookup
+): string | null {
+  if (!lookup.answered) return null;
+  const wanted = hashSuffix.toUpperCase();
+  const breached = lookup.body
+    .toUpperCase()
+    .split('\n')
+    .some((line) => line.split(':')[0].trim() === wanted);
+  return breached ? BREACHED_PASSWORD : null;
+}
+
 // One local part and one domain; no quotes, commas, or whitespace.
 const EMAIL_SHAPE = /^[^\s@",]+@[^\s@",]+$/;
 

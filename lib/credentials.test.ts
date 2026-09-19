@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
+  breachLookupError,
   decideSignIn,
   normaliseEmail,
   passwordLengthError
@@ -106,5 +107,69 @@ describe('decideSignIn', () => {
         'Sign in failed. Check your email and password, and that you have verified your email address.'
       ])
     );
+  });
+});
+
+// ── breachLookupError ───────────────────────────────────────────────────────
+
+// SHA-1 of "password" is 5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8.
+const PASSWORD_SUFFIX = '1E4C9B93F3F0682250B6CF8331B7EE68FD8';
+
+describe('breachLookupError', () => {
+  it('rejects a password whose suffix the range response lists', () => {
+    const error = breachLookupError(PASSWORD_SUFFIX, {
+      answered: true,
+      body: `${PASSWORD_SUFFIX}:10382543`
+    });
+
+    expect(error).toContain('data breach');
+  });
+
+  it('matches a suffix the caller gives in lower case', () => {
+    const error = breachLookupError(PASSWORD_SUFFIX.toLowerCase(), {
+      answered: true,
+      body: `${PASSWORD_SUFFIX}:10382543`
+    });
+
+    expect(error).not.toBeNull();
+  });
+
+  it('finds a suffix among the other lines of a real response', () => {
+    const body = [
+      '0018A45C4D1DEF81644B54AB7F969B88D65:1',
+      `${PASSWORD_SUFFIX}:10382543`,
+      '00D4F6E8FA6EECAD2A3AA415EEC418D38EC:2'
+    ].join('\r\n');
+
+    const error = breachLookupError(PASSWORD_SUFFIX, { answered: true, body });
+
+    expect(error).not.toBeNull();
+  });
+
+  it('accepts a suffix the response does not list', () => {
+    const body = [
+      '0018A45C4D1DEF81644B54AB7F969B88D65:1',
+      '00D4F6E8FA6EECAD2A3AA415EEC418D38EC:2'
+    ].join('\r\n');
+
+    const error = breachLookupError(PASSWORD_SUFFIX, { answered: true, body });
+
+    expect(error).toBeNull();
+  });
+
+  // Fail open: a third-party outage must not block sign-up.
+  it('accepts the password when the lookup did not answer', () => {
+    const error = breachLookupError(PASSWORD_SUFFIX, { answered: false });
+
+    expect(error).toBeNull();
+  });
+
+  it('accepts the password when the response is empty', () => {
+    const error = breachLookupError(PASSWORD_SUFFIX, {
+      answered: true,
+      body: ''
+    });
+
+    expect(error).toBeNull();
   });
 });

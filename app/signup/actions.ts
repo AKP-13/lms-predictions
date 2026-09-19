@@ -1,6 +1,7 @@
 'use server';
 
 import { signIn } from '@/lib/auth';
+import { passwordBreachError } from '@/lib/breach-check';
 import { enrolInDefaultLeague } from '@/lib/leagues';
 import { createUserWithPassword } from '@/lib/users';
 import { normaliseEmail, passwordLengthError } from '@/lib/credentials';
@@ -21,6 +22,10 @@ export async function signUp(
   const lengthError = passwordLengthError(password);
   if (lengthError) {
     return { error: lengthError, email: rawEmail };
+  }
+  const breachError = await passwordBreachError(password);
+  if (breachError) {
+    return { error: breachError, email: rawEmail };
   }
 
   const userId = await createUserWithPassword(email, password);
