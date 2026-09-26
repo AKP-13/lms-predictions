@@ -92,7 +92,9 @@ export default function PrivacyPage() {
             <h2 className="font-semibold text-base text-gray-900 mb-2">How long I keep it</h2>
             <p>
               I keep your data for as long as the league is running. Failed sign-in
-              records are the exception: they are deleted after one day. If you&apos;d
+              records are the exception: once a record is over a day old, the next
+              failed sign-in clears it out. Quiet periods can hold a record a little
+              longer, because the clear-out runs on that next attempt. If you&apos;d
               like your data removed at any time, just get in touch and I&apos;ll
               delete it.
             </p>
