@@ -36,9 +36,10 @@ export async function recentAttempts(
   return { byEmail, byIp };
 }
 
+// The recorded email is always normalised, so the caller's copy must match.
 export async function clearAttemptsForEmail(email: string): Promise<void> {
   await sql.query(`DELETE FROM failed_sign_in_attempts WHERE email = $1`, [
-    email
+    email.toLowerCase().trim()
   ]);
 }
 

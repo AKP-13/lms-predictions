@@ -4,11 +4,12 @@ import { useActionState, useEffect, useRef, useState } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FormError } from '@/components/form-error';
-import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/password-input';
 import { MIN_PASSWORD_LENGTH } from '@/lib/credentials';
-import { setOwnPassword, SetPasswordState } from './actions';
+import type { SetPasswordFormState } from '@/lib/form-state';
+import { setOwnPassword } from './actions';
 
-const INITIAL_STATE: SetPasswordState = { error: null, done: false };
+const INITIAL_STATE: SetPasswordFormState = { error: null, done: false };
 
 export function SetPasswordForm() {
   const [state, formAction, pending] = useActionState(
@@ -33,21 +34,15 @@ export function SetPasswordForm() {
       onInput={() => setEdited(true)}
       className="flex flex-col gap-4"
     >
-      <Input
-        type="password"
+      <PasswordInput
         name="password"
         placeholder={`New password (${MIN_PASSWORD_LENGTH}+ characters)`}
         autoComplete="new-password"
-        minLength={MIN_PASSWORD_LENGTH}
-        required
       />
-      <Input
-        type="password"
+      <PasswordInput
         name="confirmation"
         placeholder="New password again"
         autoComplete="new-password"
-        minLength={MIN_PASSWORD_LENGTH}
-        required
       />
       <FormError message={edited ? null : state.error} />
       {!edited && state.done && (

@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { EmailInput } from '@/components/email-input';
 import { signIn } from '@/lib/auth';
 
 // One form for both magic-link paths: sign-in and the forgotten password.
@@ -23,13 +23,7 @@ export function MagicLinkForm({
       }}
       className="flex flex-col gap-4"
     >
-      <Input
-        type="email"
-        name="email"
-        placeholder="Email"
-        autoComplete="email"
-        required
-      />
+      <EmailInput />
       <Button type="submit" variant={variant} className="w-full">
         {label}
       </Button>

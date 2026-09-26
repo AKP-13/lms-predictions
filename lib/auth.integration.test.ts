@@ -6,6 +6,7 @@ import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { DEFAULT_LEAGUE_ID } from '@/lib/constants';
 import { registerUser } from './registration';
 import { MAX_ATTEMPTS_PER_EMAIL } from './credentials';
+import { clearAttemptsForEmail } from './sign-in-attempts';
 import { handlers } from './auth';
 import { createUserWithPassword, findUserByEmail, setPassword } from './users';
 
@@ -134,12 +135,12 @@ describe.runIf(hasDatabase)('set password from the account page', () => {
       sessionCookie(await postCredentials(email, firstPassword))
     ).toBeUndefined();
 
-    expect(await setPassword(userId, firstPassword)).toBe(true);
+    expect(await setPassword(userId, firstPassword)).toBe(email);
     expect(
       sessionCookie(await postCredentials(email, firstPassword))
     ).toBeDefined();
 
-    expect(await setPassword(userId, secondPassword)).toBe(true);
+    expect(await setPassword(userId, secondPassword)).toBe(email);
     expect(
       sessionCookie(await postCredentials(email, secondPassword))
     ).toBeDefined();
@@ -159,8 +160,27 @@ describe.runIf(hasDatabase)('set password from the account page', () => {
   }, 30_000);
 
   it('reports no match for a user that is gone', async () => {
-    expect(await setPassword('0', firstPassword)).toBe(false);
+    expect(await setPassword('0', firstPassword)).toBeNull();
   }, 30_000);
+
+  it('signs the user in at once with a password set during a rate limit', async () => {
+    const newPassword = 'fourth correct horse battery';
+
+    for (let attempt = 0; attempt < MAX_ATTEMPTS_PER_EMAIL; attempt++) {
+      await postCredentials(email, 'wrong password entirely');
+    }
+    expect(await attemptCount(email)).toBe(MAX_ATTEMPTS_PER_EMAIL);
+
+    // The two steps setOwnPassword takes once the session checks out.
+    const owner = await setPassword(String(userId), newPassword);
+    expect(owner).toBe(email);
+    await clearAttemptsForEmail(String(owner));
+
+    expect(await attemptCount(email)).toBe(0);
+    expect(
+      sessionCookie(await postCredentials(email, newPassword))
+    ).toBeDefined();
+  }, 60_000);
 });
 
 // These need no database: the signin route answers before it reads a user.

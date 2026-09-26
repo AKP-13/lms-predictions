@@ -83,7 +83,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           await recordFailedAttempt(email, ip);
           throw new SignInRefused(decision.reason);
         }
-        if (email) await clearAttemptsForEmail(email);
         const { id, email: userEmail, name, image } = decision.user;
         return { id, email: userEmail, name, image };
       }
@@ -93,6 +92,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async createUser({ user }) {
       if (!user.id) return;
       await enrolInDefaultLeague(user.id);
+    },
+    // Either auth method proves the account, so both clear the failed attempts.
+    async signIn({ user }) {
+      if (user.email) await clearAttemptsForEmail(user.email);
     }
   }
 });
