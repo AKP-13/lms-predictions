@@ -7,7 +7,7 @@ import { setPassword } from '@/lib/users';
 
 export type SetPasswordState = { error: string | null; done: boolean };
 
-const SESSION_EXPIRED = 'Your session has expired. Sign in again.';
+const SIGN_IN_AGAIN = 'Your session has expired. Sign in again.';
 
 const MISMATCH = 'The two passwords do not match.';
 
@@ -18,7 +18,7 @@ export async function setOwnPassword(
   const session = await auth();
   const userId = session?.user?.id;
   if (!userId) {
-    return { error: SESSION_EXPIRED, done: false };
+    return { error: SIGN_IN_AGAIN, done: false };
   }
 
   const password = String(formData.get('password') ?? '');
@@ -34,7 +34,7 @@ export async function setOwnPassword(
 
   const updated = await setPassword(userId, password);
   if (!updated) {
-    return { error: SESSION_EXPIRED, done: false };
+    return { error: SIGN_IN_AGAIN, done: false };
   }
   // The page reads whether a password exists, so it must render again.
   revalidatePath('/account');

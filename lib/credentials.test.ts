@@ -313,7 +313,7 @@ describe('signInDestination', () => {
     );
   });
 
-  it('sends an ordinary magic link from the login page home', () => {
+  it('sends an ordinary magic link from /login home', () => {
     expect(signInDestination(`${baseUrl}/login`, baseUrl)).toBe(
       'https://lmsiq.co.uk/'
     );

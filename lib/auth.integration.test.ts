@@ -60,7 +60,7 @@ describe.runIf(hasDatabase)('password sign-in against the database', () => {
   }, 30_000);
 });
 
-describe.runIf(hasDatabase)('rate limiting against the database', () => {
+describe.runIf(hasDatabase)('the rate limit against the database', () => {
   const email = `rate-limit-test-${randomUUID()}@example.com`;
   const password = 'correct horse battery staple';
   let userId: string | null = null;
@@ -97,7 +97,7 @@ describe.runIf(hasDatabase)('rate limiting against the database', () => {
   }, 60_000);
 });
 
-describe.runIf(hasDatabase)('setting a password from the account page', () => {
+describe.runIf(hasDatabase)('set password from the account page', () => {
   const email = `set-password-test-${randomUUID()}@example.com`;
   const firstPassword = 'first correct horse battery';
   const secondPassword = 'second correct horse battery';
@@ -154,7 +154,7 @@ describe('where a sign-in lands', () => {
     );
   });
 
-  it('sends an ordinary sign-in from the login page home', async () => {
+  it('sends an ordinary sign-in from /login home', async () => {
     expect(await resolvedCallbackUrl('/login')).toBe(`${ORIGIN}/`);
   });
 });

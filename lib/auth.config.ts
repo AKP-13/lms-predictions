@@ -6,10 +6,10 @@ export const authConfig = {
   providers: [],
   pages: {
     signIn: '/login', // ours, not the page Auth.js generates
-    newUser: '/' // where a new user lands after the first sign-in
+    newUser: '/'
   },
   session: {
-    strategy: 'jwt', // required by the Credentials provider; see ADR 0001
+    strategy: 'jwt', // the Credentials provider needs this; see ADR 0001
     maxAge: 60 * 60 * 24 // 1 day in seconds
   },
   callbacks: {
@@ -19,7 +19,6 @@ export const authConfig = {
       return token;
     },
     async session({ session, token }) {
-      // Copy the id from the token onto the session user
       if (session.user && token?.id) {
         session.user.id = token.id as string;
       }
