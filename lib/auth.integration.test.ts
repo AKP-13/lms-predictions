@@ -2,7 +2,9 @@
 import { randomUUID } from 'node:crypto';
 import { sql } from '@vercel/postgres';
 import { NextRequest } from 'next/server';
-import { afterAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { DEFAULT_LEAGUE_ID } from '@/lib/constants';
+import { registerUser } from './registration';
 import { MAX_ATTEMPTS_PER_EMAIL } from './credentials';
 import { handlers } from './auth';
 import { createUserWithPassword, findUserByEmail, setPassword } from './users';
@@ -20,16 +22,31 @@ describe.runIf(hasDatabase)('password sign-in against the database', () => {
   const password = 'correct horse battery staple';
   let userId: string | null = null;
 
+  // Sign-up calls the breach service. The spec leaves that third party untested.
+  beforeEach(() => stubBreachCheck());
+  afterEach(() => restoreFetch());
+
   afterAll(async () => {
-    if (userId) await sql.query('DELETE FROM users WHERE id = $1', [userId]);
+    if (userId) {
+      await sql.query('DELETE FROM user_leagues WHERE user_id = $1', [userId]);
+      await sql.query('DELETE FROM users WHERE id = $1', [userId]);
+    }
     await sql.query('DELETE FROM failed_sign_in_attempts WHERE email = $1', [
       email
     ]);
   });
 
   it('signs up, verifies, then signs in and gets a one-day session', async () => {
-    userId = await createUserWithPassword(email, password);
-    expect(userId).not.toBeNull();
+    // The mixed case proves sign-up normalises before it writes.
+    const registration = await registerUser(email.toUpperCase(), password);
+    expect(registration).toEqual({ ok: true, email });
+
+    const created = await findUserByEmail(email);
+    userId = String(created?.id);
+    expect(created?.passwordHash).toBeTruthy();
+    expect(created?.passwordHash).not.toBe(password);
+    expect(created?.emailVerified).toBeNull();
+    expect(await leagueCount(userId)).toBe(1);
 
     const refused = await postCredentials(email, password);
     expect(refused.headers.get('location')).toContain(
@@ -181,6 +198,31 @@ async function createMagicLinkUser(email: string): Promise<string> {
     [email]
   );
   return String(result.rows[0].id);
+}
+
+async function leagueCount(userId: string): Promise<number> {
+  const result = await sql.query<{ count: string }>(
+    'SELECT COUNT(*) AS count FROM user_leagues WHERE user_id = $1 AND league_id = $2',
+    [userId, DEFAULT_LEAGUE_ID]
+  );
+  return Number(result.rows[0].count);
+}
+
+const realFetch = globalThis.fetch;
+
+// Answers the breach range call with a suffix that never matches. Everything else goes out.
+function stubBreachCheck(): void {
+  globalThis.fetch = ((input: RequestInfo | URL, init?: RequestInit) => {
+    const url = input instanceof Request ? input.url : String(input);
+    if (url.startsWith('https://api.pwnedpasswords.com/')) {
+      return Promise.resolve(new Response('0000000000000000000000000000000:1'));
+    }
+    return realFetch(input, init);
+  }) as typeof fetch;
+}
+
+function restoreFetch(): void {
+  globalThis.fetch = realFetch;
 }
 
 async function attemptCount(email: string): Promise<number> {
