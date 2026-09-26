@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { MagicLinkForm } from '@/components/magic-link-form';
 import {
   Card,
   CardContent,
@@ -8,8 +8,6 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { signIn } from '@/lib/auth';
 import { PasswordSignInForm } from './password-form';
 
 export default function LoginPage() {
@@ -26,27 +24,19 @@ export default function LoginPage() {
           <section className="flex flex-col gap-4">
             <h2 className="text-sm font-medium">With a password</h2>
             <PasswordSignInForm />
+            <p className="text-sm text-muted-foreground">
+              <Link href="/forgot-password" className="underline">
+                Forgot your password?
+              </Link>
+            </p>
           </section>
           <section className="flex flex-col gap-4">
             <h2 className="text-sm font-medium">With a magic link</h2>
-            <form
-              action={async (formData) => {
-                'use server';
-                await signIn('resend', formData);
-              }}
-              className="flex flex-col gap-4"
-            >
-              <Input
-                type="email"
-                name="email"
-                placeholder="Email"
-                autoComplete="email"
-                required
-              />
-              <Button type="submit" variant="outline" className="w-full">
-                Email me a magic link
-              </Button>
-            </form>
+            <MagicLinkForm
+              label="Email me a magic link"
+              redirectTo="/"
+              variant="outline"
+            />
           </section>
         </CardContent>
         <CardFooter className="flex flex-col items-start gap-2">

@@ -9,7 +9,8 @@ import {
   decideSignIn,
   normaliseEmail,
   passwordLengthError,
-  rateLimitError
+  rateLimitError,
+  signInDestination
 } from './credentials';
 
 // ── passwordLengthError ──────────────────────────────────────────────────────
@@ -298,5 +299,34 @@ describe('clientIp', () => {
 
   it('returns null for an empty header', () => {
     expect(clientIp(new Headers({ 'x-forwarded-for': '  ' }))).toBeNull();
+  });
+});
+
+// ── signInDestination ───────────────────────────────────────────────────────
+
+describe('signInDestination', () => {
+  const baseUrl = 'https://lmsiq.co.uk';
+
+  it('lands the forgotten-password flow on the set-password form', () => {
+    expect(signInDestination('/account', baseUrl)).toBe(
+      'https://lmsiq.co.uk/account#set-password'
+    );
+  });
+
+  it('sends an ordinary magic link from the login page home', () => {
+    expect(signInDestination(`${baseUrl}/login`, baseUrl)).toBe(
+      'https://lmsiq.co.uk/'
+    );
+  });
+
+  // Auth.js reads this from a query parameter and a cookie, so anyone can set it.
+  it('sends a url it cannot parse home', () => {
+    expect(signInDestination('http://', baseUrl)).toBe('https://lmsiq.co.uk/');
+  });
+
+  it('rebuilds the destination on our own origin', () => {
+    expect(signInDestination('https://evil.example/account', baseUrl)).toBe(
+      'https://lmsiq.co.uk/account#set-password'
+    );
   });
 });

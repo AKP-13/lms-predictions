@@ -102,6 +102,29 @@ export function rateLimitError(
   return overLimit ? RATE_LIMITED : null;
 }
 
+const SIGN_IN_HOME = '/';
+
+// The set-password form, for the forgotten-password flow.
+export const SET_PASSWORD_FORM = '/account#set-password';
+
+export function signInDestination(url: string, baseUrl: string): string {
+  // Auth.js reads the url from a query parameter and a cookie, so anyone can set it.
+  const path = pathOf(url, baseUrl);
+  const allowed =
+    path === pathOf(SET_PASSWORD_FORM, baseUrl)
+      ? SET_PASSWORD_FORM
+      : SIGN_IN_HOME;
+  return new URL(allowed, baseUrl).toString();
+}
+
+function pathOf(url: string, baseUrl: string): string | null {
+  try {
+    return new URL(url, baseUrl).pathname;
+  } catch {
+    return null;
+  }
+}
+
 // The first entry is the client; the rest are the proxies it passed through.
 export function clientIp(headers: Headers): string | null {
   const forwarded = headers.get('x-forwarded-for') ?? '';

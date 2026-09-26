@@ -60,7 +60,7 @@ export default async function AccountPage() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card id="set-password" className="scroll-mt-4">
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Set a password</CardTitle>
           <CardDescription>

@@ -146,6 +146,32 @@ describe.runIf(hasDatabase)('setting a password from the account page', () => {
   }, 30_000);
 });
 
+// These need no database: the signin route answers before it reads a user.
+describe('where a sign-in lands', () => {
+  it('keeps the forgotten-password destination for the magic-link email', async () => {
+    expect(await resolvedCallbackUrl('/account')).toBe(
+      `${ORIGIN}/account#set-password`
+    );
+  });
+
+  it('sends an ordinary sign-in from the login page home', async () => {
+    expect(await resolvedCallbackUrl('/login')).toBe(`${ORIGIN}/`);
+  });
+});
+
+// The destination Auth.js settles on, as stored for the rest of the sign-in.
+async function resolvedCallbackUrl(requested: string): Promise<string> {
+  const response = await handlers.GET(
+    new NextRequest(
+      `${ORIGIN}/api/auth/signin?${new URLSearchParams({ callbackUrl: requested })}`
+    )
+  );
+  const cookie = response.headers
+    .getSetCookie()
+    .find((value) => value.startsWith('authjs.callback-url='));
+  return decodeURIComponent(String(cookie).split(';')[0].split('=')[1]);
+}
+
 // A user who signed up by magic link only, so the row has no password hash.
 async function createMagicLinkUser(email: string): Promise<string> {
   const result = await sql.query<{ id: number }>(

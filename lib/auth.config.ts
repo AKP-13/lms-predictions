@@ -1,4 +1,5 @@
 import type { NextAuthConfig } from 'next-auth';
+import { signInDestination } from '@/lib/credentials';
 
 // The middleware runs this on the edge runtime, so keep the adapter, the providers and bcrypt out.
 export const authConfig = {
@@ -25,8 +26,7 @@ export const authConfig = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // Always redirect to the homepage after sign-in
-      return baseUrl;
+      return signInDestination(url, baseUrl);
     }
   }
 } satisfies NextAuthConfig;
