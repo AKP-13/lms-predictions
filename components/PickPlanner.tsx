@@ -382,7 +382,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
           <div className="flex justify-center">
             <a
               className="text-blue-600 font-semibold text-center"
-              href="/api/auth/signin"
+              href="/login"
             >
               Sign in to get started
             </a>

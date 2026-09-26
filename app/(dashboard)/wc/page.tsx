@@ -47,7 +47,7 @@ function SignInCard() {
           </p>
         </div>
         <Button asChild>
-          <a href="/api/auth/signin">Sign in</a>
+          <a href="/login">Sign in</a>
         </Button>
         <p className="text-xs text-muted-foreground">
           By signing in, you agree to the{' '}

@@ -13,7 +13,7 @@ The explicit flow where a new user creates an account by choosing a password. Se
 _Avoid_: Register, create account
 
 **Sign in**:
-The flow where a returning user proves their identity, using either an existing password or a magic link.
+The flow where a returning user proves their identity, using either an existing password or a magic link. It has one page, `/login`. Auth.js redirects its own generated page there.
 _Avoid_: Log in, login
 
 **Account page**:

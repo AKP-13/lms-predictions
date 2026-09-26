@@ -4,6 +4,7 @@ import type { NextAuthConfig } from 'next-auth';
 export const authConfig = {
   providers: [],
   pages: {
+    signIn: '/login', // ours, not the page Auth.js generates
     newUser: '/' // where a new user lands after the first sign-in
   },
   session: {
