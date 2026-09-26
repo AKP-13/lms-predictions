@@ -42,6 +42,10 @@ Multi-context repo (presence of `CONTEXT-MAP.md` at the root):
 
 When your output names a domain concept (in an issue title, a refactor proposal, a hypothesis, a test name), use the term as defined in `CONTEXT.md`. Don't drift to synonyms the glossary explicitly avoids.
 
+The `_Avoid_` lists bind the language other people read: UI copy, route names, issue and PR titles, ADR and `CONTEXT.md` prose, and test names. A synonym there makes two readers mean different things.
+
+They don't bind internal identifiers, filenames, or local variables. A private name only has to satisfy the next reader of that file. Don't report an `_Avoid_` word in one as a standards violation.
+
 If the concept you need isn't in the glossary yet, that's a signal: either you're inventing language the project doesn't use (reconsider) or there's a real gap (note it for `/domain-modeling`).
 
 ## Flag ADR conflicts
