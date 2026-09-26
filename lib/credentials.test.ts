@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   ATTEMPT_WINDOW_MS,
   MAX_ATTEMPTS_PER_EMAIL,
+  MAX_PASSWORD_BYTES,
   MAX_ATTEMPTS_PER_IP,
   breachLookupError,
   clientIp,
@@ -31,6 +32,21 @@ describe('passwordLengthError', () => {
   it('counts characters, not UTF-16 code units', () => {
     // Six emoji are 12 code units but 6 characters.
     expect(passwordLengthError('😀😀😀😀😀😀')).not.toBeNull();
+  });
+
+  it('accepts a password of exactly 72 bytes', () => {
+    expect(passwordLengthError('a'.repeat(MAX_PASSWORD_BYTES))).toBeNull();
+  });
+
+  it('rejects a password of 73 bytes, which bcrypt would truncate', () => {
+    const error = passwordLengthError('a'.repeat(MAX_PASSWORD_BYTES + 1));
+
+    expect(error).toContain('72 bytes');
+  });
+
+  it('counts bytes, not characters', () => {
+    // Each emoji is four bytes, so 20 of them pass 72 bytes.
+    expect(passwordLengthError('😀'.repeat(20))).toContain('72 bytes');
   });
 });
 

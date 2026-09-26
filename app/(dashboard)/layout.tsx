@@ -11,6 +11,7 @@ import {
   ShoppingCart,
   Table,
   Trophy,
+  UserCog,
   Users2
 } from 'lucide-react';
 
@@ -95,6 +96,12 @@ async function DesktopNav() {
         </NavItem> */}
       </nav>
       <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
+        {session && (
+          <NavItem href="/account" label="Account">
+            <UserCog className="h-5 w-5" />
+          </NavItem>
+        )}
+
         <NavItem href="#" label="Settings">
           <Settings className="h-5 w-5" />
         </NavItem>

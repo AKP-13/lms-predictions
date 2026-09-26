@@ -1,9 +1,20 @@
 export const MIN_PASSWORD_LENGTH = 12;
 
+// bcrypt reads this many bytes and ignores the rest.
+export const MAX_PASSWORD_BYTES = 72;
+
+const TOO_LONG =
+  `Password must be ${MAX_PASSWORD_BYTES} bytes or fewer. ` +
+  'An emoji or an accented letter uses more than one byte.';
+
 export function passwordLengthError(password: string): string | null {
   // Count characters, not UTF-16 code units.
   if ([...password].length < MIN_PASSWORD_LENGTH) {
     return `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`;
+  }
+  // Refuse a password bcrypt would truncate, rather than truncate it in silence.
+  if (new TextEncoder().encode(password).length > MAX_PASSWORD_BYTES) {
+    return TOO_LONG;
   }
   return null;
 }

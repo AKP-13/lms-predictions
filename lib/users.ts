@@ -41,6 +41,27 @@ export async function createUserWithPassword(
   return row ? String(row.id) : null;
 }
 
+export async function hasPassword(userId: string): Promise<boolean> {
+  const result = await sql.query<{ has_password: boolean }>(
+    `SELECT password_hash IS NOT NULL AS has_password FROM users WHERE id = $1`,
+    [userId]
+  );
+  return result.rows[0]?.has_password ?? false;
+}
+
+// Replaces the hash, or sets the first one. Returns false when no such user exists.
+export async function setPassword(
+  userId: string,
+  password: string
+): Promise<boolean> {
+  const passwordHash = await hash(password, BCRYPT_COST);
+  const result = await sql.query(
+    `UPDATE users SET password_hash = $2 WHERE id = $1`,
+    [userId, passwordHash]
+  );
+  return (result.rowCount ?? 0) > 0;
+}
+
 export async function findUserByEmail(
   email: string
 ): Promise<UserRecord | null> {

@@ -1,10 +1,10 @@
 'use server';
 
 import { signIn } from '@/lib/auth';
-import { passwordBreachError } from '@/lib/breach-check';
 import { enrolInDefaultLeague } from '@/lib/leagues';
+import { newPasswordError } from '@/lib/passwords';
 import { createUserWithPassword } from '@/lib/users';
-import { normaliseEmail, passwordLengthError } from '@/lib/credentials';
+import { normaliseEmail } from '@/lib/credentials';
 
 export type SignUpState = { error: string | null; email: string };
 
@@ -19,13 +19,9 @@ export async function signUp(
   if (!email) {
     return { error: 'Enter a valid email address.', email: rawEmail };
   }
-  const lengthError = passwordLengthError(password);
-  if (lengthError) {
-    return { error: lengthError, email: rawEmail };
-  }
-  const breachError = await passwordBreachError(password);
-  if (breachError) {
-    return { error: breachError, email: rawEmail };
+  const passwordError = await newPasswordError(password);
+  if (passwordError) {
+    return { error: passwordError, email: rawEmail };
   }
 
   const userId = await createUserWithPassword(email, password);

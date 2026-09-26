@@ -16,6 +16,18 @@ _Avoid_: Register, create account
 The flow where a returning user proves their identity, using either an existing password or a magic link.
 _Avoid_: Log in, login
 
+**Account page**:
+The signed-in page at `/account` where a user manages their own account. Today it holds the set-password form. It needs a session and nothing else.
+_Avoid_: Profile, settings page
+
+**Set password**:
+The act of choosing a password for an account that already exists. One form covers both the first password and every later one. It never asks for the current password: the session is the authorization. This is how a magic-link user adds a password.
+_Avoid_: Change password, update password, reset password
+
+**Password rules**:
+The three checks every new password passes: at least 12 characters, no more than 72 bytes, and not in the breach list. Sign-up and the account page call one helper.
+_Avoid_: Password policy, password strength
+
 **Breach check**:
 The test that refuses a password which appears in a public list of breached passwords. It sends the first five characters of the password's hash to the Have I Been Pwned range API, then matches the rest of the hash itself. Neither the password nor its whole hash leaves the server.
 _Avoid_: Pwned check, HIBP check

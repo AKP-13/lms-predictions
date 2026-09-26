@@ -5,7 +5,7 @@ import { NextRequest } from 'next/server';
 import { afterAll, describe, expect, it } from 'vitest';
 import { MAX_ATTEMPTS_PER_EMAIL } from './credentials';
 import { handlers } from './auth';
-import { createUserWithPassword } from './users';
+import { createUserWithPassword, findUserByEmail, setPassword } from './users';
 
 const ORIGIN = 'http://localhost:3000';
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
@@ -96,6 +96,66 @@ describe.runIf(hasDatabase)('rate limiting against the database', () => {
     expect(await attemptCount(email)).toBe(0);
   }, 60_000);
 });
+
+describe.runIf(hasDatabase)('setting a password from the account page', () => {
+  const email = `set-password-test-${randomUUID()}@example.com`;
+  const firstPassword = 'first correct horse battery';
+  const secondPassword = 'second correct horse battery';
+  let userId: string | null = null;
+
+  afterAll(async () => {
+    if (userId) await sql.query('DELETE FROM users WHERE id = $1', [userId]);
+    await sql.query('DELETE FROM failed_sign_in_attempts WHERE email = $1', [
+      email
+    ]);
+  });
+
+  it('gives a magic-link user a password, then replaces it', async () => {
+    userId = await createMagicLinkUser(email);
+
+    expect(
+      sessionCookie(await postCredentials(email, firstPassword))
+    ).toBeUndefined();
+
+    expect(await setPassword(userId, firstPassword)).toBe(true);
+    expect(
+      sessionCookie(await postCredentials(email, firstPassword))
+    ).toBeDefined();
+
+    expect(await setPassword(userId, secondPassword)).toBe(true);
+    expect(
+      sessionCookie(await postCredentials(email, secondPassword))
+    ).toBeDefined();
+    expect(
+      sessionCookie(await postCredentials(email, firstPassword))
+    ).toBeUndefined();
+  }, 60_000);
+
+  it('leaves the columns the magic link depends on alone', async () => {
+    const before = await findUserByEmail(email);
+    await setPassword(String(before?.id), 'third correct horse battery');
+    const after = await findUserByEmail(email);
+
+    expect(after?.emailVerified).toEqual(before?.emailVerified);
+    expect(after?.email).toBe(before?.email);
+    expect(after?.id).toBe(before?.id);
+  }, 30_000);
+
+  it('reports no match for a user that is gone', async () => {
+    expect(await setPassword('0', firstPassword)).toBe(false);
+  }, 30_000);
+});
+
+// A user who signed up by magic link only, so the row has no password hash.
+async function createMagicLinkUser(email: string): Promise<string> {
+  const result = await sql.query<{ id: number }>(
+    `INSERT INTO users (email, "emailVerified", password_hash)
+     VALUES ($1, NOW(), NULL)
+     RETURNING id`,
+    [email]
+  );
+  return String(result.rows[0].id);
+}
 
 async function attemptCount(email: string): Promise<number> {
   const result = await sql.query<{ count: string }>(
