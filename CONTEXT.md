@@ -25,7 +25,7 @@ The act of choosing a password for an account that already exists. One form cove
 _Avoid_: Change password, update password, reset password
 
 **Forgotten password**:
-The flow for a user who cannot sign in because they do not know their password. A link on `/login` leads to `/forgot-password`, which asks for an email and sends the ordinary magic link. The link signs the user in and lands them on the set-password form. There is no reset token and no second email template. An email with no account gets the same link, which creates the account and lands on the home page, so the response never says whether the account exists.
+The flow for a user who cannot sign in because they do not know their password. A link on `/login` leads to `/forgot-password`, which asks for an email and sends the ordinary magic link. The link signs the user in and lands them on the set-password form. No second token system and no second email template exist. An email with no account gets the same link, which creates the account and lands on the home page, so the response never says whether the account exists.
 _Avoid_: Password reset, reset link, reset token
 
 **Password rules**:
