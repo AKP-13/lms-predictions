@@ -66,7 +66,7 @@ export const ATTEMPT_WINDOW_MS = 15 * 60 * 1000;
 
 export const MAX_ATTEMPTS_PER_EMAIL = 5;
 
-// One address serves many users, so it gets more room.
+// Higher than the email limit: many users can share one address.
 export const MAX_ATTEMPTS_PER_IP = 30;
 
 export type RecentAttempts = {

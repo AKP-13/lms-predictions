@@ -49,7 +49,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="font-semibold text-base text-gray-900 mb-2">How you log in</h2>
+            <h2 className="font-semibold text-base text-gray-900 mb-2">How you sign in</h2>
             <p className="mb-2">
               You can sign in with a magic link emailed to you, or with a password.
               If you set a password, I store it only as a bcrypt hash — I never see

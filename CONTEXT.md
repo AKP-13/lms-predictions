@@ -20,6 +20,18 @@ _Avoid_: Log in, login
 The test that refuses a password which appears in a public list of breached passwords. It sends the first five characters of the password's hash to the Have I Been Pwned range API, then matches the rest of the hash itself. Neither the password nor its whole hash leaves the server.
 _Avoid_: Pwned check, HIBP check
 
+**Failed attempt**:
+One sign-in attempt with a password that the app refused. The app records the email address entered, the IP address it came from, and the time. It keeps the row for one day.
+_Avoid_: Failed login, bad attempt
+
+**Attempt window**:
+The period the app looks back over when it counts failed attempts. Attempts before the window do not count.
+_Avoid_: Lockout period, cooldown
+
+**Rate limit**:
+The refusal of further password attempts once the failed attempts inside the window reach a threshold. One threshold counts attempts for an email address, the other counts attempts from an IP address. The account stays usable: no attempt locks it.
+_Avoid_: Lockout, throttle, ban
+
 **Default league**:
 The league the app enrols every new user in as soon as their account exists, whatever their auth method. The user does not choose it.
 _Avoid_: Shared league, WC league

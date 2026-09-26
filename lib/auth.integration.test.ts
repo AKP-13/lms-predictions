@@ -105,7 +105,7 @@ async function attemptCount(email: string): Promise<number> {
   return Number(result.rows[0].count);
 }
 
-// Moves the recorded attempts back past the window, as waiting would.
+// Moves the recorded attempts back past the window, as a wait would.
 async function ageAttempts(email: string): Promise<void> {
   await sql.query(
     `UPDATE failed_sign_in_attempts

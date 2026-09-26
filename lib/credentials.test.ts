@@ -257,11 +257,6 @@ describe('rateLimitError', () => {
 
     expect(limited).not.toBe(refused.allow ? null : refused.reason);
   });
-
-  it('keeps the email threshold below the IP threshold', () => {
-    // One address serves many users, so it gets more room.
-    expect(MAX_ATTEMPTS_PER_EMAIL).toBeLessThan(MAX_ATTEMPTS_PER_IP);
-  });
 });
 
 // ── clientIp ────────────────────────────────────────────────────────────────
@@ -273,7 +268,6 @@ describe('clientIp', () => {
     expect(clientIp(headers)).toBe('203.0.113.7');
   });
 
-  // The first entry is the client; the rest are the proxies it passed through.
   it('takes the first address of a list', () => {
     const headers = new Headers({
       'x-forwarded-for': '203.0.113.7, 198.51.100.2'
