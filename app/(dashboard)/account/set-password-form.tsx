@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { FormError } from '@/components/form-error';
 import { Input } from '@/components/ui/input';
 import { MIN_PASSWORD_LENGTH } from '@/lib/credentials';
 import { setOwnPassword, SetPasswordState } from './actions';
@@ -48,11 +49,7 @@ export function SetPasswordForm() {
         minLength={MIN_PASSWORD_LENGTH}
         required
       />
-      {!edited && state.error && (
-        <p role="alert" className="text-sm text-destructive">
-          {state.error}
-        </p>
-      )}
+      <FormError message={edited ? null : state.error} />
       {!edited && state.done && (
         <p
           role="status"
