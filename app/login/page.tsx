@@ -49,12 +49,24 @@ export default function LoginPage() {
             </form>
           </section>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex flex-col items-start gap-2">
           <p className="text-sm text-muted-foreground">
             New here?{' '}
             <Link href="/signup" className="underline">
               Sign up with a password
             </Link>
+          </p>
+          <p className="text-xs text-muted-foreground">
+            By signing in, you agree to the{' '}
+            <a
+              href="/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              privacy policy
+            </a>
+            .
           </p>
         </CardFooter>
       </Card>

@@ -1,9 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import {
+  ATTEMPT_WINDOW_MS,
+  MAX_ATTEMPTS_PER_EMAIL,
+  MAX_ATTEMPTS_PER_IP,
   breachLookupError,
+  clientIp,
   decideSignIn,
   normaliseEmail,
-  passwordLengthError
+  passwordLengthError,
+  rateLimitError
 } from './credentials';
 
 // ── passwordLengthError ──────────────────────────────────────────────────────
@@ -171,5 +176,117 @@ describe('breachLookupError', () => {
     });
 
     expect(error).toBeNull();
+  });
+});
+
+// ── rateLimitError ──────────────────────────────────────────────────────────
+
+describe('rateLimitError', () => {
+  const now = new Date('2026-09-26T12:00:00Z');
+
+  // Attempts spaced one second apart, the most recent one second ago.
+  function recent(count: number): Date[] {
+    return Array.from(
+      { length: count },
+      (_value, index) => new Date(now.getTime() - (index + 1) * 1000)
+    );
+  }
+
+  const old = new Date(now.getTime() - ATTEMPT_WINDOW_MS - 1000);
+
+  it('accepts an attempt when there are no earlier attempts', () => {
+    expect(rateLimitError({ byEmail: [], byIp: [] }, now)).toBeNull();
+  });
+
+  it('accepts an attempt one below the email threshold', () => {
+    const error = rateLimitError(
+      { byEmail: recent(MAX_ATTEMPTS_PER_EMAIL - 1), byIp: [] },
+      now
+    );
+
+    expect(error).toBeNull();
+  });
+
+  it('refuses an attempt at the email threshold', () => {
+    const error = rateLimitError(
+      { byEmail: recent(MAX_ATTEMPTS_PER_EMAIL), byIp: [] },
+      now
+    );
+
+    expect(error).not.toBeNull();
+  });
+
+  it('refuses an attempt at the IP threshold', () => {
+    const error = rateLimitError(
+      { byEmail: [], byIp: recent(MAX_ATTEMPTS_PER_IP) },
+      now
+    );
+
+    expect(error).not.toBeNull();
+  });
+
+  it('ignores attempts older than the window', () => {
+    const byEmail = Array.from({ length: MAX_ATTEMPTS_PER_EMAIL }, () => old);
+
+    expect(rateLimitError({ byEmail, byIp: [] }, now)).toBeNull();
+  });
+
+  it('counts only the attempts inside the window', () => {
+    const byEmail = [
+      ...Array.from({ length: MAX_ATTEMPTS_PER_EMAIL }, () => old),
+      ...recent(MAX_ATTEMPTS_PER_EMAIL - 1)
+    ];
+
+    expect(rateLimitError({ byEmail, byIp: [] }, now)).toBeNull();
+  });
+
+  it('counts an attempt on the window edge', () => {
+    const edge = new Date(now.getTime() - ATTEMPT_WINDOW_MS);
+    const byEmail = Array.from({ length: MAX_ATTEMPTS_PER_EMAIL }, () => edge);
+
+    expect(rateLimitError({ byEmail, byIp: [] }, now)).not.toBeNull();
+  });
+
+  // The refusal must not read like the wrong-password refusal.
+  it('gives a message that differs from the generic refusal', () => {
+    const limited = rateLimitError(
+      { byEmail: recent(MAX_ATTEMPTS_PER_EMAIL), byIp: [] },
+      now
+    );
+    const refused = decideSignIn(null, false);
+
+    expect(limited).not.toBe(refused.allow ? null : refused.reason);
+  });
+
+  it('keeps the email threshold below the IP threshold', () => {
+    // One address serves many users, so it gets more room.
+    expect(MAX_ATTEMPTS_PER_EMAIL).toBeLessThan(MAX_ATTEMPTS_PER_IP);
+  });
+});
+
+// ── clientIp ────────────────────────────────────────────────────────────────
+
+describe('clientIp', () => {
+  it('reads the address the proxy forwarded', () => {
+    const headers = new Headers({ 'x-forwarded-for': '203.0.113.7' });
+
+    expect(clientIp(headers)).toBe('203.0.113.7');
+  });
+
+  // The first entry is the client; the rest are the proxies it passed through.
+  it('takes the first address of a list', () => {
+    const headers = new Headers({
+      'x-forwarded-for': '203.0.113.7, 198.51.100.2'
+    });
+
+    expect(clientIp(headers)).toBe('203.0.113.7');
+  });
+
+  it('returns null when no header carries an address', () => {
+    expect(clientIp(new Headers())).toBeNull();
+  });
+
+  it('returns null for an empty header', () => {
+    expect(clientIp(new Headers({ 'x-forwarded-for': '  ' }))).toBeNull();
   });
 });

@@ -4,8 +4,18 @@ import { Pool } from '@neondatabase/serverless';
 import Credentials from 'next-auth/providers/credentials';
 import Resend from 'next-auth/providers/resend';
 import { authConfig } from '@/lib/auth.config';
-import { decideSignIn, normaliseEmail } from '@/lib/credentials';
+import {
+  clientIp,
+  decideSignIn,
+  normaliseEmail,
+  rateLimitError
+} from '@/lib/credentials';
 import { enrolInDefaultLeague } from '@/lib/leagues';
+import {
+  clearAttemptsForEmail,
+  recentAttempts,
+  recordFailedAttempt
+} from '@/lib/sign-in-attempts';
 import { findUserByEmail, passwordMatches } from '@/lib/users';
 
 declare module 'next-auth' {
@@ -51,16 +61,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' }
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         const email = normaliseEmail(String(credentials.email ?? ''));
         const password = String(credentials.password ?? '');
+        const ip = clientIp(request.headers);
+
+        const now = new Date();
+        const limited = rateLimitError(
+          await recentAttempts(email, ip, now),
+          now
+        );
+        if (limited) throw new SignInRefused(limited);
+
         const user = email ? await findUserByEmail(email) : null;
         const matches = await passwordMatches(
           password,
           user?.passwordHash ?? null
         );
         const decision = decideSignIn(user, matches);
-        if (!decision.allow) throw new SignInRefused(decision.reason);
+        if (!decision.allow) {
+          await recordFailedAttempt(email, ip);
+          throw new SignInRefused(decision.reason);
+        }
+        if (email) await clearAttemptsForEmail(email);
         const { id, email: userEmail, name, image } = decision.user;
         return { id, email: userEmail, name, image };
       }

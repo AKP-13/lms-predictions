@@ -61,3 +61,39 @@ export function decideSignIn<User extends SignInUser>(
   }
   return { allow: true, user };
 }
+
+export const ATTEMPT_WINDOW_MS = 15 * 60 * 1000;
+
+export const MAX_ATTEMPTS_PER_EMAIL = 5;
+
+// One address serves many users, so it gets more room.
+export const MAX_ATTEMPTS_PER_IP = 30;
+
+export type RecentAttempts = {
+  byEmail: Date[];
+  byIp: Date[];
+};
+
+// Distinct from SIGN_IN_FAILED: a refusal to try reveals nothing about the account.
+const RATE_LIMITED =
+  'Too many failed sign-in attempts. Wait a few minutes, then try again.';
+
+// Returns a message to show the user, or null to check the password.
+export function rateLimitError(
+  attempts: RecentAttempts,
+  now: Date
+): string | null {
+  const start = now.getTime() - ATTEMPT_WINDOW_MS;
+  const inWindow = (attemptedAt: Date) => attemptedAt.getTime() >= start;
+  const overLimit =
+    attempts.byEmail.filter(inWindow).length >= MAX_ATTEMPTS_PER_EMAIL ||
+    attempts.byIp.filter(inWindow).length >= MAX_ATTEMPTS_PER_IP;
+  return overLimit ? RATE_LIMITED : null;
+}
+
+// The first entry is the client; the rest are the proxies it passed through.
+export function clientIp(headers: Headers): string | null {
+  const forwarded = headers.get('x-forwarded-for') ?? '';
+  const first = forwarded.split(',')[0].trim();
+  return first || null;
+}

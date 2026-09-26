@@ -6,7 +6,7 @@ export default function PrivacyPage() {
       <Card className="rounded-xl bg-white shadow-sm">
         <CardHeader className="p-6 pb-2">
           <CardTitle className="text-2xl">Privacy Policy</CardTitle>
-          <p className="text-xs text-muted-foreground mt-1">Last updated: May 2026</p>
+          <p className="text-xs text-muted-foreground mt-1">Last updated: September 2026</p>
         </CardHeader>
         <CardContent className="p-6 pt-4 flex flex-col gap-6 text-sm text-gray-700 leading-relaxed">
 
@@ -37,6 +37,11 @@ export default function PrivacyPage() {
               <li>Your league membership (which league you belong to)</li>
               <li>Your predictions</li>
               <li>Your results</li>
+              <li>Your password, stored only as a bcrypt hash, if you set one</li>
+              <li>
+                Failed sign-in attempts: the email address entered and the IP
+                address it came from
+              </li>
             </ul>
             <p className="mt-2 text-muted-foreground">
               I don&apos;t collect anything beyond what&apos;s listed above.
@@ -45,10 +50,16 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="font-semibold text-base text-gray-900 mb-2">How you log in</h2>
+            <p className="mb-2">
+              You can sign in with a magic link emailed to you, or with a password.
+              If you set a password, I store it only as a bcrypt hash — I never see
+              or keep the password itself.
+            </p>
             <p>
-              I use a third-party OAuth provider to handle login. I don&apos;t store your
-              password — authentication is handled entirely by the provider you sign in with.
-              I only receive your email address from them.
+              To protect accounts from password guessing, I record every failed
+              sign-in attempt: the email address entered and the IP address it came
+              from. Too many failed attempts in a short period are refused. I use
+              these records only for this security check.
             </p>
           </section>
 
@@ -80,8 +91,10 @@ export default function PrivacyPage() {
           <section>
             <h2 className="font-semibold text-base text-gray-900 mb-2">How long I keep it</h2>
             <p>
-              I keep your data for as long as the league is running. If you&apos;d like your
-              data removed at any time, just get in touch and I&apos;ll delete it.
+              I keep your data for as long as the league is running. Failed sign-in
+              records are the exception: they are deleted after one day. If you&apos;d
+              like your data removed at any time, just get in touch and I&apos;ll
+              delete it.
             </p>
           </section>
 

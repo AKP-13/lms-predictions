@@ -23,12 +23,24 @@ export default function SignUpPage() {
         <CardContent>
           <SignUpForm />
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex flex-col items-start gap-2">
           <p className="text-sm text-muted-foreground">
             Already have an account?{' '}
             <Link href="/login" className="underline">
               Sign in
             </Link>
+          </p>
+          <p className="text-xs text-muted-foreground">
+            By signing up, you agree to the{' '}
+            <a
+              href="/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              privacy policy
+            </a>
+            .
           </p>
         </CardFooter>
       </Card>
