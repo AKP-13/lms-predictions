@@ -5,13 +5,12 @@ import { enrolInDefaultLeague } from '@/lib/leagues';
 import { newPasswordError } from '@/lib/passwords';
 import { createUserWithPassword } from '@/lib/users';
 import { normaliseEmail } from '@/lib/credentials';
-
-export type SignUpState = { error: string | null; email: string };
+import type { CredentialsFormState } from '@/lib/form-state';
 
 export async function signUp(
-  _prevState: SignUpState,
+  _prevState: CredentialsFormState,
   formData: FormData
-): Promise<SignUpState> {
+): Promise<CredentialsFormState> {
   const rawEmail = String(formData.get('email') ?? '');
   const password = String(formData.get('password') ?? '');
 

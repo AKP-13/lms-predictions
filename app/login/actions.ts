@@ -1,13 +1,12 @@
 'use server';
 
 import { SignInRefused, signIn } from '@/lib/auth';
-
-export type SignInState = { error: string | null; email: string };
+import type { CredentialsFormState } from '@/lib/form-state';
 
 export async function signInWithPassword(
-  _prevState: SignInState,
+  _prevState: CredentialsFormState,
   formData: FormData
-): Promise<SignInState> {
+): Promise<CredentialsFormState> {
   const email = String(formData.get('email') ?? '');
   const password = String(formData.get('password') ?? '');
 
