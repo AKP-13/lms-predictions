@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   ATTEMPT_WINDOW_MS,
+  FORGOTTEN_PASSWORD_DESTINATION,
   MAX_ATTEMPTS_PER_EMAIL,
   MAX_PASSWORD_BYTES,
   MAX_ATTEMPTS_PER_IP,
@@ -305,28 +306,40 @@ describe('clientIp', () => {
 // ── signInDestination ───────────────────────────────────────────────────────
 
 describe('signInDestination', () => {
-  const baseUrl = 'https://lmsiq.co.uk';
+  const baseUrl = 'http://localhost:3000';
 
-  it('lands the forgotten-password flow on the set-password form', () => {
-    expect(signInDestination('/account', baseUrl)).toBe(
-      'https://lmsiq.co.uk/account#set-password'
+  it('lands the forgotten-password link on the set-password form', () => {
+    expect(signInDestination(FORGOTTEN_PASSWORD_DESTINATION, baseUrl)).toBe(
+      'http://localhost:3000/account#set-password'
     );
+  });
+
+  it('keeps an ordinary /account destination without the anchor', () => {
+    expect(signInDestination('/account', baseUrl)).toBe(
+      'http://localhost:3000/account'
+    );
+  });
+
+  it('sends a sign-out home', () => {
+    expect(signInDestination('/', baseUrl)).toBe('http://localhost:3000/');
   });
 
   it('sends an ordinary magic link from /login home', () => {
     expect(signInDestination(`${baseUrl}/login`, baseUrl)).toBe(
-      'https://lmsiq.co.uk/'
+      'http://localhost:3000/'
     );
   });
 
   // Auth.js reads this from a query parameter and a cookie, so anyone can set it.
   it('sends a url it cannot parse home', () => {
-    expect(signInDestination('http://', baseUrl)).toBe('https://lmsiq.co.uk/');
+    expect(signInDestination('http://', baseUrl)).toBe(
+      'http://localhost:3000/'
+    );
   });
 
   it('rebuilds the destination on our own origin', () => {
     expect(signInDestination('https://evil.example/account', baseUrl)).toBe(
-      'https://lmsiq.co.uk/account#set-password'
+      'http://localhost:3000/account'
     );
   });
 });

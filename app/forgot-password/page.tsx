@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { AuthCard } from '@/components/auth-card';
 import { MagicLinkForm } from '@/components/magic-link-form';
-import { SET_PASSWORD_FORM } from '@/lib/credentials';
+import { FORGOTTEN_PASSWORD_DESTINATION } from '@/lib/credentials';
 
 export default function ForgotPasswordPage() {
   return (
@@ -17,7 +17,10 @@ export default function ForgotPasswordPage() {
         </p>
       }
     >
-      <MagicLinkForm label="Email me a link" redirectTo={SET_PASSWORD_FORM} />
+      <MagicLinkForm
+        label="Email me a link"
+        redirectTo={FORGOTTEN_PASSWORD_DESTINATION}
+      />
     </AuthCard>
   );
 }

@@ -104,22 +104,29 @@ export function rateLimitError(
 
 const SIGN_IN_HOME = '/';
 
-// The set-password form, for the forgotten-password flow.
-export const SET_PASSWORD_FORM = '/account#set-password';
+const ACCOUNT_PAGE = '/account';
+
+const SET_PASSWORD_FORM = `${ACCOUNT_PAGE}#set-password`;
+
+// Only the forgotten-password link asks for this, so no other sign-in jumps to the form.
+export const FORGOTTEN_PASSWORD_DESTINATION = `${ACCOUNT_PAGE}?after=forgotten-password`;
 
 export function signInDestination(url: string, baseUrl: string): string {
   // Auth.js reads the url from a query parameter and a cookie, so anyone can set it.
-  const path = pathOf(url, baseUrl);
+  const requested = pathAndQueryOf(url, baseUrl);
   const allowed =
-    path === pathOf(SET_PASSWORD_FORM, baseUrl)
+    requested === FORGOTTEN_PASSWORD_DESTINATION
       ? SET_PASSWORD_FORM
-      : SIGN_IN_HOME;
+      : requested === ACCOUNT_PAGE
+        ? ACCOUNT_PAGE
+        : SIGN_IN_HOME;
   return new URL(allowed, baseUrl).toString();
 }
 
-function pathOf(url: string, baseUrl: string): string | null {
+function pathAndQueryOf(url: string, baseUrl: string): string | null {
   try {
-    return new URL(url, baseUrl).pathname;
+    const { pathname, search } = new URL(url, baseUrl);
+    return pathname + search;
   } catch {
     return null;
   }

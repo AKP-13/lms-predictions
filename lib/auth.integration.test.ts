@@ -5,7 +5,10 @@ import { NextRequest } from 'next/server';
 import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { DEFAULT_LEAGUE_ID } from '@/lib/constants';
 import { registerUser } from './registration';
-import { MAX_ATTEMPTS_PER_EMAIL } from './credentials';
+import {
+  FORGOTTEN_PASSWORD_DESTINATION,
+  MAX_ATTEMPTS_PER_EMAIL
+} from './credentials';
 import { clearAttemptsForEmail } from './sign-in-attempts';
 import { handlers } from './auth';
 import { createUserWithPassword, findUserByEmail, setPassword } from './users';
@@ -186,9 +189,13 @@ describe.runIf(hasDatabase)('set password from the account page', () => {
 // These need no database: the signin route answers before it reads a user.
 describe('where a sign-in lands', () => {
   it('keeps the forgotten-password destination for the magic-link email', async () => {
-    expect(await resolvedCallbackUrl('/account')).toBe(
+    expect(await resolvedCallbackUrl(FORGOTTEN_PASSWORD_DESTINATION)).toBe(
       `${ORIGIN}/account#set-password`
     );
+  });
+
+  it('keeps an ordinary /account destination without the anchor', async () => {
+    expect(await resolvedCallbackUrl('/account')).toBe(`${ORIGIN}/account`);
   });
 
   it('sends an ordinary sign-in from /login home', async () => {
