@@ -19,6 +19,7 @@ export async function registerUser(
     return { ok: false, error: 'Enter a valid email address.' };
   }
 
+  // The password rules apply to every email, so the reply does not show which emails have an account.
   const passwordError = await newPasswordError(password);
   if (passwordError) {
     return { ok: false, error: passwordError };
