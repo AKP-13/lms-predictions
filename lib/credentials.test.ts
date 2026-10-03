@@ -317,7 +317,7 @@ describe('signInDestination', () => {
 
   it('lands the forgotten-password link on the set-password form', () => {
     expect(signInDestination(FORGOTTEN_PASSWORD_DESTINATION, baseUrl)).toBe(
-      'http://localhost:3000/account#set-password'
+      'http://localhost:3000/account?after=forgotten-password#set-password'
     );
   });
 
@@ -344,9 +344,22 @@ describe('signInDestination', () => {
     );
   });
 
-  it('rebuilds the destination on our own origin', () => {
+  it('sends a url on another origin home', () => {
     expect(signInDestination('https://evil.example/account', baseUrl)).toBe(
-      'http://localhost:3000/account'
+      'http://localhost:3000/'
     );
+  });
+
+  // Auth.js runs this again on the link click, with the first result as the url.
+  it.each([
+    FORGOTTEN_PASSWORD_DESTINATION,
+    '/account',
+    '/',
+    '/login',
+    'https://evil.example/account'
+  ])('gives the same destination on the second run for %s', (url) => {
+    const first = signInDestination(url, baseUrl);
+
+    expect(signInDestination(first, baseUrl)).toBe(first);
   });
 });

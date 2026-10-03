@@ -193,8 +193,15 @@ describe.runIf(hasDatabase)('set password from the account page', () => {
 describe('where a sign-in lands', () => {
   it('keeps the forgotten-password destination for the magic-link email', async () => {
     expect(await resolvedCallbackUrl(FORGOTTEN_PASSWORD_DESTINATION)).toBe(
-      `${ORIGIN}/account#set-password`
+      `${ORIGIN}/account?after=forgotten-password#set-password`
     );
+  });
+
+  // The link click runs the callback again, with the first result as the url.
+  it('keeps the set-password form when the magic link is clicked', async () => {
+    const inEmail = await resolvedCallbackUrl(FORGOTTEN_PASSWORD_DESTINATION);
+
+    expect(await resolvedCallbackUrl(inEmail)).toBe(inEmail);
   });
 
   it('keeps an ordinary /account destination without the anchor', async () => {

@@ -107,10 +107,11 @@ const SIGN_IN_HOME = '/';
 
 const ACCOUNT_PAGE = '/account';
 
-const SET_PASSWORD_FORM = `${ACCOUNT_PAGE}#set-password`;
-
 // Only the forgotten-password link asks for this, so no other sign-in jumps to the form.
 export const FORGOTTEN_PASSWORD_DESTINATION = `${ACCOUNT_PAGE}?after=forgotten-password`;
+
+// Keeps the marker, because the link click runs signInDestination again on this url.
+const SET_PASSWORD_FORM = `${FORGOTTEN_PASSWORD_DESTINATION}#set-password`;
 
 export function signInDestination(url: string, baseUrl: string): string {
   // Auth.js reads the url from a query parameter and a cookie, so anyone can set it.
@@ -124,10 +125,11 @@ export function signInDestination(url: string, baseUrl: string): string {
   return new URL(allowed, baseUrl).toString();
 }
 
+// Null for a url on another origin, or one that does not parse.
 function pathAndQueryOf(url: string, baseUrl: string): string | null {
   try {
-    const { pathname, search } = new URL(url, baseUrl);
-    return pathname + search;
+    const { origin, pathname, search } = new URL(url, baseUrl);
+    return origin === new URL(baseUrl).origin ? pathname + search : null;
   } catch {
     return null;
   }
