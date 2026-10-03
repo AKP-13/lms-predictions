@@ -1,60 +1,28 @@
 import Link from 'next/link';
-import {
-  BookOpen,
-  Home,
-  LineChart,
-  MousePointerClickIcon,
-  Package,
-  Package2,
-  PanelLeft,
-  Settings,
-  ShoppingCart,
-  Table,
-  Trophy,
-  UserCog,
-  Users2
-} from 'lucide-react';
+import type { Session } from 'next-auth';
+import { Trophy } from 'lucide-react';
 
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator
-} from '@/components/ui/breadcrumb';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from '@/components/ui/tooltip';
 import { Analytics } from '@vercel/analytics/react';
-import { User } from './user';
-import { VercelLogo } from '@/components/icons';
 import Providers from './providers';
 import { NavItem } from './nav-item';
-import { SearchInput } from './search';
+import { MobileNav } from './mobile-nav';
+import { navItems, type NavEntry } from './nav-items';
 import { auth } from '@/lib/auth';
 import AuthButtons from './auth-buttons';
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
+  const session = await auth();
+
   return (
     <Providers>
       <main className="flex min-h-screen w-full flex-col bg-muted/40">
-        <DesktopNav />
+        <DesktopNav session={session} />
         <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-          {/* <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-            <MobileNav />
-            <DashboardBreadcrumb />
-            <SearchInput />
-            <User />
-          </header> */}
+          <MobileNav session={session} />
           <main className="md:grid items-start gap-2 p-4 sm:px-6 sm:py-0 md:gap-4 bg-muted/40">
             {children}
           </main>
@@ -65,8 +33,9 @@ export default function DashboardLayout({
   );
 }
 
-async function DesktopNav() {
-  const session = await auth();
+function DesktopNav({ session }: { session: Session | null }) {
+  const items = navItems(session);
+
   return (
     <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
       <nav className="flex flex-col items-center gap-4 px-2 sm:py-5">
@@ -78,110 +47,29 @@ async function DesktopNav() {
           <span className="sr-only">LPS</span>
         </Link>
 
-        {/* World Cup 2026 nav */}
-        <NavItem href="/" label="Picks">
-          <Home className="h-5 w-5" />
-        </NavItem>
-
-        <NavItem href="/results" label="Results">
-          <Table className="h-5 w-5" />
-        </NavItem>
-
-        {/* FPL nav (restore after summer) */}
-        {/* <NavItem href="#" label="Predictions">
-          <MousePointerClickIcon className="h-5 w-5" />
-        </NavItem> */}
-        {/* <NavItem href="#" label="Analytics">
-          <LineChart className="h-5 w-5" />
-        </NavItem> */}
+        <DesktopNavItems items={items} group="pages" />
       </nav>
       <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
-        {session && (
-          <NavItem href="/account" label="Account">
-            <UserCog className="h-5 w-5" />
-          </NavItem>
-        )}
+        <DesktopNavItems items={items} group="account" />
 
-        <NavItem href="#" label="Settings">
-          <Settings className="h-5 w-5" />
-        </NavItem>
-
-        <AuthButtons />
+        <AuthButtons session={session} />
       </nav>
     </aside>
   );
 }
 
-function MobileNav() {
-  return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button size="icon" variant="outline" className="sm:hidden">
-          <PanelLeft className="h-5 w-5" />
-          <span className="sr-only">Toggle Menu</span>
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="left" className="sm:max-w-xs">
-        <nav className="grid gap-6 text-lg font-medium">
-          <Link
-            href="/"
-            className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
-          >
-            <Trophy className="h-5 w-5 transition-all group-hover:scale-110" />
-            <span className="sr-only">LPS</span>
-          </Link>
-
-          {/* World Cup 2026 nav */}
-          <Link
-            href="/"
-            className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-          >
-            <Home className="h-5 w-5" />
-            Picks
-          </Link>
-          <Link
-            href="/results"
-            className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-          >
-            <Table className="h-5 w-5" />
-            Results
-          </Link>
-
-          {/* FPL nav (restore after summer) */}
-          {/* <Link href="#" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
-            <MousePointerClickIcon className="h-5 w-5" />
-            Predictions
-          </Link> */}
-          {/* <Link href="#" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
-            <LineChart className="h-5 w-5" />
-            Settings
-          </Link> */}
-        </nav>
-      </SheetContent>
-    </Sheet>
-  );
-}
-
-function DashboardBreadcrumb() {
-  return (
-    <Breadcrumb className="hidden md:flex">
-      <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink asChild>
-            <Link href="/landing">Dashboard</Link>
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbLink asChild>
-            <Link href="#">Products</Link>
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbPage>All Products</BreadcrumbPage>
-        </BreadcrumbItem>
-      </BreadcrumbList>
-    </Breadcrumb>
-  );
+function DesktopNavItems({
+  items,
+  group
+}: {
+  items: NavEntry[];
+  group: NavEntry['group'];
+}) {
+  return items
+    .filter((item) => item.group === group)
+    .map(({ href, label, icon: Icon }) => (
+      <NavItem key={href} href={href} label={label}>
+        <Icon className="h-5 w-5" />
+      </NavItem>
+    ));
 }
