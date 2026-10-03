@@ -7,23 +7,6 @@ import FixturesResults from './fixtures-results';
 import Predictions from './predictions';
 import LeagueTable from './league-table';
 import PickPlanner from '@/components/PickPlanner';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  TeamName,
-  TeamScore
-} from '@/components/ui/table';
 import { FPLTeamName, Injury, TeamsArr } from '@/lib/definitions';
 import {
   resolvePredictionGameweek,
@@ -97,15 +80,6 @@ const Page = () => {
         : [],
     [isLoadingFplData, fplData]
   );
-
-  const maxGameWeeks = isLoadingResults
-    ? 1
-    : Array.isArray(Object.values(results))
-      ? Object.values(results).reduce(
-          (maxLength, currentArray) => Math.max(maxLength, currentArray.length),
-          0
-        )
-      : 1;
 
   const injuries: Injury[] =
     fplData?.elements?.reduce<
@@ -213,77 +187,6 @@ const Page = () => {
           currentGameId={currentGameId}
         />
       </div>
-
-      <Card className="rounded-xl bg-white p-2 my-6 shadow-sm overflow-auto md:hidden">
-        <CardHeader className="p-2 md:p-6">
-          <CardTitle>Results</CardTitle>
-          <CardDescription>View your previous results</CardDescription>
-        </CardHeader>
-
-        <CardContent className="p-2 md:p-6 md:pt-0">
-          {session === null ? (
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <a
-                style={{ color: 'blue', fontWeight: 600, textAlign: 'center' }}
-                href="/login"
-              >
-                Sign in to get started
-              </a>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Game</TableHead>
-                  {Array.from(Array(maxGameWeeks)).map((_, gameWeek) => (
-                    <TableHead
-                      key={`gw-headcell-${gameWeek + 1}`}
-                    >{`Round ${gameWeek + 1}`}</TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {Object.values(results).map((gameResults, gameIdx) => (
-                  <TableRow key={`game-row-${gameResults[0].game_id}`}>
-                    <TableCell className="font-medium">{gameIdx + 1}</TableCell>
-                    {gameResults.map((prediction, predictionIdx) => (
-                      <TableCell
-                        key={`gw-cell-${gameIdx}-${predictionIdx}`}
-                        className={`table-cell ${prediction.correct ? 'bg-green-200' : 'bg-red-200'}`}
-                      >
-                        <div
-                          style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            textAlign: 'center'
-                          }}
-                        >
-                          <div>
-                            <TeamName location="Home" prediction={prediction} />{' '}
-                            v{' '}
-                            <TeamName location="Away" prediction={prediction} />
-                          </div>
-                          <div>
-                            <TeamScore
-                              location="Home"
-                              prediction={prediction}
-                            />{' '}
-                            <span className="font-thin">v</span>{' '}
-                            <TeamScore
-                              location="Away"
-                              prediction={prediction}
-                            />
-                          </div>
-                        </div>
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
     </main>
   );
 };
