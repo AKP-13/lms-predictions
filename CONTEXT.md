@@ -16,10 +16,6 @@ _Avoid_: Register, create account
 The flow where a returning user proves their identity, using either an existing password or a magic link. It has one page, `/login`. Auth.js redirects its own generated page there.
 _Avoid_: Log in, login
 
-**Home page**:
-The page at `/`, where a player makes the weekly pick and researches it. On a phone it has five tabs: **This week** (the season tiles, the current game, and the pick), **Fixtures**, **Injuries**, **Table** (the league table), and **Planner** (the Pick Planner).
-_Avoid_: Dashboard, Picks page
-
 **Account page**:
 The signed-in page at `/account` where a user manages their own account. Today it holds the set-password form. It needs a session and nothing else.
 _Avoid_: Profile, settings page
