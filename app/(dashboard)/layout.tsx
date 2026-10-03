@@ -6,7 +6,7 @@ import { Analytics } from '@vercel/analytics/react';
 import Providers from './providers';
 import { NavItem } from './nav-item';
 import { MobileNav } from './mobile-nav';
-import { navItems } from './nav-items';
+import { navItems, type NavEntry } from './nav-items';
 import { auth } from '@/lib/auth';
 import AuthButtons from './auth-buttons';
 
@@ -47,25 +47,29 @@ function DesktopNav({ session }: { session: Session | null }) {
           <span className="sr-only">LPS</span>
         </Link>
 
-        {items
-          .filter(({ group }) => group === 'pages')
-          .map(({ href, label, icon: Icon }) => (
-            <NavItem key={href} href={href} label={label}>
-              <Icon className="h-5 w-5" />
-            </NavItem>
-          ))}
+        <DesktopNavItems items={items} group="pages" />
       </nav>
       <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
-        {items
-          .filter(({ group }) => group === 'account')
-          .map(({ href, label, icon: Icon }) => (
-            <NavItem key={href} href={href} label={label}>
-              <Icon className="h-5 w-5" />
-            </NavItem>
-          ))}
+        <DesktopNavItems items={items} group="account" />
 
         <AuthButtons session={session} />
       </nav>
     </aside>
   );
+}
+
+function DesktopNavItems({
+  items,
+  group
+}: {
+  items: NavEntry[];
+  group: NavEntry['group'];
+}) {
+  return items
+    .filter((item) => item.group === group)
+    .map(({ href, label, icon: Icon }) => (
+      <NavItem key={href} href={href} label={label}>
+        <Icon className="h-5 w-5" />
+      </NavItem>
+    ));
 }
