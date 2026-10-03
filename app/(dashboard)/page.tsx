@@ -14,12 +14,14 @@ import {
   returnIsPastSubmissionDeadline
 } from '@/lib/gameweek';
 import { useSession } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
 import useResults from 'app/hooks/useResults';
 import useFixtures from 'app/hooks/useFixtures';
 import useFplData, { FplData } from 'app/hooks/useFplData';
 import useLeagueInfo from 'app/hooks/useLeagueInfo';
 import useCurrentGameData from 'app/hooks/useCurrentGameData';
 import Injuries from './injuries';
+import { HomeTabs, type HomeTab } from './home-tabs';
 
 const Page = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -45,6 +47,23 @@ const Page = () => {
   }, [numWeeks]);
 
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
+
+  // A push, not a replace, so the back button returns to the previous tab.
+  const changeTab = (tab: HomeTab) => {
+    const params = new URLSearchParams(searchParams);
+    if (tab === 'this-week') {
+      params.delete('tab');
+    } else {
+      params.set('tab', tab);
+    }
+    const query = params.toString();
+    window.history.pushState(
+      null,
+      '',
+      query ? `?${query}` : window.location.pathname
+    );
+  };
   const { results, isLoadingResults } = useResults({ refreshTrigger });
 
   const { fixtures, isLoadingFixtures } = useFixtures();
@@ -117,76 +136,74 @@ const Page = () => {
         </p>
       </div>
 
-      {session === null || session === undefined ? null : (
-        <div className="my-6">
-          <TileWrapper refreshTrigger={refreshTrigger} />
-        </div>
-      )}
+      <HomeTabs
+        tab={searchParams.get('tab')}
+        onTabChange={changeTab}
+        thisWeek={
+          <>
+            {session === null || session === undefined ? null : (
+              <div className="my-6">
+                <TileWrapper refreshTrigger={refreshTrigger} />
+              </div>
+            )}
 
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-4 my-6">
-        <div className="w-full grid md:col-span-3">
-          <CurrentGame
-            currentGameResults={currentGameResults}
-            leagueName={leagueName}
-            isLoading={isLoadingLeagueName || isLoadingCurrentGameData}
-          />
-        </div>
+            <div className="grid gap-6 grid-cols-1 md:grid-cols-4 my-6">
+              <div className="w-full grid md:col-span-3">
+                <CurrentGame
+                  currentGameResults={currentGameResults}
+                  leagueName={leagueName}
+                  isLoading={isLoadingLeagueName || isLoadingCurrentGameData}
+                />
+              </div>
 
-        <div className="w-full md:col-span-1">
-          <Predictions
-            session={session}
-            teamsArr={teamsArr}
-            results={results}
-            predictionWeekFixtures={predictionWeekFixtures}
-            predictionGwNumber={predictionGwNumber}
-            isPastSubmissionDeadline={isPastSubmissionDeadline}
-            setRefreshTrigger={setRefreshTrigger}
-            isLoading={
-              isLoadingResults || isLoadingFplData || isLoadingFixtures
-            }
-            currentGameId={currentGameId}
-          />
-        </div>
-      </div>
-
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-4 my-6">
-        <div className="w-full md:col-span-2 relative">
-          <div className="flex flex-col gap-6 md:absolute md:inset-0">
-            <FixturesResults
-              fixtures={fixtures}
-              currentGwNumber={resultsGwNumber}
-              teamsArr={teamsArr}
-              isLoading={isLoadingFixtures}
-            />
-
-            <div className="flex-1 min-h-0 flex flex-col">
-              <Injuries data={injuries} isLoading={isLoadingFplData} />
+              <div className="w-full md:col-span-1">
+                <Predictions
+                  session={session}
+                  teamsArr={teamsArr}
+                  results={results}
+                  predictionWeekFixtures={predictionWeekFixtures}
+                  predictionGwNumber={predictionGwNumber}
+                  isPastSubmissionDeadline={isPastSubmissionDeadline}
+                  setRefreshTrigger={setRefreshTrigger}
+                  isLoading={
+                    isLoadingResults || isLoadingFplData || isLoadingFixtures
+                  }
+                  currentGameId={currentGameId}
+                />
+              </div>
             </div>
-          </div>
-        </div>
-
-        <div className="w-full md:col-span-2">
+          </>
+        }
+        fixtures={
+          <FixturesResults
+            fixtures={fixtures}
+            currentGwNumber={resultsGwNumber}
+            teamsArr={teamsArr}
+            isLoading={isLoadingFixtures}
+          />
+        }
+        injuries={<Injuries data={injuries} isLoading={isLoadingFplData} />}
+        table={
           <LeagueTable
             fixtures={fixtures}
             isLoading={isLoadingFixtures}
             teamsArr={teamsArr}
           />
-        </div>
-      </div>
-
-      <div className="w-full overflow-x-auto my-6">
-        <PickPlanner
-          teams={teamsArr}
-          fixtures={fixtures || []}
-          predictionGwNumber={predictionGwNumber}
-          isPastSubmissionDeadline={isPastSubmissionDeadline}
-          numWeeks={numWeeks}
-          setNumWeeks={setNumWeeks}
-          results={results || {}}
-          session={session}
-          currentGameId={currentGameId}
-        />
-      </div>
+        }
+        planner={
+          <PickPlanner
+            teams={teamsArr}
+            fixtures={fixtures || []}
+            predictionGwNumber={predictionGwNumber}
+            isPastSubmissionDeadline={isPastSubmissionDeadline}
+            numWeeks={numWeeks}
+            setNumWeeks={setNumWeeks}
+            results={results || {}}
+            session={session}
+            currentGameId={currentGameId}
+          />
+        }
+      />
     </main>
   );
 };
