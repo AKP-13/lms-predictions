@@ -12,7 +12,7 @@ const INITIAL_STATE: CredentialsFormState = { error: null, email: '' };
 // One form for both credentials paths: sign-in and sign-up.
 export function CredentialsForm({
   action,
-  passwordPlaceholder,
+  passwordLabel,
   passwordAutoComplete,
   label
 }: {
@@ -20,7 +20,7 @@ export function CredentialsForm({
     state: CredentialsFormState,
     formData: FormData
   ) => Promise<CredentialsFormState>;
-  passwordPlaceholder: string;
+  passwordLabel: string;
   passwordAutoComplete: 'current-password' | 'new-password';
   label: string;
 }) {
@@ -31,7 +31,7 @@ export function CredentialsForm({
       <EmailInput defaultValue={state.email} />
       <PasswordInput
         name="password"
-        placeholder={passwordPlaceholder}
+        label={passwordLabel}
         autoComplete={passwordAutoComplete}
       />
       <FormError message={state.error} />

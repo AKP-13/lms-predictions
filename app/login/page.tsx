@@ -25,7 +25,7 @@ export default function LoginPage() {
         <h2 className="text-sm font-medium">With a password</h2>
         <CredentialsForm
           action={signInWithPassword}
-          passwordPlaceholder="Password"
+          passwordLabel="Password"
           passwordAutoComplete="current-password"
           label="Sign in"
         />

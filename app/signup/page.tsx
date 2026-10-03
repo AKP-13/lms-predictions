@@ -23,7 +23,7 @@ export default function SignUpPage() {
     >
       <CredentialsForm
         action={signUp}
-        passwordPlaceholder={`Password (${MIN_PASSWORD_LENGTH}+ characters)`}
+        passwordLabel={`Password (${MIN_PASSWORD_LENGTH}+ characters)`}
         passwordAutoComplete="new-password"
         label="Sign up"
       />

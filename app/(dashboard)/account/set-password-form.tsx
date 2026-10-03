@@ -36,12 +36,12 @@ export function SetPasswordForm() {
     >
       <PasswordInput
         name="password"
-        placeholder={`New password (${MIN_PASSWORD_LENGTH}+ characters)`}
+        label={`New password (${MIN_PASSWORD_LENGTH}+ characters)`}
         autoComplete="new-password"
       />
       <PasswordInput
         name="confirmation"
-        placeholder="New password again"
+        label="New password again"
         autoComplete="new-password"
       />
       <FormError message={edited ? null : state.error} />
