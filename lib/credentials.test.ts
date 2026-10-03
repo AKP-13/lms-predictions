@@ -216,27 +216,28 @@ describe('rateLimitError', () => {
     expect(rateLimitError({ byEmail: [], byIp: [] }, now)).toBeNull();
   });
 
-  it('accepts an attempt one below the email threshold', () => {
+  // The counts include the current attempt, because authorize records it first.
+  it('accepts the attempt that reaches the email threshold', () => {
     const error = rateLimitError(
-      { byEmail: recent(MAX_ATTEMPTS_PER_EMAIL - 1), byIp: [] },
+      { byEmail: recent(MAX_ATTEMPTS_PER_EMAIL), byIp: [] },
       now
     );
 
     expect(error).toBeNull();
   });
 
-  it('refuses an attempt at the email threshold', () => {
+  it('refuses an attempt over the email threshold', () => {
     const error = rateLimitError(
-      { byEmail: recent(MAX_ATTEMPTS_PER_EMAIL), byIp: [] },
+      { byEmail: recent(MAX_ATTEMPTS_PER_EMAIL + 1), byIp: [] },
       now
     );
 
     expect(error).not.toBeNull();
   });
 
-  it('refuses an attempt at the IP threshold', () => {
+  it('refuses an attempt over the IP threshold', () => {
     const error = rateLimitError(
-      { byEmail: [], byIp: recent(MAX_ATTEMPTS_PER_IP) },
+      { byEmail: [], byIp: recent(MAX_ATTEMPTS_PER_IP + 1) },
       now
     );
 
@@ -244,7 +245,10 @@ describe('rateLimitError', () => {
   });
 
   it('ignores attempts older than the window', () => {
-    const byEmail = Array.from({ length: MAX_ATTEMPTS_PER_EMAIL }, () => old);
+    const byEmail = Array.from(
+      { length: MAX_ATTEMPTS_PER_EMAIL + 1 },
+      () => old
+    );
 
     expect(rateLimitError({ byEmail, byIp: [] }, now)).toBeNull();
   });
@@ -260,7 +264,10 @@ describe('rateLimitError', () => {
 
   it('counts an attempt on the window edge', () => {
     const edge = new Date(now.getTime() - ATTEMPT_WINDOW_MS);
-    const byEmail = Array.from({ length: MAX_ATTEMPTS_PER_EMAIL }, () => edge);
+    const byEmail = Array.from(
+      { length: MAX_ATTEMPTS_PER_EMAIL + 1 },
+      () => edge
+    );
 
     expect(rateLimitError({ byEmail, byIp: [] }, now)).not.toBeNull();
   });
@@ -268,7 +275,7 @@ describe('rateLimitError', () => {
   // The refusal must not read like the wrong-password refusal.
   it('gives a message that differs from the generic refusal', () => {
     const limited = rateLimitError(
-      { byEmail: recent(MAX_ATTEMPTS_PER_EMAIL), byIp: [] },
+      { byEmail: recent(MAX_ATTEMPTS_PER_EMAIL + 1), byIp: [] },
       now
     );
     const refused = decideSignIn(null, false);

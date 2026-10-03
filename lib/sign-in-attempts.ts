@@ -9,7 +9,7 @@ const RETENTION = '1 day';
 type AttemptRow = { attempted_at: Date };
 
 // Also drops the rows that no window can reach again.
-export async function recordFailedAttempt(
+export async function recordAttempt(
   email: string | null,
   ip: string | null
 ): Promise<void> {

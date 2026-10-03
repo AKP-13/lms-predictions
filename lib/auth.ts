@@ -14,7 +14,7 @@ import { enrolInDefaultLeague } from '@/lib/leagues';
 import {
   clearAttemptsForEmail,
   recentAttempts,
-  recordFailedAttempt
+  recordAttempt
 } from '@/lib/sign-in-attempts';
 import { findUserByEmail, passwordMatches } from '@/lib/users';
 
@@ -67,6 +67,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const ip = clientIp(request.headers);
 
         const now = new Date();
+        // Record before the count, so parallel requests count each other.
+        await recordAttempt(email, ip);
         const limited = rateLimitError(
           await recentAttempts(email, ip, now),
           now
@@ -79,10 +81,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           user?.passwordHash ?? null
         );
         const decision = decideSignIn(user, matches);
-        if (!decision.allow) {
-          await recordFailedAttempt(email, ip);
-          throw new SignInRefused(decision.reason);
-        }
+        if (!decision.allow) throw new SignInRefused(decision.reason);
         const { id, email: userEmail, name, image } = decision.user;
         return { id, email: userEmail, name, image };
       }

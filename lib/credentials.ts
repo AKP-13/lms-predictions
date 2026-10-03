@@ -90,6 +90,7 @@ const RATE_LIMITED =
   'Too many failed sign-in attempts. Wait a few minutes, then try again.';
 
 // Returns a message to show the user, or null to check the password.
+// The attempts include the current one, because authorize records it first.
 export function rateLimitError(
   attempts: RecentAttempts,
   now: Date
@@ -97,8 +98,8 @@ export function rateLimitError(
   const start = now.getTime() - ATTEMPT_WINDOW_MS;
   const inWindow = (attemptedAt: Date) => attemptedAt.getTime() >= start;
   const overLimit =
-    attempts.byEmail.filter(inWindow).length >= MAX_ATTEMPTS_PER_EMAIL ||
-    attempts.byIp.filter(inWindow).length >= MAX_ATTEMPTS_PER_IP;
+    attempts.byEmail.filter(inWindow).length > MAX_ATTEMPTS_PER_EMAIL ||
+    attempts.byIp.filter(inWindow).length > MAX_ATTEMPTS_PER_IP;
   return overLimit ? RATE_LIMITED : null;
 }
 
