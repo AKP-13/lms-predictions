@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -19,6 +19,14 @@ import { navItems } from './nav-items';
 export function MobileNav({ session }: { session: Session | null }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+
+  // The header hides at `sm`, but the portalled sheet does not.
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 640px)');
+    const close = (e: MediaQueryListEvent) => e.matches && setOpen(false);
+    desktop.addEventListener('change', close);
+    return () => desktop.removeEventListener('change', close);
+  }, []);
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:hidden">
