@@ -1,8 +1,22 @@
-import NextAuth from 'next-auth';
+import NextAuth, { CredentialsSignin } from 'next-auth';
 import NeonAdapter from '@auth/neon-adapter';
 import { Pool } from '@neondatabase/serverless';
+import Credentials from 'next-auth/providers/credentials';
 import Resend from 'next-auth/providers/resend';
-import { DEFAULT_LEAGUE_ID } from '@/lib/constants';
+import { authConfig } from '@/lib/auth.config';
+import {
+  clientIp,
+  decideSignIn,
+  normaliseEmail,
+  rateLimitError
+} from '@/lib/credentials';
+import { enrolInDefaultLeague } from '@/lib/leagues';
+import {
+  clearAttemptsForEmail,
+  recentAttempts,
+  recordAttempt
+} from '@/lib/sign-in-attempts';
+import { findUserByEmail, passwordMatches } from '@/lib/users';
 
 declare module 'next-auth' {
   interface User {
@@ -22,75 +36,65 @@ if (!globalThis._authPool) {
   globalThis._authPool = pool;
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth(() => {
-  return {
-    adapter: NeonAdapter(pool),
-    providers: [
-      //   GitHub,
-      //   Google,
-      Resend({
-        // If your environment variable is named differently than default
-        apiKey: process.env.AUTH_RESEND_KEY,
-        from: 'noreply@lmsiq.co.uk',
-        name: 'Email'
-      })
-    ],
-    pages: {
-      newUser: '/' // redirects on login
-    },
-    session: {
-      maxAge: 60 * 60 * 24 // 1 day in seconds
-    },
-    callbacks: {
-      async jwt({ token, user }) {
-        // Persist user id onto the token so session can expose it
-        if (user?.id) token.id = user.id;
-        return token;
-      },
-      async session({ session, token }) {
-        // Copy id from token onto the session user
-        if (session.user && token?.id) {
-          session.user.id = token.id as string;
-        }
-        return session;
-      },
-      async redirect({ url, baseUrl }) {
-        // Always redirect to homepage after sign-in
-        return baseUrl;
-      },
-      async signIn({ user, account, profile }) {
-        // Only merge if emails match
-        if (
-          account &&
-          account.provider === 'google' &&
-          profile &&
-          profile.email !== user.email
-        ) {
-          // Prevent automatic merging
-          return true; // allow sign in
-        }
+// Carries the refusal reason to the sign-in form.
+export class SignInRefused extends CredentialsSignin {
+  constructor(readonly reason: string) {
+    super();
+  }
+}
 
-        return true; // default behavior
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
+  adapter: NeonAdapter(pool),
+  providers: [
+    //   GitHub,
+    //   Google,
+    Resend({
+      // If your environment variable is named differently than default
+      apiKey: process.env.AUTH_RESEND_KEY,
+      from: 'noreply@lmsiq.co.uk',
+      name: 'Email'
+    }),
+    Credentials({
+      name: 'Password',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' }
+      },
+      async authorize(credentials, request) {
+        const email = normaliseEmail(String(credentials.email ?? ''));
+        const password = String(credentials.password ?? '');
+        const ip = clientIp(request.headers);
+
+        const now = new Date();
+        // Record before the count, so parallel requests count each other.
+        await recordAttempt(email, ip);
+        const limited = rateLimitError(
+          await recentAttempts(email, ip, now),
+          now
+        );
+        if (limited) throw new SignInRefused(limited);
+
+        const user = email ? await findUserByEmail(email) : null;
+        const matches = await passwordMatches(
+          password,
+          user?.passwordHash ?? null
+        );
+        const decision = decideSignIn(user, matches);
+        if (!decision.allow) throw new SignInRefused(decision.reason);
+        const { id, email: userEmail, name, image } = decision.user;
+        return { id, email: userEmail, name, image };
       }
+    })
+  ],
+  events: {
+    async createUser({ user }) {
+      if (!user.id) return;
+      await enrolInDefaultLeague(user.id);
     },
-    events: {
-      async createUser({ user }) {
-        if (!user.id) return;
-        try {
-          await pool.query(
-            `INSERT INTO user_leagues (user_id, league_id, joined_at)
-             VALUES ($1, $2, NOW())
-             ON CONFLICT DO NOTHING`,
-            [user.id, DEFAULT_LEAGUE_ID]
-          );
-        } catch (error) {
-          // Don't fail the sign-in — log so the user can be backfilled manually
-          console.error(
-            `Failed to add user ${user.id} to user_leagues:`,
-            error
-          );
-        }
-      }
+    // Either auth method proves the account, so both clear the failed attempts.
+    async signIn({ user }) {
+      if (user.email) await clearAttemptsForEmail(user.email);
     }
-  };
+  }
 });

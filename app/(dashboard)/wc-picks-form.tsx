@@ -480,7 +480,7 @@ function GuestView({
           </p>
         </div>
         <Button asChild>
-          <a href="/api/auth/signin">Sign in</a>
+          <a href="/login">Sign in</a>
         </Button>
         <p className="text-xs text-muted-foreground">
           By signing in, you agree to the{' '}
@@ -539,7 +539,7 @@ function GuestView({
         <div className="absolute inset-0 flex items-center justify-center rounded-xl">
           <span className="bg-white/90 text-gray-600 text-sm font-medium px-4 py-2 rounded-full shadow-sm border border-gray-200">
             🔒{' '}
-            <a href="/api/auth/signin" className="text-blue-600 underline">
+            <a href="/login" className="text-blue-600 underline">
               Sign in
             </a>{' '}
             to make picks

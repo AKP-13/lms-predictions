@@ -1,0 +1,31 @@
+import type { NextAuthConfig } from 'next-auth';
+import { signInDestination } from '@/lib/credentials';
+
+// The middleware runs this on the edge runtime, so keep the adapter, the providers and bcrypt out.
+export const authConfig = {
+  providers: [],
+  pages: {
+    signIn: '/login', // ours, not the page Auth.js generates
+    newUser: '/'
+  },
+  session: {
+    strategy: 'jwt', // the Credentials provider needs this; see ADR 0001
+    maxAge: 60 * 60 * 24 // 1 day in seconds
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      // The adapter returns the id as a number; the password path returns a string.
+      if (user?.id) token.id = String(user.id);
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user && token?.id) {
+        session.user.id = token.id as string;
+      }
+      return session;
+    },
+    async redirect({ url, baseUrl }) {
+      return signInDestination(url, baseUrl);
+    }
+  }
+} satisfies NextAuthConfig;

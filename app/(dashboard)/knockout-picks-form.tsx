@@ -232,7 +232,7 @@ export default function KnockoutPicksForm({
       {!isAuthenticated && (
         <Card className="rounded-xl bg-amber-50 border border-amber-200 shadow-sm">
           <CardContent className="p-4 text-sm text-amber-800 text-center">
-            <a href="/api/auth/signin" className="font-semibold underline">
+            <a href="/login" className="font-semibold underline">
               Sign in
             </a>{' '}
             to submit your knockout predictions.

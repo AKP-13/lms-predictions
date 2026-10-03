@@ -197,7 +197,7 @@ const Predictions = ({
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <a
               style={{ color: 'blue', fontWeight: 600, textAlign: 'center' }}
-              href="/api/auth/signin"
+              href="/login"
             >
               Sign in to get started
             </a>
