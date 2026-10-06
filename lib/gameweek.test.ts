@@ -3,6 +3,8 @@ import {
   resolvePredictionGameweek,
   resolveResultsGameweek,
   returnIsPastSubmissionDeadline,
+  returnSubmissionDeadline,
+  formatCountdown,
   GameweekEvent
 } from './gameweek';
 import { MAX_GW } from './constants';
@@ -172,5 +174,67 @@ describe('returnIsPastSubmissionDeadline', () => {
     expect(returnIsPastSubmissionDeadline({ predictionWeekFixtures })).toBe(
       false
     );
+  });
+});
+
+describe('returnSubmissionDeadline', () => {
+  it('returns null when there are no fixtures', () => {
+    expect(returnSubmissionDeadline({ predictionWeekFixtures: [] })).toBeNull();
+  });
+
+  it('returns two hours before the first kickoff', () => {
+    const predictionWeekFixtures = [
+      createMockFixture({ kickoff_time: '2026-08-21T14:00:00Z' })
+    ];
+
+    expect(returnSubmissionDeadline({ predictionWeekFixtures })).toBe(
+      new Date('2026-08-21T12:00:00Z').getTime()
+    );
+  });
+});
+
+describe('formatCountdown', () => {
+  const deadline = new Date('2026-08-21T12:00:00Z').getTime();
+  const before = (ms: number) => deadline - ms;
+  const MINUTE = 60 * 1000;
+  const HOUR = 60 * MINUTE;
+  const DAY = 24 * HOUR;
+
+  it('shows days and hours when a day or more is left', () => {
+    expect(
+      formatCountdown(deadline, before(2 * DAY + 4 * HOUR + 30 * MINUTE))
+    ).toBe('2d 4h');
+  });
+
+  it('shows hours and minutes when less than a day is left', () => {
+    expect(formatCountdown(deadline, before(HOUR + 48 * MINUTE))).toBe(
+      '1h 48m'
+    );
+  });
+
+  it('shows minutes only when less than an hour is left', () => {
+    expect(formatCountdown(deadline, before(12 * MINUTE))).toBe('12m');
+  });
+
+  it('rounds a part minute up, so the last minute shows as 1m', () => {
+    expect(formatCountdown(deadline, before(30 * 1000))).toBe('1m');
+  });
+
+  it('shows 1h 0m when a part minute rounds up to an hour', () => {
+    expect(formatCountdown(deadline, before(59 * MINUTE + 30 * 1000))).toBe(
+      '1h 0m'
+    );
+  });
+
+  it('returns null at the deadline', () => {
+    expect(formatCountdown(deadline, deadline)).toBeNull();
+  });
+
+  it('returns null when the deadline is not a number', () => {
+    expect(formatCountdown(NaN, deadline)).toBeNull();
+  });
+
+  it('returns null after the deadline', () => {
+    expect(formatCountdown(deadline, deadline + MINUTE)).toBeNull();
   });
 });

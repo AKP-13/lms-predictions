@@ -1,6 +1,6 @@
 'use client';
 
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -12,10 +12,45 @@ import { Select } from '@/components/ui/select';
 import { TeamsArr } from '@/lib/definitions';
 import { FixturesData, Results } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { FormError } from '@/components/form-error';
+import { cn } from '@/lib/utils';
+import {
+  MINUTE_MS,
+  formatCountdown,
+  returnSubmissionDeadline
+} from '@/lib/gameweek';
 import { Session } from 'next-auth';
-import { Loader } from 'lucide-react';
+import { ArrowRight, Clock, Loader } from 'lucide-react';
 
 type Outcome = 'Win' | 'Draw';
+
+const CountdownPill = ({ deadline }: { deadline: number | null }) => {
+  const [now, setNow] = useState(() => Date.now());
+
+  // Tick when the text changes, so the pill goes at the deadline.
+  useEffect(() => {
+    if (deadline === null) return;
+    const msLeft = deadline - Date.now();
+    if (!(msLeft > 0)) return;
+    const id = setTimeout(
+      () => setNow(Date.now()),
+      msLeft % MINUTE_MS || MINUTE_MS
+    );
+    return () => clearTimeout(id);
+  }, [deadline, now]);
+
+  const text = deadline === null ? null : formatCountdown(deadline, now);
+  if (text === null) return null;
+
+  return (
+    <Badge className="shrink-0">
+      <Clock className="h-3 w-3" strokeWidth={2.5} aria-hidden="true" />
+      <span className="sr-only">Picks lock in </span>
+      {text}
+    </Badge>
+  );
+};
 
 type Props = {
   results: Record<number, Results[]>;
@@ -72,6 +107,19 @@ const Predictions = ({
   const isGameweekUnresolved =
     !isLoadingCombined &&
     (predictionGwNumber === null || predictionWeekFixtures.length === 0);
+
+  const isFormDisabled =
+    isEliminated ||
+    isPending ||
+    isPastSubmissionDeadline ||
+    isGameweekUnresolved ||
+    isLoadingCombined;
+
+  // The player can still pick, or email to change a pick.
+  const isBeforeDeadline =
+    !isEliminated && !isPastSubmissionDeadline && !isGameweekUnresolved;
+
+  const emailHref = `mailto:${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS}?subject=Last%20Player%20Standing%20Prediction%20Week%20${predictionGwNumber}`;
 
   const selectedTeamFixture = predictionWeekFixtures?.find(
     (fixture) =>
@@ -143,22 +191,32 @@ const Predictions = ({
 
   return (
     <Card
-      className={`p-2 overflow-auto ${isLoadingCombined ? 'animate-pulse' : ''}`}
+      className={cn(
+        'bg-tint p-5 shadow-none md:p-7',
+        isLoadingCombined && 'animate-pulse'
+      )}
       aria-busy={isLoadingCombined}
       aria-live="polite"
     >
-      <CardHeader className="p-2 md:p-6">
-        <CardTitle className="flex flex-row items-center">
-          Prediction{' '}
-          {isLoadingCombined && (
-            <Loader className="animate-spin mx-2" aria-hidden="true" />
+      <CardHeader className="space-y-1 p-0">
+        <div className="flex items-center justify-between gap-3">
+          <CardTitle className="flex items-center text-2xl leading-7 md:text-[1.625rem] md:leading-[1.875rem]">
+            Who are you backing?
+            {isLoadingCombined && (
+              <Loader className="animate-spin mx-2" aria-hidden="true" />
+            )}
+          </CardTitle>
+          {session && !isLoadingCombined && isBeforeDeadline && (
+            <CountdownPill
+              deadline={returnSubmissionDeadline({ predictionWeekFixtures })}
+            />
           )}
-        </CardTitle>
+        </div>
 
         <CardDescription
           className={
             isPastSubmissionDeadline || isGameweekUnresolved
-              ? 'text-red-500'
+              ? 'text-destructive'
               : ''
           }
         >
@@ -172,90 +230,74 @@ const Predictions = ({
                   ? 'Prediction submitted. Good luck!'
                   : isPastSubmissionDeadline
                     ? 'The submission deadline has passed for this gameweek.'
-                    : 'Submit your prediction for this gameweek.'}
+                    : `Submit your prediction for gameweek ${predictionGwNumber}.`}
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="p-2 md:p-6 md:pt-0">
+      <CardContent className="p-0 pt-4">
         {isLoadingCombined ? (
-          <div className="flex flex-col">
-            <div className="flex">
-              <div className="my-4 mr-2 flex flex-col items-center w-full">
-                <div className="h-5 w-24 rounded-full bg-gray-200 my-2" />
-                <div className="h-5 w-24 rounded-full bg-gray-200 my-2" />
-              </div>
-
-              <div className="my-4 ml-2 flex flex-col items-center w-full">
-                <div className="h-5 w-24 rounded-full bg-gray-200 my-2" />
-                <div className="h-5 w-24 rounded-full bg-gray-200 my-2" />
-              </div>
-            </div>
-
-            <div className="h-5 w-full rounded-full bg-gray-200" />
+          <div className="flex flex-col gap-3">
+            <div className="h-14 w-full rounded-2xl bg-card" />
+            <div className="h-11 w-full rounded-full bg-card" />
+            <div className="mt-2 h-14 w-full rounded-full bg-card" />
           </div>
         ) : session === null ? (
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <a
-              style={{ color: 'blue', fontWeight: 600, textAlign: 'center' }}
-              href="/login"
-            >
+          <div className="flex justify-center">
+            <a className="text-center font-semibold text-primary" href="/login">
               Sign in to get started
             </a>
           </div>
         ) : (
           <form className="flex flex-col" onSubmit={handleSubmit}>
-            <div className="flex">
-              <div className="my-4 mr-2 flex flex-col items-center w-full">
-                <label htmlFor="team">Team</label>
-                <Select
-                  name="team"
-                  id="team"
-                  options={['Select', ...teams]}
-                  disabledOptions={['Select', ...previousPicksArr]}
-                  style={{ width: '100%' }}
-                  value={selectedTeam}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                    setSelectedTeam(e.target.value);
-                    setError(null);
-                  }}
-                  disabled={
-                    isEliminated ||
-                    isPending ||
-                    isPastSubmissionDeadline ||
-                    isGameweekUnresolved ||
-                    isLoadingCombined
-                  }
-                />
-              </div>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:items-start lg:grid-cols-1">
+              <label htmlFor="team" className="sr-only">
+                Team
+              </label>
+              <Select
+                name="team"
+                id="team"
+                className="w-full"
+                options={['Select', ...teams]}
+                disabledOptions={['Select', ...previousPicksArr]}
+                value={selectedTeam}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                  setSelectedTeam(e.target.value);
+                  setError(null);
+                }}
+                disabled={isFormDisabled}
+              />
 
-              <div className="my-4 ml-2 flex flex-col items-center w-full">
-                <label htmlFor="outcome">Outcome</label>
-                <Select
-                  name="outcome"
-                  id="outcome"
-                  options={['Select', ...outcomes]}
-                  style={{ width: '100%' }}
-                  value={selectedOutcome}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                    setSelectedOutcome(e.target.value as Outcome);
-                    setError(null);
-                  }}
-                  disabledOptions={['Select']}
-                  disabled={
-                    isEliminated ||
-                    isPending ||
-                    isPastSubmissionDeadline ||
-                    isGameweekUnresolved ||
-                    isLoadingCombined
-                  }
-                />
+              <div role="group" aria-label="Outcome" className="flex gap-2">
+                {outcomes.map((outcome) => (
+                  <Button
+                    key={outcome}
+                    type="button"
+                    variant={
+                      selectedOutcome === outcome ? 'default' : 'outline'
+                    }
+                    aria-pressed={selectedOutcome === outcome}
+                    className={cn(
+                      'h-11 flex-1 font-bold md:h-14',
+                      selectedOutcome === outcome
+                        ? 'border-2 border-primary'
+                        : 'bg-card'
+                    )}
+                    onClick={() => {
+                      setSelectedOutcome(outcome);
+                      setError(null);
+                    }}
+                    disabled={isFormDisabled}
+                  >
+                    {outcome}
+                  </Button>
+                ))}
               </div>
             </div>
 
             {selectedTeam !== 'Select' &&
               selectedOutcome !== 'Select' &&
               predictionGwNumber !== null && (
-                <div className="my-2">
+                <p className="mt-4 text-[0.9375rem] leading-[1.375rem]">
                   Are you sure you want to predict a
                   {['a', 'e', 'i', 'o', 'u'].includes(
                     selectedTeam[0].toLowerCase()
@@ -270,31 +312,52 @@ const Predictions = ({
                   </strong>{' '}
                   If this doesn't look right, please email your prediction{' '}
                   <a
-                    href={`mailto:${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS}?subject=Last%20Player%20Standing%20Prediction%20Week%20${predictionGwNumber}&body=My%20prediction%20this%20week%20is...`}
-                    style={{ color: 'blue', textDecoration: 'underline' }}
+                    href={`${emailHref}&body=My%20prediction%20this%20week%20is...`}
+                    className="font-semibold text-primary underline"
                   >
                     here
                   </a>
                   .
-                </div>
+                </p>
               )}
+
             <Button
               type="submit"
+              size="lg"
+              className="mt-5 w-full"
               disabled={
-                isSubmitting ||
+                isFormDisabled ||
                 selectedTeam === 'Select' ||
-                selectedOutcome === 'Select' ||
-                isEliminated ||
-                isPastSubmissionDeadline ||
-                isGameweekUnresolved ||
-                isLoadingCombined
+                selectedOutcome === 'Select'
               }
             >
-              {isSubmitting ? 'Submitting...' : 'Submit'}
+              {isSubmitting ? 'Locking in...' : 'Lock it in'}
+              {!isSubmitting && (
+                <ArrowRight
+                  className="h-[18px] w-[18px]"
+                  strokeWidth={2.5}
+                  aria-hidden="true"
+                />
+              )}
             </Button>
-            {error && <div className="text-red-500 mt-2">{error}</div>}
+            {isBeforeDeadline && (
+              <p className="mt-3 text-center text-[0.8125rem] font-semibold leading-[1.125rem] text-muted-foreground">
+                To change your pick,{' '}
+                <a href={emailHref} className="text-primary underline">
+                  email us
+                </a>{' '}
+                before the deadline.
+              </p>
+            )}
+            {error && (
+              <div className="mt-3">
+                <FormError message={error} />
+              </div>
+            )}
             {success && (
-              <div className="text-green-500 mt-2">Prediction submitted!</div>
+              <p role="status" className="mt-3 text-sm text-success">
+                Prediction submitted!
+              </p>
             )}
           </form>
         )}
