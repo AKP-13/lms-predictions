@@ -50,7 +50,7 @@ const FixturesResults = ({
 
   return (
     <Card
-      className={`rounded-xl bg-white p-2 shadow-sm ${isLoading ? 'animate-pulse' : ''} h-fit`}
+      className={`p-2 ${isLoading ? 'animate-pulse' : ''} h-fit`}
       aria-busy={isLoading}
       aria-live="polite"
     >

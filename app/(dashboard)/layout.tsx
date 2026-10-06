@@ -19,11 +19,11 @@ export default async function DashboardLayout({
 
   return (
     <Providers>
-      <main className="flex min-h-screen w-full flex-col bg-muted/40">
+      <main className="flex min-h-screen w-full flex-col">
         <DesktopNav session={session} />
         <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
           <MobileNav session={session} />
-          <main className="md:grid items-start gap-2 p-4 sm:px-6 sm:py-0 md:gap-4 bg-muted/40">
+          <main className="md:grid items-start gap-2 p-4 sm:px-6 sm:py-0 md:gap-4">
             {children}
           </main>
         </div>

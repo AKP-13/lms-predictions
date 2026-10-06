@@ -314,7 +314,7 @@ export default function KnockoutAdminForm({
                           }));
                           clearFb(f.id);
                         }}
-                        className="h-10 w-12 text-center text-base"
+                        className="h-10 w-12 px-1 text-center text-base"
                       />
                       <span className="text-gray-400">–</span>
                       <Input
@@ -331,7 +331,7 @@ export default function KnockoutAdminForm({
                           }));
                           clearFb(f.id);
                         }}
-                        className="h-10 w-12 text-center text-base"
+                        className="h-10 w-12 px-1 text-center text-base"
                       />
                       <Button
                         onClick={() => saveResult(f)}

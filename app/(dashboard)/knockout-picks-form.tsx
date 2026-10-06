@@ -72,7 +72,7 @@ function ScoreInput({
       value={value}
       disabled={disabled}
       onChange={(e) => onChange(e.target.value.replace(/[^\d]/g, ''))}
-      className="h-10 w-12 text-center text-base"
+      className="h-10 w-12 px-1 text-center text-base"
     />
   );
 }

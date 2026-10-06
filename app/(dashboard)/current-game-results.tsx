@@ -35,7 +35,7 @@ const CurrentGame = ({
 
   return (
     <Card
-      className={`rounded-xl bg-white p-2 shadow-sm overflow-auto ${isLoadingCombined ? 'animate-pulse' : ''}`}
+      className={`p-2 overflow-auto ${isLoadingCombined ? 'animate-pulse' : ''}`}
       aria-busy={isLoadingCombined}
       aria-live="polite"
     >

@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss';
+import { fontFamily } from 'tailwindcss/defaultTheme';
 
 export default {
   darkMode: ['class'],
@@ -18,6 +19,12 @@ export default {
       }
     },
     extend: {
+      fontFamily: {
+        sans: ['var(--font-nunito)', ...fontFamily.sans]
+      },
+      boxShadow: {
+        card: 'var(--shadow-card)'
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
@@ -34,15 +41,23 @@ export default {
         },
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',
-          foreground: 'hsl(var(--destructive-foreground))'
+          foreground: 'hsl(var(--destructive-foreground))',
+          bg: 'hsl(var(--destructive-bg))'
         },
+        success: {
+          DEFAULT: 'hsl(var(--success))',
+          bg: 'hsl(var(--success-bg))'
+        },
+        tint: 'hsl(var(--tint))',
+        chip: 'hsl(var(--chip))',
         muted: {
           DEFAULT: 'hsl(var(--muted))',
           foreground: 'hsl(var(--muted-foreground))'
         },
         accent: {
           DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))'
+          foreground: 'hsl(var(--accent-foreground))',
+          bg: 'hsl(var(--accent-bg))'
         },
         popover: {
           DEFAULT: 'hsl(var(--popover))',
@@ -51,6 +66,28 @@ export default {
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))'
+        },
+        difficulty: {
+          easiest: {
+            DEFAULT: 'hsl(var(--difficulty-easiest))',
+            foreground: 'hsl(var(--difficulty-easiest-foreground))'
+          },
+          easy: {
+            DEFAULT: 'hsl(var(--difficulty-easy))',
+            foreground: 'hsl(var(--difficulty-easy-foreground))'
+          },
+          neutral: {
+            DEFAULT: 'hsl(var(--chip))',
+            foreground: 'hsl(var(--muted-foreground))'
+          },
+          hard: {
+            DEFAULT: 'hsl(var(--difficulty-hard))',
+            foreground: 'hsl(var(--difficulty-hard-foreground))'
+          },
+          hardest: {
+            DEFAULT: 'hsl(var(--difficulty-hardest))',
+            foreground: 'hsl(var(--difficulty-hardest-foreground))'
+          }
         }
       },
       borderRadius: {

@@ -338,7 +338,7 @@ const LeagueTable = ({
 
   return (
     <Card
-      className={`rounded-xl bg-white p-2 shadow-sm ${isLoading ? 'animate-pulse' : ''}`}
+      className={`p-2 ${isLoading ? 'animate-pulse' : ''}`}
       aria-busy={isLoading}
       aria-live="polite"
     >

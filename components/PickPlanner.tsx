@@ -81,7 +81,7 @@ const WeekPicker = ({
         }
         aria-label="Number of weeks to show"
         disabled={isLoading}
-        className={`${isLoading ? 'opacity-50 cursor-not-allowed animate-pulse' : ''} w-[60px]`}
+        className={`${isLoading ? 'opacity-50 cursor-not-allowed animate-pulse' : ''} w-20`}
       />
     </div>
   );
@@ -275,7 +275,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
 
   return (
     <Card
-      className={`rounded-xl bg-white p-2 shadow-sm overflow-auto ${isLoading ? 'animate-pulse' : ''}`}
+      className={`p-2 overflow-auto ${isLoading ? 'animate-pulse' : ''}`}
       aria-busy={isLoading}
       aria-live="polite"
     >

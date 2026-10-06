@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 export default function PrivacyPage() {
   return (
     <main className="max-w-2xl mx-auto py-8 px-4">
-      <Card className="rounded-xl bg-white shadow-sm">
+      <Card>
         <CardHeader className="p-6 pb-2">
           <CardTitle className="text-2xl">Privacy Policy</CardTitle>
           <p className="text-xs text-muted-foreground mt-1">Last updated: September 2026</p>
