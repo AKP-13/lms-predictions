@@ -133,7 +133,7 @@ const Page = () => {
           <div className="flex flex-col gap-6 md:gap-5">
             {/* The pick comes first. From lg it sits on the right. */}
             <div className="grid grid-cols-1 gap-6 md:gap-5 lg:grid-cols-[7fr_5fr]">
-              <div className="min-w-0 lg:col-start-2 lg:row-start-1">
+              <div className="min-w-0 lg:col-start-2 lg:row-start-1 lg:*:h-full">
                 <Predictions
                   session={session}
                   teamsArr={teamsArr}
@@ -149,7 +149,7 @@ const Page = () => {
                 />
               </div>
 
-              <div className="min-w-0 lg:col-start-1 lg:row-start-1">
+              <div className="min-w-0 lg:col-start-1 lg:row-start-1 lg:*:h-full">
                 <CurrentGame
                   currentGameResults={currentGameResults}
                   leagueName={leagueName}
