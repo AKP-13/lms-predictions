@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import type { Session } from 'next-auth';
+import type { LeagueHeading } from '@/lib/definitions';
 import { TopBar } from './top-bar';
 
 const location = vi.hoisted(() => ({ pathname: '/', search: '' }));
@@ -15,11 +16,20 @@ const session: Session = {
   expires: '2099-01-01T00:00:00.000Z'
 };
 
-function renderAt(url: string, session: Session | null) {
+const heading: LeagueHeading = {
+  leagueName: "Alex Peirson's League",
+  week: { round: 3, gameweek: 12 }
+};
+
+function renderAt(
+  url: string,
+  session: Session | null,
+  leagueHeading = session ? heading : null
+) {
   const [pathname, search = ''] = url.split('?');
   location.pathname = pathname;
   location.search = search;
-  render(<TopBar session={session} />);
+  render(<TopBar session={session} heading={leagueHeading} />);
 }
 
 function tabs() {
@@ -102,10 +112,26 @@ describe('TopBar', () => {
     );
   });
 
-  it('shows "Last Player Standing" as the heading', () => {
+  it('shows the league name and the round to a signed-in player', () => {
+    renderAt('/', session);
+
+    expect(screen.getByText("Alex Peirson's League")).toBeInTheDocument();
+    expect(screen.getByText('Round 3 · Gameweek 12')).toBeInTheDocument();
+    expect(screen.queryByText('Last Player Standing')).not.toBeInTheDocument();
+  });
+
+  it('shows "Last Player Standing" and no round to a signed-out visitor', () => {
     renderAt('/', null);
 
     expect(screen.getByText('Last Player Standing')).toBeInTheDocument();
+    expect(screen.queryByText(/Round/)).not.toBeInTheDocument();
+  });
+
+  it('shows no round when the week is unknown', () => {
+    renderAt('/', session, { ...heading, week: null });
+
+    expect(screen.getByText("Alex Peirson's League")).toBeInTheDocument();
+    expect(screen.queryByText(/Round/)).not.toBeInTheDocument();
   });
 
   it.each([

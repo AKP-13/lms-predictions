@@ -1,5 +1,10 @@
 import { sql } from '@vercel/postgres';
-import { CurrentGameId, CurrentGameResults, Results } from './definitions';
+import {
+  CurrentGameId,
+  CurrentGameResults,
+  LeagueHeading,
+  Results
+} from './definitions';
 
 export async function fetchResultsData({
   userId
@@ -389,5 +394,65 @@ export async function fetchLeagueInfo({
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch league info.');
+  }
+}
+
+// The round is the game's round, the same for every player:
+// the gameweeks of the latest game with picks before the pick week, plus one.
+export async function fetchLeagueHeading({
+  userId,
+  gameweek
+}: {
+  userId: string;
+  gameweek: number | null;
+}): Promise<LeagueHeading | null> {
+  try {
+    const headingQuery = await sql.query<{
+      league_name: string | null;
+      round: number | null;
+    }>(
+      `
+        WITH user_league AS (
+            SELECT
+                league_id
+            FROM user_leagues
+            WHERE user_id = ($1)
+            ORDER BY league_id
+            LIMIT 1
+        ), latest_game AS (
+            SELECT
+                MAX(id) AS id
+            FROM games
+            WHERE league_id = (SELECT league_id FROM user_league)
+        )
+        SELECT
+            leagues.league_name
+            , CASE WHEN latest_game.id IS NULL THEN NULL ELSE (
+                SELECT
+                    COUNT(DISTINCT fpl_gw)::int + 1
+                FROM results
+                WHERE game_id = latest_game.id
+                    AND fpl_gw < ($2)
+            ) END AS round
+        FROM user_league
+        JOIN leagues ON leagues.id = user_league.league_id
+        CROSS JOIN latest_game;
+      `,
+      [userId, gameweek]
+    );
+
+    const row = headingQuery.rows[0];
+    if (!row?.league_name) return null;
+
+    return {
+      leagueName: row.league_name,
+      week:
+        gameweek === null || row.round === null
+          ? null
+          : { round: row.round, gameweek }
+    };
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch the league heading.');
   }
 }

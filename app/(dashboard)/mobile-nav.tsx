@@ -13,11 +13,19 @@ import {
   SheetTitle,
   SheetTrigger
 } from '@/components/ui/sheet';
+import type { LeagueHeading } from '@/lib/definitions';
 import { SheetAuthButton } from './auth-buttons';
+import { LeagueTitle } from './league-title';
 import { navItems } from './nav-items';
 import { desktopQuery } from './home-tabs';
 
-export function MobileNav({ session }: { session: Session | null }) {
+export function MobileNav({
+  session,
+  heading
+}: {
+  session: Session | null;
+  heading: LeagueHeading | null;
+}) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -72,6 +80,8 @@ export function MobileNav({ session }: { session: Session | null }) {
         <Trophy className="h-4 w-4 transition-all group-hover:scale-110" />
         <span className="sr-only">LPS</span>
       </Link>
+
+      <LeagueTitle heading={heading} />
     </header>
   );
 }

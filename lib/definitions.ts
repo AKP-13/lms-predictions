@@ -112,3 +112,9 @@ export type TeamsArr = {
   name: FPLTeamName;
   short_name: string;
 }[];
+
+// `week` is null when the pick week or the league's game is unknown.
+export type LeagueHeading = {
+  leagueName: string;
+  week: { round: number; gameweek: number } | null;
+};

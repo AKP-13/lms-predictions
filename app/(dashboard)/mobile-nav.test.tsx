@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import type { Session } from 'next-auth';
+import type { LeagueHeading } from '@/lib/definitions';
 import { MobileNav } from './mobile-nav';
 
 vi.mock('next/navigation', () => ({
@@ -12,6 +13,15 @@ const session: Session = {
   expires: '2099-01-01T00:00:00.000Z'
 };
 
+const heading: LeagueHeading = {
+  leagueName: "Alex Peirson's League",
+  week: { round: 3, gameweek: 12 }
+};
+
+function renderNav(session: Session | null) {
+  render(<MobileNav session={session} heading={session ? heading : null} />);
+}
+
 function openSheet() {
   fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
   return screen.getByRole('dialog');
@@ -21,7 +31,7 @@ describe('MobileNav', () => {
   afterEach(cleanup);
 
   it('shows a logo that goes to the home page', () => {
-    render(<MobileNav session={null} />);
+    renderNav(null);
 
     expect(screen.getByRole('link', { name: 'LPS' })).toHaveAttribute(
       'href',
@@ -29,8 +39,23 @@ describe('MobileNav', () => {
     );
   });
 
+  it('shows the league name and the round to a signed-in player', () => {
+    renderNav(session);
+
+    expect(screen.getByText("Alex Peirson's League")).toBeInTheDocument();
+    expect(screen.getByText('Round 3 · Gameweek 12')).toBeInTheDocument();
+    expect(screen.queryByText('Last Player Standing')).not.toBeInTheDocument();
+  });
+
+  it('shows "Last Player Standing" and no round to a signed-out visitor', () => {
+    renderNav(null);
+
+    expect(screen.getByText('Last Player Standing')).toBeInTheDocument();
+    expect(screen.queryByText(/Round/)).not.toBeInTheDocument();
+  });
+
   it('lists only Home for a signed-out visitor', () => {
-    render(<MobileNav session={null} />);
+    renderNav(null);
 
     const sheet = openSheet();
 
@@ -46,7 +71,7 @@ describe('MobileNav', () => {
   });
 
   it('lists Home and Account for a signed-in player', () => {
-    render(<MobileNav session={session} />);
+    renderNav(session);
 
     const sheet = openSheet();
 
@@ -64,7 +89,7 @@ describe('MobileNav', () => {
     ['signed out', null],
     ['signed in', session]
   ])('does not list Results when %s', (_, session) => {
-    render(<MobileNav session={session} />);
+    renderNav(session);
 
     const sheet = openSheet();
 
@@ -74,7 +99,7 @@ describe('MobileNav', () => {
   });
 
   it('shows a sign-in control to a signed-out visitor', () => {
-    render(<MobileNav session={null} />);
+    renderNav(null);
 
     const sheet = openSheet();
 
@@ -87,7 +112,7 @@ describe('MobileNav', () => {
   });
 
   it('shows a sign-out control to a signed-in player', () => {
-    render(<MobileNav session={session} />);
+    renderNav(session);
 
     const sheet = openSheet();
 
@@ -103,7 +128,7 @@ describe('MobileNav', () => {
     ['signed out', null],
     ['signed in', session]
   ])('has no link to # when %s', (_, session) => {
-    render(<MobileNav session={session} />);
+    renderNav(session);
 
     openSheet();
 
@@ -113,7 +138,7 @@ describe('MobileNav', () => {
   });
 
   it('marks the current page', () => {
-    render(<MobileNav session={session} />);
+    renderNav(session);
 
     const sheet = openSheet();
 
@@ -127,7 +152,7 @@ describe('MobileNav', () => {
   });
 
   it('closes the sheet when the player taps a link', () => {
-    render(<MobileNav session={session} />);
+    renderNav(session);
 
     const sheet = openSheet();
     fireEvent.click(within(sheet).getByRole('link', { name: 'Account' }));

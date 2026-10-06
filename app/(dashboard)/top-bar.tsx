@@ -3,10 +3,12 @@
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import type { Session } from 'next-auth';
+import type { LeagueHeading } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
 import { navItems } from './nav-items';
 import { desktopViewHref, toDesktopView } from './home-tabs';
 import { authControl } from './auth-buttons';
+import { LeagueTitle } from './league-title';
 
 const PILL_CLASSES =
   'flex h-10 items-center gap-2 whitespace-nowrap rounded-full px-[1.125rem] text-sm font-extrabold text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
@@ -16,7 +18,13 @@ function currentHref(pathname: string, tab: string | null) {
   return pathname === '/' ? desktopViewHref(toDesktopView(tab)) : pathname;
 }
 
-export function TopBar({ session }: { session: Session | null }) {
+export function TopBar({
+  session,
+  heading
+}: {
+  session: Session | null;
+  heading: LeagueHeading | null;
+}) {
   const current = currentHref(usePathname(), useSearchParams().get('tab'));
   const auth = authControl(session);
 
@@ -30,9 +38,7 @@ export function TopBar({ session }: { session: Session | null }) {
           LPS
         </Link>
         {/* Too wide for the bar below lg. */}
-        <div className="hidden min-w-0 truncate text-lg font-extrabold leading-[1.375rem] lg:block">
-          Last Player Standing
-        </div>
+        <LeagueTitle heading={heading} className="hidden lg:block" />
       </div>
 
       <nav
