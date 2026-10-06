@@ -44,7 +44,7 @@ export function MobileNav({ session }: { session: Session | null }) {
         >
           <SheetTitle className="sr-only">Menu</SheetTitle>
           <nav className="grid gap-6 text-lg font-medium">
-            {navItems(session).map(({ href, label, icon: Icon }) => (
+            {navItems(session, 'phone').map(({ href, label, icon: Icon }) => (
               <Link
                 key={href}
                 href={href}

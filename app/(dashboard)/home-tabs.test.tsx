@@ -7,11 +7,12 @@ function renderHomeTabs(tab: string | null, onTabChange = vi.fn()) {
     <HomeTabs
       tab={tab}
       onTabChange={onTabChange}
-      thisWeek={<p>The pick form</p>}
+      home={<p>The pick form</p>}
       fixtures={<p>The fixtures</p>}
       injuries={<p>The injuries</p>}
       table={<p>The league table</p>}
       planner={<p>The Pick Planner</p>}
+      results={<p>The results table</p>}
     />
   );
   return onTabChange;
@@ -20,21 +21,34 @@ function renderHomeTabs(tab: string | null, onTabChange = vi.fn()) {
 describe('HomeTabs', () => {
   afterEach(cleanup);
 
-  it('opens This week when the URL has no tab', () => {
+  it('lists the six tabs, with Home first', () => {
     renderHomeTabs(null);
 
+    expect(
+      screen.getAllByRole('tab').map((tab) => tab.textContent)
+    ).toEqual(['Home', 'Fixtures', 'Injuries', 'Table', 'Planner', 'Results']);
+  });
+
+  it.each([
+    ['no tab', null],
+    ['an unknown tab', 'research'],
+    ['the old this-week tab', 'this-week']
+  ])('opens Home when the URL has %s', (_, tab) => {
+    renderHomeTabs(tab);
+
     expect(screen.getByRole('tab', { selected: true })).toHaveTextContent(
-      'This week'
+      'Home'
     );
     expect(screen.getByRole('tabpanel')).toHaveTextContent('The pick form');
   });
 
   it.each([
-    ['this-week', 'This week', 'The pick form'],
+    ['home', 'Home', 'The pick form'],
     ['fixtures', 'Fixtures', 'The fixtures'],
     ['injuries', 'Injuries', 'The injuries'],
     ['table', 'Table', 'The league table'],
-    ['planner', 'Planner', 'The Pick Planner']
+    ['planner', 'Planner', 'The Pick Planner'],
+    ['results', 'Results', 'The results table']
   ])('opens %s and shows only its panel', (tab, label, content) => {
     renderHomeTabs(tab);
 
@@ -44,21 +58,16 @@ describe('HomeTabs', () => {
     expect(screen.getByRole('tabpanel')).toHaveTextContent(content);
   });
 
-  it('opens This week when the URL has an unknown tab', () => {
-    renderHomeTabs('research');
-
-    expect(screen.getByRole('tab', { selected: true })).toHaveTextContent(
-      'This week'
-    );
-    expect(screen.getByRole('tabpanel')).toHaveTextContent('The pick form');
-  });
-
-  it('calls the change callback with the tab the player taps', () => {
-    const onTabChange = renderHomeTabs(null);
+  it.each([
+    ['Planner', 'planner'],
+    ['Results', 'results'],
+    ['Home', 'home']
+  ])('calls the change callback when the player taps %s', (label, value) => {
+    const onTabChange = renderHomeTabs('fixtures');
 
     // Radix selects a tab on mouse down, not on click.
-    fireEvent.mouseDown(screen.getByRole('tab', { name: 'Planner' }));
+    fireEvent.mouseDown(screen.getByRole('tab', { name: label }));
 
-    expect(onTabChange).toHaveBeenCalledWith('planner');
+    expect(onTabChange).toHaveBeenCalledWith(value);
   });
 });

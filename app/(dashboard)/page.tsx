@@ -22,6 +22,7 @@ import useLeagueInfo from 'app/hooks/useLeagueInfo';
 import useCurrentGameData from 'app/hooks/useCurrentGameData';
 import Injuries from './injuries';
 import { HomeTabs, type HomeTab } from './home-tabs';
+import { ResultsTable } from './results-table';
 
 const Page = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -46,13 +47,13 @@ const Page = () => {
     }
   }, [numWeeks]);
 
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
   const searchParams = useSearchParams();
 
   // A push, not a replace, so the back button returns to the previous tab.
   const changeTab = (tab: HomeTab) => {
     const params = new URLSearchParams(searchParams);
-    if (tab === 'this-week') {
+    if (tab === 'home') {
       params.delete('tab');
     } else {
       params.set('tab', tab);
@@ -139,7 +140,7 @@ const Page = () => {
       <HomeTabs
         tab={searchParams.get('tab')}
         onTabChange={changeTab}
-        thisWeek={
+        home={
           <>
             {session === null || session === undefined ? null : (
               <div className="my-6">
@@ -202,6 +203,14 @@ const Page = () => {
             session={session}
             currentGameId={currentGameId}
           />
+        }
+        results={
+          isLoadingResults ? null : (
+            <ResultsTable
+              results={results}
+              isSignedIn={sessionStatus === 'authenticated'}
+            />
+          )
         }
       />
     </main>

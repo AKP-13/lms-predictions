@@ -9,11 +9,22 @@ export type NavEntry = {
   group: 'pages' | 'account';
 };
 
-export function navItems(session: Session | null): NavEntry[] {
+export function navItems(
+  session: Session | null,
+  surface: 'phone' | 'desktop'
+): NavEntry[] {
   const items: NavEntry[] = [
-    { href: '/', label: 'Home', icon: Home, group: 'pages' },
-    { href: '/results', label: 'Results', icon: Table, group: 'pages' }
+    { href: '/', label: 'Home', icon: Home, group: 'pages' }
   ];
+  // The phone has a Results tab on the home page, so its menu does not repeat it.
+  if (surface === 'desktop') {
+    items.push({
+      href: '/results',
+      label: 'Results',
+      icon: Table,
+      group: 'pages'
+    });
+  }
   if (session) {
     items.push({
       href: '/account',

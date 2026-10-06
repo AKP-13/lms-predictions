@@ -34,7 +34,7 @@ export default async function DashboardLayout({
 }
 
 function DesktopNav({ session }: { session: Session | null }) {
-  const items = navItems(session);
+  const items = navItems(session, 'desktop');
 
   return (
     <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">

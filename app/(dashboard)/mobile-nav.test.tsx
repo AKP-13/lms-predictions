@@ -29,24 +29,23 @@ describe('MobileNav', () => {
     );
   });
 
-  it('lists Home and Results for a signed-out visitor', () => {
+  it('lists only Home for a signed-out visitor', () => {
     render(<MobileNav session={null} />);
 
     const sheet = openSheet();
 
+    expect(
+      within(sheet)
+        .getAllByRole('link')
+        .map((link) => link.textContent)
+    ).toEqual(['Home']);
     expect(within(sheet).getByRole('link', { name: 'Home' })).toHaveAttribute(
       'href',
       '/'
     );
-    expect(
-      within(sheet).getByRole('link', { name: 'Results' })
-    ).toHaveAttribute('href', '/results');
-    expect(
-      within(sheet).queryByRole('link', { name: 'Account' })
-    ).not.toBeInTheDocument();
   });
 
-  it('lists Home, Results and Account for a signed-in player', () => {
+  it('lists Home and Account for a signed-in player', () => {
     render(<MobileNav session={session} />);
 
     const sheet = openSheet();
@@ -55,10 +54,23 @@ describe('MobileNav', () => {
       within(sheet)
         .getAllByRole('link')
         .map((link) => link.textContent)
-    ).toEqual(['Home', 'Results', 'Account']);
+    ).toEqual(['Home', 'Account']);
     expect(
       within(sheet).getByRole('link', { name: 'Account' })
     ).toHaveAttribute('href', '/account');
+  });
+
+  it.each([
+    ['signed out', null],
+    ['signed in', session]
+  ])('does not list Results when %s', (_, session) => {
+    render(<MobileNav session={session} />);
+
+    const sheet = openSheet();
+
+    expect(
+      within(sheet).queryByRole('link', { name: 'Results' })
+    ).not.toBeInTheDocument();
   });
 
   it('shows a sign-in control to a signed-out visitor', () => {
@@ -101,7 +113,7 @@ describe('MobileNav', () => {
   });
 
   it('marks the current page', () => {
-    render(<MobileNav session={null} />);
+    render(<MobileNav session={session} />);
 
     const sheet = openSheet();
 
@@ -110,7 +122,7 @@ describe('MobileNav', () => {
       'page'
     );
     expect(
-      within(sheet).getByRole('link', { name: 'Results' })
+      within(sheet).getByRole('link', { name: 'Account' })
     ).not.toHaveAttribute('aria-current');
   });
 
@@ -118,7 +130,7 @@ describe('MobileNav', () => {
     render(<MobileNav session={session} />);
 
     const sheet = openSheet();
-    fireEvent.click(within(sheet).getByRole('link', { name: 'Results' }));
+    fireEvent.click(within(sheet).getByRole('link', { name: 'Account' }));
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
