@@ -15,21 +15,22 @@ import {
 } from '@/components/ui/sheet';
 import { SheetAuthButton } from './auth-buttons';
 import { navItems } from './nav-items';
+import { desktopQuery } from './home-tabs';
 
 export function MobileNav({ session }: { session: Session | null }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  // The header hides at `sm`, but the portalled sheet does not.
+  // The header hides at `md`, but the portalled sheet does not.
   useEffect(() => {
-    const desktop = window.matchMedia('(min-width: 640px)');
+    const desktop = window.matchMedia(desktopQuery);
     const close = (e: MediaQueryListEvent) => e.matches && setOpen(false);
     desktop.addEventListener('change', close);
     return () => desktop.removeEventListener('change', close);
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:hidden">
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 md:hidden">
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <Button size="icon" variant="outline">

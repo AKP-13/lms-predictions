@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { HomeTabs } from './home-tabs';
 
@@ -69,5 +69,71 @@ describe('HomeTabs', () => {
     fireEvent.mouseDown(screen.getByRole('tab', { name: label }));
 
     expect(onTabChange).toHaveBeenCalledWith(value);
+  });
+
+  describe('on desktop', () => {
+    const panels = [
+      'The pick form',
+      'The fixtures',
+      'The injuries',
+      'The league table',
+      'The Pick Planner',
+      'The results table'
+    ];
+
+    function visiblePanels() {
+      return panels.filter(
+        (content) => screen.getByText(content).closest('[hidden]') === null
+      );
+    }
+
+    beforeEach(() => {
+      vi.spyOn(window, 'matchMedia').mockImplementation(
+        (query) =>
+          ({
+            matches: query === '(min-width: 768px)',
+            media: query,
+            addEventListener: () => {},
+            removeEventListener: () => {}
+          }) as unknown as MediaQueryList
+      );
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it.each([
+      ['no tab', null],
+      ['fixtures', 'fixtures'],
+      ['injuries', 'injuries'],
+      ['table', 'table']
+    ])('shows the Home view for %s', (_, tab) => {
+      renderHomeTabs(tab);
+
+      expect(visiblePanels()).toEqual([
+        'The pick form',
+        'The fixtures',
+        'The injuries',
+        'The league table'
+      ]);
+    });
+
+    it.each([
+      ['planner', 'The Pick Planner'],
+      ['results', 'The results table']
+    ])('shows only the %s view', (tab, content) => {
+      renderHomeTabs(tab);
+
+      expect(visiblePanels()).toEqual([content]);
+    });
+
+    it('keeps every panel mounted', () => {
+      renderHomeTabs('planner');
+
+      for (const content of panels) {
+        expect(screen.getByText(content)).toBeInTheDocument();
+      }
+    });
   });
 });

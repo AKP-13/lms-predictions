@@ -17,11 +17,11 @@ The flow where a returning user proves their identity, using either an existing 
 _Avoid_: Log in, login
 
 **Home page**:
-The page at `/`, where a player makes the weekly pick and researches it. On a phone it has six tabs: **Home** (the **Home tab**), **Fixtures**, **Injuries**, **Table** (the league table), **Planner** (the Pick Planner), and **Results** (the results table).
+The page at `/`, where a player makes the weekly pick and researches it. On a phone it has six tabs: **Home** (the **Home tab**), **Fixtures**, **Injuries**, **Table** (the league table), **Planner** (the Pick Planner), and **Results** (the results table). On desktop, the top bar has four tabs: **Home** (the **Home tab**), **Planner**, **Results**, and **Account**, which opens the **Account page**.
 _Avoid_: Dashboard, Picks page
 
 **Home tab**:
-The first tab of the **Home page**. It holds the season tiles, the current game, and the pick. It is the default tab, so its URL has no `tab` parameter.
+The first tab of the **Home page**. It holds the season tiles, the current game, and the pick. On desktop it also shows Fixtures, Injuries and Table. It is the default tab, so its URL has no `tab` parameter.
 _Avoid_: This week
 
 **Account page**:

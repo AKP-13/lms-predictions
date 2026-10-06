@@ -26,7 +26,20 @@ function toHomeTab(tab: string | null): HomeTab {
   return homeTabs.find(({ value }) => value === tab)?.value ?? 'home';
 }
 
-const desktopQuery = '(min-width: 768px)';
+export type DesktopView = 'home' | 'planner' | 'results';
+
+// Desktop has no Fixtures, Injuries or Table tab, so those show the Home view.
+export function toDesktopView(tab: string | null): DesktopView {
+  const selected = toHomeTab(tab);
+  return selected === 'planner' || selected === 'results' ? selected : 'home';
+}
+
+export function desktopViewHref(view: DesktopView) {
+  return view === 'home' ? '/' : `/?tab=${view}`;
+}
+
+// The `md` breakpoint, where the top bar replaces the phone header.
+export const desktopQuery = '(min-width: 768px)';
 
 function subscribe(onChange: () => void) {
   const desktop = window.matchMedia(desktopQuery);
@@ -148,14 +161,19 @@ export function HomeTabs({
 }) {
   const selected = toHomeTab(tab);
   const isDesktop = useIsDesktop();
+  const view = toDesktopView(selected);
+
+  // A phone shows the selected tab. Desktop shows the panels of the selected view.
+  const isShown = (value: HomeTab) =>
+    isDesktop ? toDesktopView(value) === view : value === selected;
 
   // All panels stay mounted, so a form keeps its state when the player changes tab.
   const panel = (value: HomeTab, className = '') =>
     ({
       value,
       forceMount: true,
-      hidden: !isDesktop && value !== selected,
-      className: `mt-0 max-md:my-6 max-md:data-[state=inactive]:hidden ${className}`,
+      hidden: !isShown(value),
+      className: `mt-0 max-md:my-6 max-md:data-[state=inactive]:hidden [&[hidden]]:hidden ${className}`,
       ...(isDesktop && {
         role: undefined,
         tabIndex: undefined,
@@ -167,14 +185,18 @@ export function HomeTabs({
     <Tabs
       value={selected}
       onValueChange={(value) => onTabChange(toHomeTab(value))}
+      className="md:flex md:flex-col md:gap-5"
     >
       <PhoneTabList selected={selected} isDesktop={isDesktop} />
 
       <TabsContent {...panel('home')}>{home}</TabsContent>
 
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-4 my-6 max-md:contents">
+      <div
+        hidden={isDesktop && view !== 'home'}
+        className="grid gap-5 grid-cols-1 md:grid-cols-4 max-md:contents [&[hidden]]:hidden"
+      >
         <div className="w-full md:col-span-2 relative max-md:contents">
-          <div className="flex flex-col gap-6 md:absolute md:inset-0 max-md:contents">
+          <div className="flex flex-col gap-5 md:absolute md:inset-0 max-md:contents">
             <TabsContent {...panel('fixtures')}>{fixtures}</TabsContent>
 
             <TabsContent {...panel('injuries', 'flex-1 min-h-0 flex flex-col')}>
@@ -188,12 +210,11 @@ export function HomeTabs({
         </TabsContent>
       </div>
 
-      <TabsContent {...panel('planner', 'w-full overflow-x-auto my-6')}>
+      <TabsContent {...panel('planner', 'w-full overflow-x-auto')}>
         {planner}
       </TabsContent>
 
-      {/* Desktop shows Results on the Results page. */}
-      <TabsContent {...panel('results', 'md:hidden')}>{results}</TabsContent>
+      <TabsContent {...panel('results')}>{results}</TabsContent>
     </Tabs>
   );
 }
