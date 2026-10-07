@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ChevronDown } from 'lucide-react';
+import { textLinkClassName } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -345,10 +346,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
         ) : session === null ? (
           // Sign in prompt
           <p className="pt-3 text-center">
-            <a
-              className="font-bold text-primary underline-offset-4 hover:underline"
-              href="/login"
-            >
+            <a className={textLinkClassName} href="/login">
               Sign in to get started
             </a>
           </p>

@@ -54,4 +54,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 );
 Button.displayName = 'Button';
 
+// A text link inside a sentence or a card, not a button.
+export const textLinkClassName =
+  'font-bold text-primary underline-offset-4 hover:underline';
+
 export { Button, buttonVariants };

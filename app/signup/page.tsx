@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { textLinkClassName } from '@/components/ui/button';
 import { AuthCard, PrivacyNote } from '@/components/auth-card';
 import { CredentialsForm } from '@/components/credentials-form';
 import { MIN_PASSWORD_LENGTH } from '@/lib/credentials';
@@ -11,9 +12,9 @@ export default function SignUpPage() {
       description="Choose a password. We will email you a link to verify your address before the password works."
       footer={
         <>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm font-semibold text-muted-foreground">
             Already have an account?{' '}
-            <Link href="/login" className="underline">
+            <Link href="/login" className={textLinkClassName}>
               Sign in
             </Link>
           </p>

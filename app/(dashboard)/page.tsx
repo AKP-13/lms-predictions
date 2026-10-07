@@ -182,12 +182,11 @@ const Page = () => {
           />
         }
         results={
-          isLoadingResults ? null : (
-            <ResultsTable
-              results={results}
-              isSignedIn={sessionStatus === 'authenticated'}
-            />
-          )
+          <ResultsTable
+            results={results}
+            isSignedIn={sessionStatus === 'authenticated'}
+            isLoading={sessionStatus === 'loading' || isLoadingResults}
+          />
         }
       />
     </main>

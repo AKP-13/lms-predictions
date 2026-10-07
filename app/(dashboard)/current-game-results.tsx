@@ -1,4 +1,5 @@
 import { X } from 'lucide-react';
+import { textLinkClassName } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -96,10 +97,7 @@ const CurrentGame = ({
           </div>
         ) : !isSignedIn ? (
           <p className={cn(MESSAGE_CLASSES, 'text-center')}>
-            <a
-              className="font-bold text-primary underline-offset-4 hover:underline"
-              href="/login"
-            >
+            <a className={textLinkClassName} href="/login">
               Sign in to get started
             </a>
           </p>
@@ -136,7 +134,11 @@ const CurrentGame = ({
             </Table>
             {isOut && (
               <p className="mx-2 mt-1 flex items-center gap-2.5 rounded-2xl bg-destructive-bg px-3.5 py-3 text-sm font-bold leading-[1.1875rem] text-destructive">
-                <X aria-hidden="true" className="size-4 shrink-0" strokeWidth={3} />
+                <X
+                  aria-hidden="true"
+                  className="size-4 shrink-0"
+                  strokeWidth={3}
+                />
                 You are eliminated and will get an email when the new game
                 starts.
               </p>

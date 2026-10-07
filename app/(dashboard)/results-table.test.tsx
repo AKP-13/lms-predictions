@@ -120,4 +120,18 @@ describe('ResultsTable', () => {
     ).toHaveAttribute('href', '/login');
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
+
+  it('shows a busy card while the results load, with no sign-in link', () => {
+    render(<ResultsTable results={{}} isSignedIn={false} isLoading />);
+
+    expect(screen.getByRole('heading', { name: 'Results' })).toBeVisible();
+    expect(
+      screen.getByRole('heading', { name: 'Results' }).closest('[aria-busy]')
+    ).toHaveAttribute('aria-busy', 'true');
+    expect(
+      screen.queryByRole('link', { name: 'Sign in to get started' })
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    expect(screen.queryByRole('list', { name: 'Key' })).not.toBeInTheDocument();
+  });
 });

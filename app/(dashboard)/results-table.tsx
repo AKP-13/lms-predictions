@@ -1,5 +1,6 @@
 import { Check, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { textLinkClassName } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -153,27 +154,42 @@ function ResultsKey() {
 
 export function ResultsTable({
   results,
-  isSignedIn
+  isSignedIn,
+  isLoading = false
 }: {
   results: Record<number, Results[]>;
   isSignedIn: boolean;
+  isLoading?: boolean;
 }) {
   const games = Object.values(results);
   const roundCount = Math.max(0, ...games.map((game) => game.length));
   const rounds = Array.from({ length: roundCount }, (_, idx) => idx + 1);
 
   return (
-    <Card>
+    <Card
+      className={cn(isLoading && 'animate-pulse')}
+      aria-busy={isLoading}
+      aria-live="polite"
+    >
       <CardHeader className="flex-row items-center justify-between gap-3 space-y-0 p-5 pb-1.5 md:p-7 md:pb-1.5">
         <div className="space-y-0.5">
           <CardTitle>Results</CardTitle>
           <CardDescription>View your previous results</CardDescription>
         </div>
-        {isSignedIn && <ResultsKey />}
+        {isSignedIn && !isLoading && <ResultsKey />}
       </CardHeader>
 
       <CardContent className="px-3 pb-3 md:px-5 md:pb-5">
-        {isSignedIn ? (
+        {isLoading ? (
+          <div aria-hidden="true" className="flex gap-2 overflow-hidden p-2">
+            {[0, 1, 2].map((idx) => (
+              <div
+                key={idx}
+                className="h-[3.25rem] w-40 shrink-0 rounded-[0.875rem] bg-chip"
+              />
+            ))}
+          </div>
+        ) : isSignedIn ? (
           <Table
             className="table-fixed border-separate border-spacing-2"
             // Each round keeps about 168 px, so on a phone the table scrolls sideways.
@@ -219,10 +235,7 @@ export function ResultsTable({
           </Table>
         ) : (
           <p className="px-3 py-2 text-center">
-            <a
-              className="font-bold text-primary underline-offset-4 hover:underline"
-              href="/login"
-            >
+            <a className={textLinkClassName} href="/login">
               Sign in to get started
             </a>
           </p>
