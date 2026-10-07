@@ -193,19 +193,25 @@ export function HomeTabs({
 
       <div
         hidden={isDesktop && view !== 'home'}
-        className="grid gap-5 grid-cols-1 md:grid-cols-4 max-md:contents [&[hidden]]:hidden"
+        className="grid gap-5 grid-cols-1 md:grid-cols-4 xl:grid-cols-3 xl:items-start max-md:contents [&[hidden]]:hidden"
       >
-        <div className="w-full md:col-span-2 relative max-md:contents">
-          <div className="flex flex-col gap-5 md:absolute md:inset-0 max-md:contents">
+        {/* Below xl, fixtures and injuries share the left column. From xl, each panel has a column. */}
+        <div className="w-full md:col-span-2 relative max-md:contents xl:contents">
+          <div className="flex flex-col gap-5 md:absolute md:inset-0 max-md:contents xl:contents">
             <TabsContent {...panel('fixtures')}>{fixtures}</TabsContent>
 
-            <TabsContent {...panel('injuries', 'flex-1 min-h-0 flex flex-col')}>
+            <TabsContent
+              {...panel(
+                'injuries',
+                'flex-1 min-h-0 flex flex-col xl:order-first'
+              )}
+            >
               {injuries}
             </TabsContent>
           </div>
         </div>
 
-        <TabsContent {...panel('table', 'w-full md:col-span-2')}>
+        <TabsContent {...panel('table', 'w-full md:col-span-2 xl:col-span-1')}>
           {table}
         </TabsContent>
       </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import TileWrapper from '@/components/ui/tiles';
 import CurrentGame from './current-game-results';
 import FixturesResults from './fixtures-results';
@@ -26,26 +26,7 @@ import { ResultsTable } from './results-table';
 
 const Page = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [numWeeks, setNumWeeks] = useState<number>(() => {
-    try {
-      const v =
-        typeof window !== 'undefined'
-          ? localStorage.getItem('pickPlanner:numWeeks')
-          : null;
-      return v ? Number(v) : 5;
-    } catch {
-      return 5;
-    }
-  });
-
-  // persist selection
-  useEffect(() => {
-    try {
-      localStorage.setItem('pickPlanner:numWeeks', String(numWeeks));
-    } catch {
-      // ignore
-    }
-  }, [numWeeks]);
+  const [numWeeks, setNumWeeks] = useState(5);
 
   const { data: session, status: sessionStatus } = useSession();
   const searchParams = useSearchParams();

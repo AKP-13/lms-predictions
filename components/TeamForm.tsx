@@ -1,4 +1,47 @@
 import { FixturesData } from '@/lib/definitions';
+import { cn } from '@/lib/utils';
+
+export type FormResult = 'W' | 'D' | 'L';
+
+const FORM_LABELS: Record<FormResult, string> = {
+  W: 'won',
+  D: 'drew',
+  L: 'lost'
+};
+
+const FORM_CLASSES: Record<FormResult, string> = {
+  W: 'bg-success-bg text-success',
+  D: 'bg-chip text-muted-foreground',
+  L: 'bg-destructive-bg text-destructive'
+};
+
+// Oldest result first.
+const FormChips = ({
+  form,
+  className
+}: {
+  form: FormResult[];
+  className?: string;
+}) =>
+  form.length === 0 ? null : (
+    <span className={cn('flex gap-1', className)}>
+      <span className="sr-only">
+        Form: {form.map((result) => FORM_LABELS[result]).join(', ')}
+      </span>
+      {form.map((result, idx) => (
+        <span
+          key={idx}
+          aria-hidden="true"
+          className={cn(
+            'flex size-5 items-center justify-center rounded-md text-[0.625rem] font-extrabold',
+            FORM_CLASSES[result]
+          )}
+        >
+          {result}
+        </span>
+      ))}
+    </span>
+  );
 
 const TeamForm = ({
   teamId,
@@ -9,82 +52,25 @@ const TeamForm = ({
   teamId: number;
   selectedGw: number;
 }) => {
-  const filteredFixtures = Array.isArray(fixtures)
-    ? fixtures.filter(
-        (fixture) =>
-          fixture.event < selectedGw &&
-          (fixture.team_a === teamId || fixture.team_h === teamId)
-      )
+  const form = Array.isArray(fixtures)
+    ? fixtures
+        .filter(
+          (fixture) =>
+            fixture.event < selectedGw &&
+            (fixture.finished || fixture.finished_provisional) &&
+            (fixture.team_a === teamId || fixture.team_h === teamId)
+        )
+        .map((fixture): FormResult => {
+          const [scored, conceded] =
+            fixture.team_h === teamId
+              ? [fixture.team_h_score, fixture.team_a_score]
+              : [fixture.team_a_score, fixture.team_h_score];
+          return scored > conceded ? 'W' : scored === conceded ? 'D' : 'L';
+        })
+        .slice(-5)
     : [];
 
-  const resultsArr = filteredFixtures.reduce(
-    (acc: ('W' | 'D' | 'L')[], curr) => {
-      if (curr.team_a === teamId) {
-        const result =
-          curr.team_a_score > curr.team_h_score
-            ? 'W'
-            : curr.team_a_score === curr.team_h_score
-              ? 'D'
-              : 'L';
-        acc.push(result);
-      } else {
-        const result =
-          curr.team_h_score > curr.team_a_score
-            ? 'W'
-            : curr.team_h_score === curr.team_a_score
-              ? 'D'
-              : 'L';
-        acc.push(result);
-      }
-      return acc;
-    },
-    []
-  );
-
-  return (
-    <>
-      <div className="flex-0.5 hidden md:block font-light italic space-x-2">
-        {resultsArr.slice(-5).map((result, idx) => (
-          <span
-            key={teamId + result + idx}
-            className="inline-block text-center"
-            style={{
-              width: '1rem',
-              color:
-                result === 'W'
-                  ? '#22c55e'
-                  : result === 'D'
-                    ? '#64748b'
-                    : '#ef4444',
-              fontWeight: '500'
-            }}
-          >
-            {result}
-          </span>
-        ))}
-      </div>
-      <div className="flex-0.5 block md:hidden font-light italic space-x-2">
-        {resultsArr.slice(-5).map((result, idx) => (
-          <span
-            key={teamId + result + idx}
-            className="inline-block text-center"
-            style={{
-              width: '1rem',
-              color:
-                result === 'W'
-                  ? '#22c55e'
-                  : result === 'D'
-                    ? '#64748b'
-                    : '#ef4444',
-              fontWeight: '500'
-            }}
-          >
-            {result}
-          </span>
-        ))}
-      </div>
-    </>
-  );
+  return <FormChips form={form} />;
 };
 
-export { TeamForm };
+export { FormChips, TeamForm };

@@ -1,16 +1,9 @@
 'use client';
 
-import { Fragment, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight, Loader } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table';
-import { Loader } from 'lucide-react';
+import { badgeVariants } from '@/components/ui/badge';
 import { FixturesData } from '@/lib/definitions';
 import { TeamForm } from '@/components/TeamForm';
 import { TeamsArr } from '@/lib/definitions';
@@ -20,6 +13,73 @@ import {
   getSortedDates,
   formatKickoffTime
 } from '@/lib/fixtures';
+import { cn } from '@/lib/utils';
+
+const ROW_CLASSES =
+  'grid min-h-12 grid-cols-[minmax(0,1fr)_4rem_minmax(0,1fr)] items-center gap-2 py-1.5';
+const TEAM_CLASSES = 'flex min-w-0 flex-col gap-1 text-[0.9375rem] font-bold';
+const STEP_CLASSES =
+  'flex size-7 items-center justify-center rounded-full transition-colors hover:bg-card disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent';
+
+const GameweekStepper = ({
+  gameweek,
+  setGameweek
+}: {
+  gameweek: number;
+  setGameweek: (gameweek: number) => void;
+}) => (
+  <div className="flex shrink-0 items-center gap-1 rounded-full bg-chip p-1">
+    <button
+      type="button"
+      aria-label="Previous gameweek"
+      disabled={gameweek === MIN_GW}
+      onClick={() => setGameweek(gameweek - 1)}
+      className={STEP_CLASSES}
+    >
+      <ChevronLeft aria-hidden="true" className="size-3.5" strokeWidth={2.5} />
+    </button>
+    <span className="px-1 text-[0.8125rem] font-extrabold">GW {gameweek}</span>
+    <button
+      type="button"
+      aria-label="Next gameweek"
+      disabled={gameweek === MAX_GW}
+      onClick={() => setGameweek(gameweek + 1)}
+      className={STEP_CLASSES}
+    >
+      <ChevronRight aria-hidden="true" className="size-3.5" strokeWidth={2.5} />
+    </button>
+  </div>
+);
+
+const KickoffChip = ({ fixture }: { fixture: FixturesData }) => {
+  const isStarted = fixture.started;
+  const isFinished = fixture.finished || fixture.finished_provisional;
+  const isLive = isStarted && !isFinished;
+
+  return (
+    <div className="flex flex-col items-center gap-0.5">
+      <span
+        className={cn(
+          'flex h-[1.875rem] w-full items-center justify-center rounded-[0.625rem] text-[0.8125rem]',
+          isLive
+            ? 'bg-accent-bg font-extrabold text-accent'
+            : isStarted
+              ? 'bg-chip font-extrabold text-foreground'
+              : 'bg-chip font-bold text-muted-foreground'
+        )}
+      >
+        {isStarted
+          ? `${fixture.team_h_score} – ${fixture.team_a_score}`
+          : formatKickoffTime(fixture.kickoff_time)}
+      </span>
+      {isLive && (
+        <span className="text-[0.6875rem] font-bold leading-4 text-accent">
+          Live {fixture.minutes}&apos;
+        </span>
+      )}
+    </div>
+  );
+};
 
 const FixturesResults = ({
   isLoading,
@@ -48,195 +108,95 @@ const FixturesResults = ({
   // Sort dates chronologically
   const sortedDates = getSortedDates(fixturesByDate);
 
+  const showForm = selectedGw <= currentGwNumber;
+
   return (
     <Card
-      className={`p-2 ${isLoading ? 'animate-pulse' : ''} h-fit`}
+      className={cn('h-fit', isLoading && 'animate-pulse')}
       aria-busy={isLoading}
       aria-live="polite"
     >
-      <CardHeader className="flex flex-row items-center p-2 md:p-6">
-        <CardTitle>Fixtures</CardTitle>
-        {isLoading && (
-          <Loader className="animate-spin mx-2" aria-hidden="true" />
-        )}
+      <CardHeader className="flex-row items-center justify-between gap-3 space-y-0 p-5 pb-1 md:p-6 md:pb-1">
+        <CardTitle className="flex items-center gap-2">
+          Fixtures
+          {isLoading && (
+            <Loader
+              className="size-5 animate-spin text-muted-foreground"
+              aria-hidden="true"
+            />
+          )}
+        </CardTitle>
+        <GameweekStepper gameweek={selectedGw} setGameweek={setSelectedGw} />
       </CardHeader>
 
-      <CardContent className="p-2 md:p-6 md:pt-0">
-        <Table>
-          <TableHeader>
-            <TableRow
-              style={{ display: 'flex', justifyContent: 'space-between' }}
-            >
-              <TableHead
-                style={{
-                  flex: 1,
-                  textAlign: 'left',
-                  alignContent: 'center'
-                }}
+      <CardContent className="p-5 pt-0 md:p-6 md:pt-0">
+        {isLoading ? (
+          <div aria-hidden="true">
+            <div className="mb-1 mt-3.5 h-7 w-24 rounded-full bg-chip" />
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <div key={idx} className={ROW_CLASSES}>
+                <div className="ml-auto h-4 w-20 rounded-full bg-chip" />
+                <div className="h-[1.875rem] rounded-[0.625rem] bg-chip" />
+                <div className="h-4 w-20 rounded-full bg-chip" />
+              </div>
+            ))}
+          </div>
+        ) : !Array.isArray(fixtures) || fixtures.length === 0 ? (
+          <p className="pt-3 text-center text-muted-foreground">
+            {typeof fixtures === 'string'
+              ? fixtures
+              : 'The site is being updated. Please check back later.'}
+          </p>
+        ) : (
+          sortedDates.map((date) => (
+            <section key={date}>
+              <h4
+                className={cn(
+                  badgeVariants({ variant: 'secondary' }),
+                  'mb-1 mt-3.5'
+                )}
               >
-                <button
-                  aria-label="Previous Gameweek"
-                  disabled={selectedGw === MIN_GW}
-                  onClick={() => setSelectedGw((prevState) => prevState - 1)}
-                  style={{
-                    height: '100%',
-                    width: '100%',
-                    textAlign: 'left',
-                    cursor: selectedGw === MIN_GW ? 'not-allowed' : 'pointer'
-                  }}
-                >
-                  Previous
-                </button>
-              </TableHead>
-              <TableHead
-                className="text-center font-bold bg-[lightgrey]"
-                style={{
-                  flex: 2,
-                  textAlign: 'center',
-                  alignContent: 'center'
-                }}
-              >
-                Gameweek {selectedGw}
-              </TableHead>
-              <TableHead
-                style={{
-                  flex: 1,
-                  textAlign: 'right',
-                  alignContent: 'center'
-                }}
-              >
-                <button
-                  aria-label="Next Gameweek"
-                  disabled={selectedGw === MAX_GW}
-                  onClick={() => setSelectedGw((prevState) => prevState + 1)}
-                  style={{
-                    height: '100%',
-                    width: '100%',
-                    textAlign: 'right',
-                    cursor: selectedGw === MAX_GW ? 'not-allowed' : 'pointer'
-                  }}
-                >
-                  Next
-                </button>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              Array.from({ length: 10 }).map((_, idx) => (
-                <TableRow
-                  key={idx}
-                  className="border-b border-gray-100 last:border-0 animate-pulse"
-                >
-                  <TableCell className="flex text-center px-1 py-1 md:p-4 gap-1 justify-center">
-                    <div className="mx-auto rounded bg-gray-200 h-5 w-1/2" />
-                    <div className="mx-auto rounded bg-gray-200 h-5 w-1/2" />
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : !Array.isArray(fixtures) || fixtures.length === 0 ? (
-              <TableRow>
-                <TableCell className="table-cell w-full px-2 text-center">
-                  {typeof fixtures === 'string'
-                    ? fixtures
-                    : 'The site is being updated. Please check back later.'}
-                </TableCell>
-              </TableRow>
-            ) : (
-              sortedDates.map((date) => (
-                <Fragment key={date}>
-                  {/* Date header */}
-                  <TableRow key={`date-${date}`}>
-                    <TableCell className="table-cell w-full px-2 py-3 font-semibold bg-gray-50 text-center">
-                      {date}
-                    </TableCell>
-                  </TableRow>
+                {date}
+              </h4>
+              <ul>
+                {fixturesByDate[date].map((fixture) => {
+                  const { name: homeTeamName, id: homeTeamId } = teamsArr?.[
+                    fixture?.team_h - 1
+                  ] || { name: 'Unknown', id: 0 };
+                  const { name: awayTeamName, id: awayTeamId } = teamsArr?.[
+                    fixture?.team_a - 1
+                  ] || { name: 'Unknown', id: 0 };
 
-                  {/* Fixtures for this date */}
-                  {fixturesByDate[date].map((fixture) => {
-                    const { name: homeTeamName, id: homeTeamId } = teamsArr?.[
-                      fixture?.team_h - 1
-                    ] || { name: 'Unknown', id: 0 };
-                    const { name: awayTeamName, id: awayTeamId } = teamsArr?.[
-                      fixture?.team_a - 1
-                    ] || { name: 'Unknown', id: 0 };
-
-                    const isStarted = fixture.started;
-                    const isFinished =
-                      fixture.finished || fixture.finished_provisional;
-
-                    // Format kick-off time
-                    const kickoffTime = formatKickoffTime(fixture.kickoff_time);
-
-                    return (
-                      <TableRow
-                        key={fixture.code}
-                        className="border-b border-gray-100 last:border-0"
-                      >
-                        <TableCell className="table-cell w-full px-2 py-1">
-                          <div className="grid grid-cols-12 items-center gap-2">
-                            {/* Left section - Home team */}
-                            <div className="col-span-5 flex flex-col xl:flex-row items-center gap-2">
-                              {selectedGw <= currentGwNumber && (
-                                <div className="flex-shrink-0 order-last xl:order-first w-full xl:w-auto text-left">
-                                  <TeamForm
-                                    teamId={homeTeamId}
-                                    fixtures={fixtures}
-                                    selectedGw={selectedGw}
-                                  />
-                                </div>
-                              )}
-                              <span className="flex-1 text-center xl:text-right font-bold">
-                                {homeTeamName}
-                              </span>
-                            </div>
-
-                            {/* Center section - Score or Time */}
-                            <div className="col-span-2 flex flex-col items-center justify-center">
-                              <div
-                                className={`min-w-[80px] text-center ${isStarted ? 'font-bold' : 'font-normal'}`}
-                              >
-                                {isStarted && !isFinished && (
-                                  <div>Live {fixture.minutes}'</div>
-                                )}
-                                <div>
-                                  {isStarted || isFinished ? (
-                                    <>
-                                      {fixture.team_h_score} -{' '}
-                                      {fixture.team_a_score}
-                                    </>
-                                  ) : (
-                                    kickoffTime
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Right section - Away team */}
-                            <div className="col-span-5 flex flex-col xl:flex-row items-center gap-2">
-                              <span className="flex-1 text-center xl:text-left font-bold">
-                                {awayTeamName}
-                              </span>
-                              {selectedGw <= currentGwNumber && (
-                                <div className="flex-shrink-0 order-last w-full xl:w-auto text-right">
-                                  <TeamForm
-                                    teamId={awayTeamId}
-                                    fixtures={fixtures}
-                                    selectedGw={selectedGw}
-                                  />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </Fragment>
-              ))
-            )}
-          </TableBody>
-        </Table>
+                  return (
+                    <li key={fixture.code} className={ROW_CLASSES}>
+                      <div className={cn(TEAM_CLASSES, 'items-end text-right')}>
+                        {homeTeamName}
+                        {showForm && (
+                          <TeamForm
+                            teamId={homeTeamId}
+                            fixtures={fixtures}
+                            selectedGw={selectedGw}
+                          />
+                        )}
+                      </div>
+                      <KickoffChip fixture={fixture} />
+                      <div className={TEAM_CLASSES}>
+                        {awayTeamName}
+                        {showForm && (
+                          <TeamForm
+                            teamId={awayTeamId}
+                            fixtures={fixtures}
+                            selectedGw={selectedGw}
+                          />
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          ))
+        )}
       </CardContent>
     </Card>
   );

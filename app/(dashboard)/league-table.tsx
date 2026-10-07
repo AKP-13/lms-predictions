@@ -1,23 +1,16 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table';
+import { FormChips, type FormResult } from '@/components/TeamForm';
 import { FixturesData, FPLTeamName } from '@/lib/definitions';
 import { TeamsArr } from '@/lib/definitions';
-import { CircleCheck, CircleMinus, CircleX, Loader } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Loader } from 'lucide-react';
 
 type LeagueTableRow = {
   position: number;
   teamId: number;
   teamName: FPLTeamName;
-  teamNameShort: string;
   matchesPlayed: number;
   wins: number;
   draws: number;
@@ -26,31 +19,7 @@ type LeagueTableRow = {
   goalsConceded: number;
   goalDiff: number;
   points: number;
-  form: ('W' | 'D' | 'L')[];
-};
-
-const getPositionStyling = (position: number): string =>
-  position === 1
-    ? 'bg-blue-400'
-    : position <= 4
-      ? 'bg-blue-200'
-      : position === 5
-        ? 'bg-orange-200'
-        : position >= 18
-          ? 'bg-red-200'
-          : '';
-
-const returnFormColor = (result: 'W' | 'D' | 'L'): string =>
-  result === 'W' ? '#4CAF50' : result === 'D' ? '#B0B0B0' : '#F44336';
-
-const returnIcon = (result: 'W' | 'D' | 'L', color: string) => {
-  return result === 'W' ? (
-    <CircleCheck color={color} size={20} strokeWidth={0.75} />
-  ) : result === 'D' ? (
-    <CircleMinus color={color} size={20} strokeWidth={0.75} />
-  ) : (
-    <CircleX color={color} size={20} strokeWidth={1} />
-  );
+  form: FormResult[];
 };
 
 const buildLeagueTable = (
@@ -60,8 +29,8 @@ const buildLeagueTable = (
   // Initialize stats for each team
   const table: Record<
     number,
-    Omit<LeagueTableRow, 'position' | 'teamName' | 'teamNameShort' | 'form'> & {
-      form: ('W' | 'D' | 'L')[];
+    Omit<LeagueTableRow, 'position' | 'teamName' | 'form'> & {
+      form: FormResult[];
     }
   > = {};
   teamsArr.forEach((team) => {
@@ -81,10 +50,7 @@ const buildLeagueTable = (
 
   // Process each finished fixture
   // For form, collect all finished fixtures for each team
-  const teamFixtures: Record<
-    number,
-    { result: 'W' | 'D' | 'L'; gw: number }[]
-  > = {};
+  const teamFixtures: Record<number, { result: FormResult; gw: number }[]> = {};
   teamsArr.forEach((team) => {
     teamFixtures[team.id] = [];
   });
@@ -136,7 +102,6 @@ const buildLeagueTable = (
   const tableArr: LeagueTableRow[] = teamsArr.map((team) => ({
     position: 0, // will be set after sorting
     teamName: team.name,
-    teamNameShort: team.short_name,
     ...table[team.id],
     form: teamFixtures[team.id]
       .sort((a, b) => b.gw - a.gw) // most recent first
@@ -160,170 +125,36 @@ const buildLeagueTable = (
   return tableArr;
 };
 
-const headerPaddingDesktop = 'px-2 py-1';
-const headerPaddingMobile = 'px-1 py-1';
-const bodyPadding = 'px-1 py-1 md:p-4';
-const center = 'text-center';
+const TOP_PLACES = 4;
+const BOTTOM_PLACES = 3;
 
-const tableConfig = [
-  {
-    dataKey: 'position',
-    headerClassName: `${center}`,
-    bodyClassName: `${center} ${bodyPadding}`,
-    loadingDivClassName: 'h-5 w-5'
-  },
-  {
-    dataKey: 'teamNameShort',
-    headerClassName: `${center}`,
-    bodyClassName: `${center} ${bodyPadding}`,
-    label: 'Team',
-    isDisplayedOnMobile: true,
-    loadingDivClassName: 'h-5 w-10'
-  },
-  {
-    dataKey: 'teamName',
-    headerClassName: `${center}`,
-    bodyClassName: `${center} ${bodyPadding}`,
-    label: 'Team',
-    isDisplayedOnDesktop: true,
-    loadingDivClassName: 'h-5 w-24'
-  },
-  {
-    dataKey: 'matchesPlayed',
-    headerClassName: `${center}`,
-    bodyClassName: `${center} ${bodyPadding}`,
-    label: 'Played',
-    isDisplayedOnDesktop: true,
-    loadingDivClassName: 'h-5 w-8'
-  },
-  {
-    dataKey: 'matchesPlayed',
-    headerClassName: `${center}`,
-    bodyClassName: `${center} ${bodyPadding}`,
-    label: 'Pd',
-    isDisplayedOnMobile: true,
-    loadingDivClassName: 'h-5 w-8'
-  },
-  {
-    dataKey: 'wins',
-    headerClassName: `${center}`,
-    bodyClassName: `${center} ${bodyPadding}`,
-    label: 'Won',
-    isDisplayedOnDesktop: true,
-    loadingDivClassName: 'h-5 w-8'
-  },
-  {
-    dataKey: 'wins',
-    headerClassName: `${center}`,
-    bodyClassName: `${center} ${bodyPadding}`,
-    label: 'W',
-    isDisplayedOnMobile: true,
-    loadingDivClassName: 'h-5 w-8'
-  },
-  {
-    dataKey: 'draws',
-    headerClassName: `${center}`,
-    bodyClassName: `${center} ${bodyPadding}`,
-    label: 'Drawn',
-    isDisplayedOnDesktop: true,
-    loadingDivClassName: 'h-5 w-8'
-  },
-  {
-    dataKey: 'draws',
-    headerClassName: `${center}`,
-    bodyClassName: `${center} ${bodyPadding}`,
-    label: 'D',
-    isDisplayedOnMobile: true,
-    loadingDivClassName: 'h-5 w-8'
-  },
-  {
-    dataKey: 'losses',
-    headerClassName: `${center}`,
-    bodyClassName: `${center} ${bodyPadding}`,
-    label: 'Lost',
-    isDisplayedOnDesktop: true,
-    loadingDivClassName: 'h-5 w-8'
-  },
-  {
-    dataKey: 'losses',
-    headerClassName: `${center}`,
-    bodyClassName: `${center} ${bodyPadding}`,
-    label: 'L',
-    isDisplayedOnMobile: true,
-    loadingDivClassName: 'h-5 w-8'
-  },
-  {
-    dataKey: 'goalsScored',
-    headerClassName: `${center}`,
-    bodyClassName: `${center} ${bodyPadding}`,
-    label: 'Scored',
-    isDisplayedOnDesktop: true,
-    loadingDivClassName: 'h-5 w-8'
-  },
-  {
-    dataKey: 'goalsScored',
-    headerClassName: `${center}`,
-    bodyClassName: `${center} ${bodyPadding}`,
-    label: 'GF',
-    isDisplayedOnMobile: true,
-    loadingDivClassName: 'h-5 w-8'
-  },
-  {
-    dataKey: 'goalsConceded',
-    headerClassName: `${center}`,
-    bodyClassName: `${center} ${bodyPadding}`,
-    label: 'Conceded',
-    isDisplayedOnDesktop: true,
-    loadingDivClassName: 'h-5 w-8'
-  },
-  {
-    dataKey: 'goalsConceded',
-    headerClassName: `${center}`,
-    bodyClassName: `${center} ${bodyPadding}`,
-    label: 'GA',
-    isDisplayedOnMobile: true,
-    loadingDivClassName: 'h-5 w-8'
-  },
-  {
-    dataKey: 'goalDiff',
-    headerClassName: `${center}`,
-    bodyClassName: `${center} ${bodyPadding}`,
-    label: 'Goal Diff',
-    isDisplayedOnDesktop: true,
-    loadingDivClassName: 'h-5 w-8'
-  },
-  {
-    dataKey: 'goalDiff',
-    headerClassName: `${center}`,
-    bodyClassName: `${center} ${bodyPadding}`,
-    label: 'GD',
-    isDisplayedOnMobile: true,
-    loadingDivClassName: 'h-5 w-8'
-  },
-  {
-    dataKey: 'points',
-    headerClassName: `${center}`,
-    bodyClassName: `${center} ${bodyPadding}`,
-    label: 'Points',
-    isDisplayedOnDesktop: true,
-    loadingDivClassName: 'h-5 w-10'
-  },
-  {
-    dataKey: 'points',
-    headerClassName: `${center}`,
-    bodyClassName: `${center} ${bodyPadding}`,
-    label: 'Pts',
-    isDisplayedOnMobile: true,
-    loadingDivClassName: 'h-5 w-10'
-  },
-  {
-    dataKey: 'form',
-    headerClassName: `${center}`,
-    bodyClassName: `${center} ${bodyPadding}`,
-    label: 'Form',
-    loadingDivClassName: 'flex gap-1 justify-center'
-  }
-];
+const NUMBER_CLASSES =
+  'text-right text-sm font-semibold tabular-nums text-muted-foreground';
+
+// "+7", "0" or "−3" with a true minus sign.
+const formatGoalDiff = (goalDiff: number) =>
+  goalDiff > 0 ? `+${goalDiff}` : goalDiff < 0 ? `−${-goalDiff}` : '0';
+
+const PositionBadge = ({
+  position,
+  teamCount
+}: {
+  position: number;
+  teamCount: number;
+}) => (
+  <span
+    className={cn(
+      'flex size-7 items-center justify-center rounded-full text-[0.8125rem] font-extrabold',
+      position <= TOP_PLACES
+        ? 'bg-accent-bg text-accent'
+        : position > teamCount - BOTTOM_PLACES
+          ? 'bg-destructive-bg text-destructive'
+          : 'bg-chip'
+    )}
+  >
+    {position}
+  </span>
+);
 
 const LeagueTable = ({
   fixtures,
@@ -338,129 +169,101 @@ const LeagueTable = ({
 
   return (
     <Card
-      className={`p-2 ${isLoading ? 'animate-pulse' : ''}`}
+      className={cn(isLoading && 'animate-pulse')}
       aria-busy={isLoading}
       aria-live="polite"
     >
-      <CardHeader className="flex flex-row items-center p-2 md:p-6">
-        <CardTitle>League Table</CardTitle>
-        {isLoading && (
-          <Loader className="animate-spin mx-2" aria-hidden="true" />
-        )}
+      <CardHeader className="p-5 pb-1 md:p-6 md:pb-1">
+        <CardTitle className="flex items-center gap-2">
+          League Table
+          {isLoading && (
+            <Loader
+              className="size-5 animate-spin text-muted-foreground"
+              aria-hidden="true"
+            />
+          )}
+        </CardTitle>
       </CardHeader>
 
-      <CardContent className="p-2 md:p-6 md:pt-0">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {fixtures.length === 0 ? (
-                <TableHead className="text-center">No data</TableHead>
-              ) : (
-                tableConfig.map((col) => (
-                  <TableHead
-                    key={`${col.dataKey} - ${col.label}`}
-                    className={`${col.headerClassName} ${col.isDisplayedOnMobile ? `table-cell md:hidden ${headerPaddingMobile}` : col.isDisplayedOnDesktop ? `hidden md:table-cell ${headerPaddingDesktop}` : ''}`}
-                  >
-                    {col.label}
-                  </TableHead>
-                ))
-              )}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              Array.from({ length: 20 }).map((_, idx) => (
-                <TableRow
-                  key={idx}
-                  className="border-b border-gray-100 last:border-0 animate-pulse"
-                >
-                  {tableConfig.map((col) => {
-                    return (
-                      <TableCell
-                        className={`${col.bodyClassName} ${col.isDisplayedOnMobile ? 'table-cell md:hidden' : col.isDisplayedOnDesktop ? 'hidden md:table-cell' : ''}`}
-                        key={`${col.dataKey} - ${col.label}`}
-                      >
-                        {col.dataKey === 'form' ? (
-                          <div className={col.loadingDivClassName}>
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <div
-                                key={i}
-                                className="h-5 w-5 rounded-full bg-gray-200"
-                              />
-                            ))}
-                          </div>
-                        ) : (
-                          <div
-                            className={`mx-auto rounded bg-gray-200 ${col.loadingDivClassName}`}
-                          />
+      <CardContent className="p-5 pt-0 md:p-6 md:pt-0">
+        {!isLoading && fixtures.length === 0 ? (
+          <p className="pt-2 text-center text-muted-foreground">
+            The site is being updated. Please check back later.
+          </p>
+        ) : (
+          <table className="w-full table-fixed">
+            <thead>
+              <tr className="h-8 text-[0.8125rem] text-muted-foreground [&>th]:font-semibold">
+                <th className="w-10">
+                  <span className="sr-only">Position</span>
+                </th>
+                <th className="text-left">Team</th>
+                <th className="w-9 text-right">
+                  <abbr title="Played" className="no-underline">
+                    P
+                  </abbr>
+                </th>
+                <th className="w-11 text-right">
+                  <abbr title="Goal difference" className="no-underline">
+                    GD
+                  </abbr>
+                </th>
+                <th className="w-11 text-right">
+                  <abbr title="Points" className="no-underline">
+                    Pts
+                  </abbr>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading
+                ? Array.from({ length: 20 }).map((_, idx) => (
+                    <tr key={idx} aria-hidden="true" className="h-14">
+                      <td>
+                        <div className="size-7 rounded-full bg-chip" />
+                      </td>
+                      <td>
+                        <div className="h-4 w-28 rounded-full bg-chip" />
+                        <div className="mt-1.5 h-5 w-28 rounded-md bg-chip" />
+                      </td>
+                      {[0, 1, 2].map((col) => (
+                        <td key={col}>
+                          <div className="ml-auto h-4 w-5 rounded-full bg-chip" />
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                : leagueTable.map((row) => (
+                    <tr key={row.teamName} className="h-14">
+                      <td>
+                        <PositionBadge
+                          position={row.position}
+                          teamCount={leagueTable.length}
+                        />
+                      </td>
+                      <th scope="row" className="text-left font-normal">
+                        <span className="block truncate text-[0.9375rem] font-bold leading-[1.375rem]">
+                          {row.teamName}
+                        </span>
+                        <FormChips form={row.form} className="mt-1" />
+                      </th>
+                      <td className={NUMBER_CLASSES}>{row.matchesPlayed}</td>
+                      <td className={NUMBER_CLASSES}>
+                        {formatGoalDiff(row.goalDiff)}
+                      </td>
+                      <td
+                        className={cn(
+                          NUMBER_CLASSES,
+                          'text-[0.9375rem] font-extrabold text-foreground'
                         )}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              ))
-            ) : fixtures.length === 0 ? (
-              <TableRow>
-                <TableCell className="table-cell w-full px-2 text-center">
-                  The site is being updated. Please check back later.
-                </TableCell>
-              </TableRow>
-            ) : (
-              leagueTable.map((row) => {
-                const color = getPositionStyling(row.position);
-
-                return (
-                  <TableRow
-                    key={row.teamName}
-                    className={`border-b border-gray-100 last:border-0 ${isLoading ? 'animate-pulse' : ''}`}
-                  >
-                    {tableConfig.map((col) => {
-                      return (
-                        <TableCell
-                          className={`${col.bodyClassName} ${col.isDisplayedOnMobile ? 'table-cell md:hidden' : col.isDisplayedOnDesktop ? 'hidden md:table-cell' : ''} ${col.dataKey === 'position' ? color : ''}`}
-                          key={`${col.dataKey} - ${col.label}`}
-                        >
-                          {col.dataKey === 'form' ? (
-                            <div className="flex gap-1 justify-center">
-                              {row.form.map((result, idx) => {
-                                const color = returnFormColor(result);
-
-                                const isMostRecent =
-                                  idx === row.form.length - 1;
-                                const icon = returnIcon(result, color);
-
-                                return isMostRecent ? (
-                                  <span
-                                    key={idx}
-                                    className={`inline-flex items-center justify-center w-5 h-5 rounded-full border bg-white`}
-                                    style={{
-                                      borderColor: color
-                                    }}
-                                  >
-                                    {icon}
-                                  </span>
-                                ) : (
-                                  <span
-                                    key={idx}
-                                    className="inline-flex items-center justify-center w-5 h-5"
-                                  >
-                                    {icon}
-                                  </span>
-                                );
-                              })}
-                            </div>
-                          ) : (
-                            row[col.dataKey as keyof LeagueTableRow]
-                          )}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
+                      >
+                        {row.points}
+                      </td>
+                    </tr>
+                  ))}
+            </tbody>
+          </table>
+        )}
       </CardContent>
     </Card>
   );

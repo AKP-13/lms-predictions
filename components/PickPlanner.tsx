@@ -1,5 +1,6 @@
 import {
   ChangeEvent,
+  CSSProperties,
   Dispatch,
   FC,
   SetStateAction,
@@ -7,7 +8,7 @@ import {
   useState
 } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Select } from '@/components/ui/select';
+import { Check, ChevronDown } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -15,26 +16,30 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table';
 import { FixturesData, Results } from '@/lib/definitions';
 import { TeamsArr } from '@/lib/definitions';
+import { cn } from '@/lib/utils';
 import { Session } from 'next-auth';
 
-// Constant - never changes
-const DIFFICULTY_BG_CLASS_MAP: { [key: number]: string } = {
-  1: 'bg-[#4CAF50]',
-  2: 'bg-[#388E3C] text-white',
-  3: 'bg-[#B0BEC5] text-white',
-  4: 'bg-[#EF5350] text-white',
-  5: 'bg-[#C62828] text-white'
+const NEUTRAL_DIFFICULTY = 3;
+
+const DIFFICULTY_CLASSES: { [key: number]: string } = {
+  1: 'bg-difficulty-easiest text-difficulty-easiest-foreground',
+  2: 'bg-difficulty-easy text-difficulty-easy-foreground',
+  3: 'bg-difficulty-neutral text-difficulty-neutral-foreground',
+  4: 'bg-difficulty-hard text-difficulty-hard-foreground',
+  5: 'bg-difficulty-hardest text-difficulty-hardest-foreground'
 };
+
+const PLANNED_CLASSES = 'bg-tint text-primary ring-2 ring-inset ring-primary';
+const USED_CLASSES =
+  'border-[1.5px] border-dashed border-muted-foreground/40 font-bold text-muted-foreground opacity-75';
+const SWATCH_CLASSES = 'block size-3.5 rounded-[5px]';
+// The shadow fills the cell gaps and the card padding, so scrolled cells do not show through.
+const STICKY_CLASSES =
+  'sticky left-1.5 z-10 bg-card shadow-[0_0_0_6px_hsl(var(--card)),-14px_0_0_6px_hsl(var(--card))] md:shadow-[0_0_0_6px_hsl(var(--card)),-18px_0_0_6px_hsl(var(--card))]';
+
+const WEEK_OPTIONS = ['5', '6', '7', '8', '9', '10'];
 
 interface PickPlannerProps {
   teams: TeamsArr;
@@ -49,43 +54,73 @@ interface PickPlannerProps {
 }
 
 const WeekPicker = ({
-  mobile,
   numWeeks,
   setNumWeeks,
   isLoading
 }: {
-  mobile: boolean;
   numWeeks: number;
   setNumWeeks: Dispatch<SetStateAction<number>>;
   isLoading: boolean;
-}) => {
-  const id = `week-picker-${mobile ? 'mobile' : 'desktop'}`;
-
-  return (
-    <div
-      className={`items-center flex-shrink-0 ${
-        mobile ? 'flex lg:hidden' : 'hidden lg:flex lg:order-3'
-      }`}
+}) => (
+  <div className="relative flex h-8 shrink-0 items-center rounded-full bg-chip text-[0.8125rem] font-extrabold focus-within:ring-2 focus-within:ring-ring">
+    <label htmlFor="week-picker" className="cursor-pointer pl-3 pr-1">
+      Weeks
+    </label>
+    <select
+      id="week-picker"
+      value={String(numWeeks)}
+      onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+        setNumWeeks(Number(e.target.value))
+      }
+      disabled={isLoading}
+      className="h-full cursor-pointer appearance-none rounded-r-full bg-transparent pl-0.5 pr-7 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
     >
-      <label htmlFor={id} className="text-sm font-medium mr-2">
-        Weeks
-      </label>
+      {WEEK_OPTIONS.map((option) => (
+        <option key={option} value={option}>
+          {option}
+        </option>
+      ))}
+    </select>
+    <ChevronDown
+      aria-hidden="true"
+      className="pointer-events-none absolute right-2.5 size-3.5"
+      strokeWidth={2.5}
+    />
+  </div>
+);
 
-      <Select
-        name={id}
-        id={id}
-        options={['5', '6', '7', '8', '9', '10']}
-        value={String(numWeeks ?? 5)}
-        onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-          setNumWeeks(Number(e.target.value))
-        }
-        aria-label="Number of weeks to show"
-        disabled={isLoading}
-        className={`${isLoading ? 'opacity-50 cursor-not-allowed animate-pulse' : ''} w-20`}
-      />
-    </div>
-  );
-};
+const PlannerKey = () => (
+  <ul
+    aria-label="Key"
+    className="mt-3.5 flex flex-wrap gap-x-3.5 gap-y-2 text-xs font-bold text-muted-foreground"
+  >
+    <li className="flex items-center gap-1.5">
+      <span className="sr-only">Difficulty, from</span>
+      Easy
+      {[1, 2, 3, 4, 5].map((difficulty) => (
+        <i
+          key={difficulty}
+          aria-hidden="true"
+          className={cn(
+            SWATCH_CLASSES,
+            DIFFICULTY_CLASSES[difficulty],
+            difficulty === NEUTRAL_DIFFICULTY && 'ring-1 ring-inset ring-border'
+          )}
+        />
+      ))}
+      <span className="sr-only">to</span>
+      Hard
+    </li>
+    <li className="flex items-center gap-1.5">
+      <i aria-hidden="true" className={cn(SWATCH_CLASSES, PLANNED_CLASSES)} />
+      Planned
+    </li>
+    <li className="flex items-center gap-1.5">
+      <i aria-hidden="true" className={cn(SWATCH_CLASSES, USED_CLASSES)} />
+      Used
+    </li>
+  </ul>
+);
 
 const PickPlanner: FC<PickPlannerProps> = ({
   teams,
@@ -147,28 +182,28 @@ const PickPlanner: FC<PickPlannerProps> = ({
     return map;
   }, [fixtures, teams]);
 
-  // Create O(1) lookups for the player's submitted picks: every team they have
-  // used, and which team they used in each gameweek
-  const { previouslyPredictedTeamIds, submittedTeamIdByGw } = useMemo(() => {
+  // Create O(1) lookups for the player's submitted picks: the round in which
+  // they used each team, and which team they used in each gameweek
+  const { usedRoundByTeamId, submittedTeamIdByGw } = useMemo(() => {
     const previousPicks =
       typeof currentGameId === 'number' ? (results[currentGameId] ?? []) : [];
 
     // Create a Map of teams indexed by name for O(1) lookups
     const teamsByName = new Map(teams.map((team) => [team.name, team]));
 
-    const teamIdSet = new Set<number>();
+    const roundByTeamId = new Map<number, number>();
     const teamIdByGw = new Map<number, number>();
 
     previousPicks.forEach((pick) => {
       const team = teamsByName.get(pick?.team_selected);
       if (!team) return;
 
-      teamIdSet.add(team.id);
+      roundByTeamId.set(team.id, pick.round_number);
       if (pick.fpl_gw !== null) teamIdByGw.set(pick.fpl_gw, team.id);
     });
 
     return {
-      previouslyPredictedTeamIds: teamIdSet,
+      usedRoundByTeamId: roundByTeamId,
       submittedTeamIdByGw: teamIdByGw
     };
   }, [currentGameId, results, teams]);
@@ -202,7 +237,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
 
   // Helper to check if a team has already been predicted - now O(1)
   const returnIsPreviouslyPredicted = (teamId: number) =>
-    previouslyPredictedTeamIds.has(teamId);
+    usedRoundByTeamId.has(teamId);
 
   // Handle pick
   const handlePick = (teamId: number, gw: number) => {
@@ -237,141 +272,71 @@ const PickPlanner: FC<PickPlannerProps> = ({
     }
   };
 
-  const getClassName = ({
-    isSubmittedThisGw,
-    isTeamPlannedThisGw,
-    isPreviouslyPredicted,
-    isTeamPlanned,
-    isInteractive,
+  // The note under a team name: the player's pick, a planned pick, or a used team.
+  const getTeamNote = (teamId: number) => {
+    const isSubmittedInPlanner = plannerGameweeks.some(
+      (gw) => submittedTeamIdByGw.get(gw) === teamId
+    );
+    if (isSubmittedInPlanner) return { text: 'Your pick', isUsed: false };
+    if (returnIsTeamPlanned(teamId)) return { text: 'Planned', isUsed: false };
+    const usedRound = usedRoundByTeamId.get(teamId);
+    if (usedRound !== undefined)
+      return { text: `Used in round ${usedRound}`, isUsed: true };
+    return null;
+  };
+
+  const getCellClasses = ({
+    isMine,
+    isDashed,
     fixtureText,
     difficulty
   }: {
-    isSubmittedThisGw: boolean;
-    isTeamPlannedThisGw: boolean;
-    isPreviouslyPredicted: boolean;
-    isTeamPlanned: boolean;
-    isInteractive: boolean;
+    isMine: boolean;
+    isDashed: boolean;
     fixtureText: string | undefined;
     difficulty: number | undefined;
   }) => {
-    const baseStyles =
-      'border-[0.25rem] text-center duration-150 ease-in-out rounded-[1rem] p-1 md:p-4 m-[2px]';
-    const cursor = isInteractive ? 'cursor-pointer' : 'cursor-not-allowed';
-    // Always include a 0.25rem solid border on cells with 2px margin to prevent overlap; border color varies based on the cell's state (e.g., blue for planned cells, white otherwise)
-    // A pick already submitted for this gameweek keeps the blue treatment so it
-    // reads as the player's pick, not as a team greyed out from an earlier round
-    if (isSubmittedThisGw || isTeamPlannedThisGw)
-      return `${baseStyles} border-blue-500 bg-blue-100 transition-colors ${cursor}`;
-    if (isPreviouslyPredicted)
-      return `${baseStyles} border-white ${cursor} bg-gray-500 transition-colors`;
-    if (isTeamPlanned)
-      return `${baseStyles} border-white ${cursor} bg-gray-500 transition-colors`;
-    if (difficulty !== undefined) {
-      const bgClass = DIFFICULTY_BG_CLASS_MAP[difficulty] || 'bg-white';
-      return `${baseStyles} ${cursor} ${bgClass} border-white transition-all`;
-    }
-    return `${baseStyles} ${cursor} bg-white border-white${fixtureText ? '' : ' opacity-50'} transition-colors`;
+    if (isMine) return PLANNED_CLASSES;
+    if (isDashed) return USED_CLASSES;
+    if (!fixtureText) return 'text-muted-foreground';
+    return (
+      DIFFICULTY_CLASSES[difficulty ?? NEUTRAL_DIFFICULTY] ??
+      DIFFICULTY_CLASSES[NEUTRAL_DIFFICULTY]
+    );
   };
 
   return (
-    <Card
-      className={`p-2 overflow-auto ${isLoading ? 'animate-pulse' : ''}`}
-      aria-busy={isLoading}
-      aria-live="polite"
-    >
-      <CardHeader className="relative p-2 md:p-6">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 w-full">
-          {/* Title and Weeks on same row for mobile */}
-          <div className="flex items-center justify-between w-full lg:w-auto">
-            <div>
-              <CardTitle className="flex flex-row items-center">
-                Pick Planner
-              </CardTitle>
-              <CardDescription className="hidden sm:block">
-                Plan your picks.
-              </CardDescription>
-            </div>
-
-            {/* Weeks dropdown - shows on first row on mobile, on right on large screens */}
-            {setNumWeeks && session && (
-              <WeekPicker
-                mobile
-                numWeeks={numWeeks}
-                setNumWeeks={setNumWeeks}
-                isLoading={isLoading}
-              />
-            )}
-          </div>
-
-          {/* Difficulty key - shows in middle on large screens, second row on mobile */}
-          {session && (
-            <div className="flex items-center space-x-3 text-sm text-gray-600 lg:order-2 justify-center">
-              <span>Difficulty</span>
-              <div className="flex items-start space-x-2">
-                <div className="flex flex-col items-center">
-                  <div className="h-4 flex items-center">
-                    <span className="w-3 h-3 rounded-full bg-[#4CAF50]" />
-                  </div>
-                  <span className="text-xs text-gray-600">1</span>
-                  <span className="text-[10px] text-gray-500 min-h-[12px]">
-                    Easy
-                  </span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="h-4 flex items-center">
-                    <span className="w-3 h-3 rounded-full bg-[#388E3C]" />
-                  </div>
-                  <span className="text-xs text-gray-600">2</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="h-4 flex items-center">
-                    <span className="w-3 h-3 rounded-full bg-[#B0BEC5]" />
-                  </div>
-                  <span className="text-xs text-gray-600">3</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="h-4 flex items-center">
-                    <span className="w-3 h-3 rounded-full bg-[#EF5350]" />
-                  </div>
-                  <span className="text-xs text-gray-600">4</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="h-4 flex items-center">
-                    <span className="w-3 h-3 rounded-full bg-[#C62828]" />
-                  </div>
-                  <span className="text-xs text-gray-600">5</span>
-                  <span className="text-[10px] text-gray-500 min-h-[12px]">
-                    Hard
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Weeks dropdown for large screens */}
-          {setNumWeeks && session && (
-            <WeekPicker
-              mobile={false}
-              numWeeks={numWeeks}
-              setNumWeeks={setNumWeeks}
-              isLoading={isLoading}
-            />
-          )}
+    <Card aria-busy={isLoading} aria-live="polite">
+      <CardHeader className="flex-row items-start justify-between gap-3 space-y-0 p-5 pb-0 md:p-6 md:pb-0">
+        <div className="space-y-0.5">
+          <CardTitle>Pick Planner</CardTitle>
+          <CardDescription>
+            {plannerGameweeks.length > 0
+              ? `GW${plannerGameweeks[0]} – GW${plannerGameweeks[plannerGameweeks.length - 1]}`
+              : 'Plan your picks.'}
+          </CardDescription>
         </div>
+        {setNumWeeks && session && (
+          <WeekPicker
+            numWeeks={numWeeks}
+            setNumWeeks={setNumWeeks}
+            isLoading={isLoading}
+          />
+        )}
       </CardHeader>
 
-      <CardContent className="p-2 md:p-6 md:pt-0">
+      <CardContent className="p-5 pt-0 md:p-6 md:pt-0">
+        {session && <PlannerKey />}
+
         {isLoading ? (
           // Loading skeleton
-          <div>
-            {[0, 1, 2].map((rowIdx) => (
-              <div className="flex" key={`skeleton-row-${rowIdx}`}>
-                {[...Array(5)].map((_, colIdx) => (
+          <div aria-hidden="true" className="mt-3 animate-pulse space-y-1.5">
+            {[0, 1, 2, 3].map((rowIdx) => (
+              <div className="flex gap-1.5" key={`skeleton-row-${rowIdx}`}>
+                {[...Array(6)].map((_, colIdx) => (
                   <div
                     key={`skeleton-cell-${rowIdx}-${colIdx}`}
-                    className={`my-2 rounded-full bg-gray-200 ${
-                      rowIdx === 0 ? 'h-10' : 'h-5'
-                    } w-1/5`}
+                    className="h-[2.125rem] flex-1 rounded-[0.625rem] bg-chip"
                   />
                 ))}
               </div>
@@ -379,31 +344,43 @@ const PickPlanner: FC<PickPlannerProps> = ({
           </div>
         ) : session === null ? (
           // Sign in prompt
-          <div className="flex justify-center">
+          <p className="pt-3 text-center">
             <a
-              className="text-blue-600 font-semibold text-center"
+              className="font-bold text-primary underline-offset-4 hover:underline"
               href="/login"
             >
               Sign in to get started
             </a>
-          </div>
+          </p>
         ) : fixtures.length === 0 || predictionGwNumber === null ? (
-          <p className="text-center">
+          <p className="pt-3 text-center text-muted-foreground">
             The site is being updated. Please check back later.
           </p>
         ) : (
-          <Table className="table-fixed border-separate border-spacing-0 w-full">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-16 md:w-40 font-medium text-center border-[0.25rem] border-white rounded-[1rem] p-1 md:p-4 m-[2px]">
-                  Team
-                </TableHead>
-                <AnimatePresence initial={false}>
-                  {plannerGameweeks.map((gw) => {
-                    return (
-                      <TableHead
+          // With many weeks, the table scrolls sideways inside the card.
+          // contain stops the table width from widening the page.
+          <div className="-mx-5 mt-2 overflow-x-auto px-3.5 [contain:inline-size] md:-mx-6 md:px-[1.125rem]">
+            <table
+              className="w-full min-w-[calc(5.75rem+var(--weeks)*4.875rem)] table-fixed border-separate border-spacing-1.5 lg:min-w-[calc(10.625rem+var(--weeks)*7.375rem)]"
+              style={{ '--weeks': numWeeks } as CSSProperties}
+            >
+              <thead>
+                <tr>
+                  <th
+                    scope="col"
+                    className={cn(
+                      STICKY_CLASSES,
+                      'w-[5.75rem] text-left text-[0.8125rem] font-semibold text-muted-foreground lg:w-[10.625rem]'
+                    )}
+                  >
+                    Team
+                  </th>
+                  <AnimatePresence initial={false}>
+                    {plannerGameweeks.map((gw) => (
+                      <th
                         key={gw}
-                        className="w-28 font-medium text-center border-[0.25rem] border-white rounded-[1rem] p-1 md:p-4 m-[2px]"
+                        scope="col"
+                        className="text-center text-[0.8125rem] font-semibold text-muted-foreground"
                       >
                         <motion.div
                           layout
@@ -414,113 +391,142 @@ const PickPlanner: FC<PickPlannerProps> = ({
                         >
                           GW{gw}
                         </motion.div>
-                      </TableHead>
-                    );
-                  })}
-                </AnimatePresence>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {teams.map((team) => (
-                <TableRow key={team.id}>
-                  <TableCell className="w-16 md:w-40 font-medium text-center border-[0.25rem] border-white rounded-[1rem] p-1 md:p-4 m-[2px]">
-                    <span className="hidden md:inline">{team.name}</span>
-                    <span className="md:hidden">{team.short_name}</span>
-                  </TableCell>
-                  <AnimatePresence initial={false}>
-                    {plannerGameweeks.map((gw) => {
-                      const fixtureData = getFixture({ teamId: team.id, gw });
-                      const {
-                        fixtureText,
-                        opponentShortName,
-                        location,
-                        difficulty
-                      } = fixtureData || {};
-                      const isTeamPlanned = returnIsTeamPlanned(team.id);
-                      const isPreviouslyPredicted = returnIsPreviouslyPredicted(
-                        team.id
-                      );
-                      const isTeamPlannedThisGw = picks[gw] === team.id;
-
-                      // Once the deadline passes, the gameweek being predicted
-                      // for is settled - show it, but take no more input
-                      const isLockedColumn =
-                        isPastSubmissionDeadline && gw === predictionGwNumber;
-                      const isSubmittedThisGw =
-                        submittedTeamIdByGw.get(gw) === team.id;
-                      const isInteractive =
-                        !isLockedColumn &&
-                        !isPreviouslyPredicted &&
-                        !!fixtureText;
-
-                      const className = getClassName({
-                        isSubmittedThisGw,
-                        isTeamPlannedThisGw,
-                        isPreviouslyPredicted,
-                        isTeamPlanned,
-                        isInteractive,
-                        fixtureText,
-                        difficulty
-                      });
-
-                      return (
-                        <TableCell
-                          key={`${team.id}-${gw}`}
-                          className={`${className} w-28 outline-2 outline-offset-[-2px] outline-transparent focus-visible:outline-blue-500`}
-                          aria-disabled={!isInteractive}
-                          onClick={() =>
-                            isInteractive && handlePick(team.id, gw)
-                          }
-                          tabIndex={isInteractive ? 0 : -1}
-                          aria-pressed={
-                            isSubmittedThisGw || isTeamPlannedThisGw
-                          }
-                          aria-label={
-                            fixtureText
-                              ? `GW ${gw}, ${team.name}, ${fixtureText}${isSubmittedThisGw ? ', submitted' : isPreviouslyPredicted ? ', already used' : ''}${isLockedColumn ? ', locked' : ''}`
-                              : `GW ${gw}, ${team.name}, no fixture`
-                          }
-                          onKeyDown={(e) => {
-                            if (
-                              (e.key === 'Enter' || e.key === ' ') &&
-                              isInteractive
-                            ) {
-                              e.preventDefault();
-                              handlePick(team.id, gw);
-                            }
-                          }}
-                        >
-                          <motion.div
-                            layout
-                            initial={{ opacity: 0, y: -4 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 4 }}
-                            transition={{ duration: 0.15 }}
-                          >
-                            {fixtureText ? (
-                              <>
-                                {/* Desktop: show full text */}
-                                <span className="hidden md:inline">
-                                  {fixtureText}
-                                </span>
-                                {/* Mobile: show short name on top, location on bottom */}
-                                <span className="md:hidden flex flex-col items-center">
-                                  <span>{opponentShortName}</span>
-                                  <span>({location})</span>
-                                </span>
-                              </>
-                            ) : (
-                              '-'
-                            )}
-                          </motion.div>
-                        </TableCell>
-                      );
-                    })}
+                      </th>
+                    ))}
                   </AnimatePresence>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                </tr>
+              </thead>
+              <tbody>
+                {teams.map((team) => {
+                  const note = getTeamNote(team.id);
+
+                  return (
+                    <tr key={team.id}>
+                      <th
+                        scope="row"
+                        className={cn(
+                          STICKY_CLASSES,
+                          'pr-1 text-left text-[0.8125rem] font-bold lg:text-sm'
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            'block truncate',
+                            note?.isUsed && 'text-muted-foreground'
+                          )}
+                        >
+                          {team.name}
+                        </span>
+                        {note && (
+                          <span
+                            className={cn(
+                              'block truncate text-[0.6875rem]',
+                              note.isUsed
+                                ? 'text-muted-foreground'
+                                : 'text-primary'
+                            )}
+                          >
+                            {note.text}
+                          </span>
+                        )}
+                      </th>
+                      <AnimatePresence initial={false}>
+                        {plannerGameweeks.map((gw) => {
+                          const fixtureData = getFixture({
+                            teamId: team.id,
+                            gw
+                          });
+                          const {
+                            fixtureText,
+                            opponentShortName,
+                            location,
+                            difficulty
+                          } = fixtureData || {};
+                          const isTeamPlanned = returnIsTeamPlanned(team.id);
+                          const isPreviouslyPredicted =
+                            returnIsPreviouslyPredicted(team.id);
+                          const isTeamPlannedThisGw = picks[gw] === team.id;
+
+                          // Once the deadline passes, the gameweek being predicted
+                          // for is settled - show it, but take no more input
+                          const isLockedColumn =
+                            isPastSubmissionDeadline &&
+                            gw === predictionGwNumber;
+                          const isSubmittedThisGw =
+                            submittedTeamIdByGw.get(gw) === team.id;
+                          const isInteractive =
+                            !isLockedColumn &&
+                            !isPreviouslyPredicted &&
+                            !!fixtureText;
+                          const isMine =
+                            isSubmittedThisGw || isTeamPlannedThisGw;
+
+                          return (
+                            <td key={`${team.id}-${gw}`} className="p-0">
+                              <button
+                                type="button"
+                                disabled={!isInteractive}
+                                onClick={() => handlePick(team.id, gw)}
+                                aria-pressed={isMine}
+                                aria-label={
+                                  fixtureText
+                                    ? `GW ${gw}, ${team.name}, ${fixtureText}${isSubmittedThisGw ? ', submitted' : isPreviouslyPredicted ? ', already used' : ''}${isLockedColumn ? ', locked' : ''}`
+                                    : `GW ${gw}, ${team.name}, no fixture`
+                                }
+                                className={cn(
+                                  'flex h-[2.125rem] w-full items-center justify-center gap-1 overflow-hidden whitespace-nowrap rounded-[0.625rem] px-1 text-[0.6875rem] font-extrabold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card disabled:cursor-not-allowed lg:h-[2.375rem] lg:text-xs',
+                                  getCellClasses({
+                                    isMine,
+                                    // Used earlier, or planned for another week.
+                                    isDashed:
+                                      isPreviouslyPredicted ||
+                                      (isTeamPlanned && !isTeamPlannedThisGw),
+                                    fixtureText,
+                                    difficulty
+                                  })
+                                )}
+                              >
+                                <motion.span
+                                  layout
+                                  initial={{ opacity: 0, y: -4 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  exit={{ opacity: 0, y: 4 }}
+                                  transition={{ duration: 0.15 }}
+                                  className="flex min-w-0 items-center gap-1"
+                                >
+                                  {isMine && (
+                                    <Check
+                                      aria-hidden="true"
+                                      className="size-3 shrink-0"
+                                      strokeWidth={3}
+                                    />
+                                  )}
+                                  {fixtureText ? (
+                                    <>
+                                      {/* From lg: the full name */}
+                                      <span className="hidden truncate lg:inline">
+                                        {fixtureText}
+                                      </span>
+                                      {/* Below lg: the short name */}
+                                      <span className="truncate lg:hidden">
+                                        {opponentShortName} ({location})
+                                      </span>
+                                    </>
+                                  ) : (
+                                    '–'
+                                  )}
+                                </motion.span>
+                              </button>
+                            </td>
+                          );
+                        })}
+                      </AnimatePresence>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </CardContent>
     </Card>
