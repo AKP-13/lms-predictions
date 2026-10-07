@@ -1,11 +1,16 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitleWithSpinner
+} from '@/components/ui/card';
+import { toneClasses } from '@/components/ui/tones';
 import { FormChips, type FormResult } from '@/components/TeamForm';
 import { FixturesData, FPLTeamName } from '@/lib/definitions';
 import { TeamsArr } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
-import { Loader } from 'lucide-react';
 
 type LeagueTableRow = {
   position: number;
@@ -146,9 +151,9 @@ const PositionBadge = ({
     className={cn(
       'flex size-7 items-center justify-center rounded-full text-[0.8125rem] font-extrabold',
       position <= TOP_PLACES
-        ? 'bg-accent-bg text-accent'
+        ? toneClasses.accent
         : position > teamCount - BOTTOM_PLACES
-          ? 'bg-destructive-bg text-destructive'
+          ? toneClasses.destructive
           : 'bg-chip'
     )}
   >
@@ -174,15 +179,9 @@ const LeagueTable = ({
       aria-live="polite"
     >
       <CardHeader className="p-5 pb-1 md:p-6 md:pb-1">
-        <CardTitle className="flex items-center gap-2">
+        <CardTitleWithSpinner isLoading={isLoading}>
           League Table
-          {isLoading && (
-            <Loader
-              className="size-5 animate-spin text-muted-foreground"
-              aria-hidden="true"
-            />
-          )}
-        </CardTitle>
+        </CardTitleWithSpinner>
       </CardHeader>
 
       <CardContent className="p-5 pt-0 md:p-6 md:pt-0">

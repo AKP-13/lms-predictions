@@ -1,6 +1,6 @@
 import { Check, X } from 'lucide-react';
+import { SignInPrompt } from '@/components/sign-in-prompt';
 import { Badge } from '@/components/ui/badge';
-import { textLinkClassName } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -24,7 +24,10 @@ export const COLUMN_HEADER_CLASSES =
   'h-auto px-1 align-bottom text-[0.8125rem] font-semibold';
 const GAME_COLUMN_CLASSES = 'w-11 px-0 md:w-[3.25rem] md:pl-1';
 
-export const OUTCOMES = {
+// Each round keeps about 168 px, so a narrow card scrolls sideways.
+export const ROUND_WIDTH_REM = 10.5;
+
+export const PICK_RESULTS = {
   safe: {
     label: 'Safe',
     Icon: Check,
@@ -41,7 +44,7 @@ export const OUTCOMES = {
   }
 } as const;
 
-type Outcome = (typeof OUTCOMES)[keyof typeof OUTCOMES];
+type PickResult = (typeof PICK_RESULTS)[keyof typeof PICK_RESULTS];
 
 type Match = Pick<
   Results,
@@ -56,12 +59,12 @@ function TeamLine({
   name,
   score,
   isPicked,
-  outcome
+  result
 }: {
   name: string;
   score: number;
   isPicked: boolean;
-  outcome?: Outcome;
+  result?: PickResult;
 }) {
   const Name = isPicked ? 'strong' : 'span';
 
@@ -75,29 +78,23 @@ function TeamLine({
       )}
     >
       <Name className="min-w-0 flex-1 truncate">{name}</Name>
-      {isPicked && outcome && (
-        <outcome.Icon
+      {isPicked && result && (
+        <result.Icon
           role="img"
-          aria-label={outcome.label}
-          className={cn('size-3 shrink-0', outcome.iconClasses)}
+          aria-label={result.label}
+          className={cn('size-3 shrink-0', result.iconClasses)}
           strokeWidth={3}
         />
       )}
-      {outcome && (
+      {result && (
         <span className="min-w-2.5 text-right font-extrabold">{score}</span>
       )}
     </div>
   );
 }
 
-/** Shows the home team above the away team. Without an outcome, it hides the scores. */
-export function MatchLines({
-  pick,
-  outcome
-}: {
-  pick: Match;
-  outcome?: Outcome;
-}) {
+/** Shows the home team above the away team. Without a result, it hides the scores. */
+function MatchLines({ pick, result }: { pick: Match; result?: PickResult }) {
   const picked = {
     name: pick.team_selected,
     score: pick.team_selected_score,
@@ -114,30 +111,57 @@ export function MatchLines({
       : [opposing, picked];
 
   return [home, away].map((team) => (
-    <TeamLine key={team.name} {...team} outcome={outcome} />
+    <TeamLine key={team.name} {...team} result={result} />
   ));
 }
 
-function ResultCell({ pick }: { pick: Results }) {
-  // Bug #48: a pending pick has no result yet, but it shows as out.
-  const outcome = pick.correct ? OUTCOMES.safe : OUTCOMES.out;
-
+// A pick with no result yet has the chip colour.
+export function PickCell({
+  pick,
+  result,
+  children
+}: {
+  pick: Match;
+  result?: PickResult;
+  children?: React.ReactNode;
+}) {
   return (
     <TableCell
       className={cn(
         'space-y-0.5 rounded-[0.875rem] px-3 py-2 align-top',
-        outcome.cellClasses
+        result ? result.cellClasses : 'bg-chip'
       )}
     >
-      <MatchLines pick={pick} outcome={outcome} />
+      <MatchLines pick={pick} result={result} />
+      {children}
     </TableCell>
+  );
+}
+
+function ResultCell({ pick }: { pick: Results }) {
+  // Bug #48: a pending pick has no result yet, but it shows as out.
+  const result = pick.correct ? PICK_RESULTS.safe : PICK_RESULTS.out;
+
+  return <PickCell pick={pick} result={result} />;
+}
+
+export function ResultsSkeleton() {
+  return (
+    <div aria-hidden="true" className="flex gap-2 overflow-hidden p-2">
+      {[0, 1, 2].map((idx) => (
+        <div
+          key={idx}
+          className="h-[3.25rem] w-40 shrink-0 rounded-[0.875rem] bg-chip"
+        />
+      ))}
+    </div>
   );
 }
 
 function ResultsKey() {
   return (
     <ul aria-label="Key" className="flex gap-1.5">
-      {Object.values(OUTCOMES).map(({ label, Icon, badge }) => (
+      {Object.values(PICK_RESULTS).map(({ label, Icon, badge }) => (
         <li key={label}>
           <Badge
             variant={badge}
@@ -181,19 +205,11 @@ export function ResultsTable({
 
       <CardContent className="px-3 pb-3 md:px-5 md:pb-5">
         {isLoading ? (
-          <div aria-hidden="true" className="flex gap-2 overflow-hidden p-2">
-            {[0, 1, 2].map((idx) => (
-              <div
-                key={idx}
-                className="h-[3.25rem] w-40 shrink-0 rounded-[0.875rem] bg-chip"
-              />
-            ))}
-          </div>
+          <ResultsSkeleton />
         ) : isSignedIn ? (
           <Table
             className="table-fixed border-separate border-spacing-2"
-            // Each round keeps about 168 px, so on a phone the table scrolls sideways.
-            style={{ minWidth: `${3.25 + roundCount * 10.5}rem` }}
+            style={{ minWidth: `${3.25 + roundCount * ROUND_WIDTH_REM}rem` }}
           >
             <TableHeader className="[&_tr]:border-0">
               <TableRow className={ROW_CLASSES}>
@@ -234,11 +250,7 @@ export function ResultsTable({
             </TableBody>
           </Table>
         ) : (
-          <p className="px-3 py-2 text-center">
-            <a className={textLinkClassName} href="/login">
-              Sign in to get started
-            </a>
-          </p>
+          <SignInPrompt className="px-3 py-2" />
         )}
       </CardContent>
     </Card>

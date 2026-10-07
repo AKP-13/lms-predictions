@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
+import { toneClasses, type Tone } from '@/components/ui/tones';
 import { auth } from '@/lib/auth';
 import { MIN_PASSWORD_LENGTH } from '@/lib/credentials';
 import { initialsFor } from '@/lib/initials';
@@ -20,15 +21,6 @@ const PASSWORD_TIPS = [
   'A phrase of a few words beats one short word.',
   'We refuse a password that has appeared in a data breach.'
 ];
-
-type Tone = 'accent' | 'success' | 'secondary';
-
-// The icon circle uses the same colours as the badge variant of that name.
-const TONE_ICON_CLASSES: Record<Tone, string> = {
-  accent: 'bg-accent-bg text-accent',
-  success: 'bg-success-bg text-success',
-  secondary: 'bg-chip text-muted-foreground'
-};
 
 export default async function AccountPage() {
   const session = await auth();
@@ -59,7 +51,10 @@ export default async function AccountPage() {
       <header className="flex items-center gap-3.5 px-1 md:gap-4">
         <span
           aria-hidden
-          className="flex size-14 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-tint text-lg font-extrabold text-primary md:size-16 md:text-xl"
+          className={cn(
+            'flex size-14 shrink-0 items-center justify-center rounded-full border-2 border-primary text-lg font-extrabold md:size-16 md:text-xl',
+            toneClasses.tint
+          )}
         >
           {initialsFor(session.user?.name, email)}
         </span>
@@ -147,7 +142,7 @@ function AuthMethod({
         aria-hidden
         className={cn(
           'flex size-9 shrink-0 items-center justify-center rounded-full',
-          TONE_ICON_CLASSES[tone]
+          toneClasses[tone]
         )}
       >
         {icon}

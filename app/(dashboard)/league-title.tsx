@@ -1,15 +1,8 @@
 import type { LeagueHeading } from '@/lib/definitions';
-import { cn } from '@/lib/utils';
 
-export function LeagueTitle({
-  heading,
-  className
-}: {
-  heading: LeagueHeading | null;
-  className?: string;
-}) {
+export function LeagueTitle({ heading }: { heading: LeagueHeading | null }) {
   return (
-    <div className={cn('min-w-0', className)}>
+    <div className="min-w-0">
       <div className="truncate text-lg font-extrabold leading-[1.375rem]">
         {heading?.leagueName ?? 'Last Player Standing'}
       </div>

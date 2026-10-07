@@ -1,6 +1,7 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
+import { toneClasses } from "@/components/ui/tones"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
@@ -9,10 +10,7 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground",
-        secondary: "bg-chip text-muted-foreground",
-        accent: "bg-accent-bg text-accent",
-        success: "bg-success-bg text-success",
-        destructive: "bg-destructive-bg text-destructive",
+        ...toneClasses,
         outline: "border-2 border-border text-foreground",
       },
     },

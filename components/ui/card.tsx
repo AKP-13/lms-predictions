@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Loader } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
@@ -44,6 +45,29 @@ const CardTitle = React.forwardRef<
 ));
 CardTitle.displayName = 'CardTitle';
 
+// A card title with a spinner while the card loads.
+function CardTitleWithSpinner({
+  isLoading,
+  className,
+  children
+}: {
+  isLoading: boolean;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <CardTitle className={cn('flex items-center gap-2', className)}>
+      {children}
+      {isLoading && (
+        <Loader
+          className="size-5 animate-spin text-muted-foreground"
+          aria-hidden="true"
+        />
+      )}
+    </CardTitle>
+  );
+}
+
 const CardDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
@@ -84,6 +108,7 @@ export {
   CardHeader,
   CardFooter,
   CardTitle,
+  CardTitleWithSpinner,
   CardDescription,
   CardContent
 };

@@ -1,3 +1,4 @@
+import { toneClasses } from '@/components/ui/tones';
 import { FixturesData } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
 
@@ -10,9 +11,9 @@ const FORM_LABELS: Record<FormResult, string> = {
 };
 
 const FORM_CLASSES: Record<FormResult, string> = {
-  W: 'bg-success-bg text-success',
-  D: 'bg-chip text-muted-foreground',
-  L: 'bg-destructive-bg text-destructive'
+  W: toneClasses.success,
+  D: toneClasses.secondary,
+  L: toneClasses.destructive
 };
 
 // Oldest result first.

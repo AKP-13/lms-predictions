@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { memo, useState } from 'react';
+import { toneClasses, type Tone } from '@/components/ui/tones';
 import { cn } from '@/lib/utils';
 
 type TileType =
@@ -43,15 +44,15 @@ const iconMap: Record<TileType, LucideIcon> = {
   bogeyRound: ThumbsDown
 };
 
-const iconTones: Record<TileType, string> = {
-  gamesPlayed: 'bg-accent-bg text-accent',
-  mostSelected: 'bg-tint text-primary',
-  mostSuccessful: 'bg-success-bg text-success',
-  leastSuccessful: 'bg-destructive-bg text-destructive',
-  bogeyTeam: 'bg-destructive-bg text-destructive',
-  homeSuccess: 'bg-accent-bg text-accent',
-  awaySuccess: 'bg-accent-bg text-accent',
-  bogeyRound: 'bg-destructive-bg text-destructive'
+const iconTones: Record<TileType, Tone> = {
+  gamesPlayed: 'accent',
+  mostSelected: 'tint',
+  mostSuccessful: 'success',
+  leastSuccessful: 'destructive',
+  bogeyTeam: 'destructive',
+  homeSuccess: 'accent',
+  awaySuccess: 'accent',
+  bogeyRound: 'destructive'
 };
 
 const captionTones: Record<TileVariant, string> = {
@@ -215,7 +216,7 @@ function TileComponent({
         <span
           className={cn(
             'flex size-[1.875rem] shrink-0 items-center justify-center rounded-full',
-            iconTones[type]
+            toneClasses[iconTones[type]]
           )}
         >
           <Icon aria-hidden="true" className="size-4" strokeWidth={2.25} />

@@ -1,9 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, Loader } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitleWithSpinner
+} from '@/components/ui/card';
 import { badgeVariants } from '@/components/ui/badge';
+import { toneClasses } from '@/components/ui/tones';
 import { FixturesData } from '@/lib/definitions';
 import { TeamForm } from '@/components/TeamForm';
 import { TeamsArr } from '@/lib/definitions';
@@ -62,10 +68,11 @@ const KickoffChip = ({ fixture }: { fixture: FixturesData }) => {
         className={cn(
           'flex h-[1.875rem] w-full items-center justify-center rounded-[0.625rem] text-[0.8125rem]',
           isLive
-            ? 'bg-accent-bg font-extrabold text-accent'
+            ? toneClasses.accent
             : isStarted
-              ? 'bg-chip font-extrabold text-foreground'
-              : 'bg-chip font-bold text-muted-foreground'
+              ? 'bg-chip text-foreground'
+              : toneClasses.secondary,
+          isStarted ? 'font-extrabold' : 'font-bold'
         )}
       >
         {isStarted
@@ -117,15 +124,9 @@ const FixturesResults = ({
       aria-live="polite"
     >
       <CardHeader className="flex-row items-center justify-between gap-3 space-y-0 p-5 pb-1 md:p-6 md:pb-1">
-        <CardTitle className="flex items-center gap-2">
+        <CardTitleWithSpinner isLoading={isLoading}>
           Fixtures
-          {isLoading && (
-            <Loader
-              className="size-5 animate-spin text-muted-foreground"
-              aria-hidden="true"
-            />
-          )}
-        </CardTitle>
+        </CardTitleWithSpinner>
         <GameweekStepper gameweek={selectedGw} setGameweek={setSelectedGw} />
       </CardHeader>
 

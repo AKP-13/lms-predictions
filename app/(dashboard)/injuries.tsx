@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Loader } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle
+  CardTitleWithSpinner
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Injury } from '@/lib/definitions';
@@ -67,15 +67,9 @@ const Injuries = ({
       aria-live="polite"
     >
       <CardHeader className="flex-row items-center justify-between gap-3 space-y-0 p-5 pb-2 md:p-6 md:pb-2">
-        <CardTitle className="flex items-center gap-2">
+        <CardTitleWithSpinner isLoading={isLoading}>
           Injuries
-          {isLoading && (
-            <Loader
-              className="size-5 animate-spin text-muted-foreground"
-              aria-hidden="true"
-            />
-          )}
-        </CardTitle>
+        </CardTitleWithSpinner>
         {!isLoading && data.length > 0 && (
           <CardDescription>{data.length} players</CardDescription>
         )}

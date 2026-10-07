@@ -4,6 +4,8 @@ import { useEffect } from 'react';
 import { TriangleAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { toneClasses } from '@/components/ui/tones';
+import { cn } from '@/lib/utils';
 
 export default function Error({
   error,
@@ -22,7 +24,10 @@ export default function Error({
       <Card className="flex flex-col items-center gap-4 p-7 text-center md:p-9">
         <span
           aria-hidden
-          className="flex size-14 items-center justify-center rounded-full bg-destructive-bg text-destructive"
+          className={cn(
+            'flex size-14 items-center justify-center rounded-full',
+            toneClasses.destructive
+          )}
         >
           <TriangleAlert className="size-6" strokeWidth={2.25} />
         </span>

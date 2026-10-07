@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { LpsLogo } from '@/components/lps-logo';
 import { textLinkClassName } from '@/components/ui/button';
 import {
   Card,
@@ -24,9 +25,7 @@ export function AuthCard({
   return (
     <div className="flex min-h-screen flex-col items-center gap-6 px-4 py-8 md:justify-center md:p-8">
       <Link href="/" className="flex items-center gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-[0.875rem] bg-primary text-[0.8125rem] font-extrabold tracking-[0.02em] text-primary-foreground">
-          LPS
-        </span>
+        <LpsLogo />
         <span className="text-lg font-extrabold">Last Player Standing</span>
       </Link>
       <Card className="w-full max-w-md">

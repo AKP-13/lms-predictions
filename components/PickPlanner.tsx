@@ -9,7 +9,7 @@ import {
 } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ChevronDown } from 'lucide-react';
-import { textLinkClassName } from '@/components/ui/button';
+import { SignInPrompt } from '@/components/sign-in-prompt';
 import {
   Card,
   CardContent,
@@ -17,6 +17,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
+import { toneClasses } from '@/components/ui/tones';
 import { FixturesData, Results } from '@/lib/definitions';
 import { TeamsArr } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
@@ -32,7 +33,7 @@ const DIFFICULTY_CLASSES: { [key: number]: string } = {
   5: 'bg-difficulty-hardest text-difficulty-hardest-foreground'
 };
 
-const PLANNED_CLASSES = 'bg-tint text-primary ring-2 ring-inset ring-primary';
+const PLANNED_CLASSES = cn(toneClasses.tint, 'ring-2 ring-inset ring-primary');
 const USED_CLASSES =
   'border-[1.5px] border-dashed border-muted-foreground/40 font-bold text-muted-foreground opacity-75';
 const SWATCH_CLASSES = 'block size-3.5 rounded-[5px]';
@@ -344,12 +345,7 @@ const PickPlanner: FC<PickPlannerProps> = ({
             ))}
           </div>
         ) : session === null ? (
-          // Sign in prompt
-          <p className="pt-3 text-center">
-            <a className={textLinkClassName} href="/login">
-              Sign in to get started
-            </a>
-          </p>
+          <SignInPrompt className="pt-3" />
         ) : fixtures.length === 0 || predictionGwNumber === null ? (
           <p className="pt-3 text-center text-muted-foreground">
             The site is being updated. Please check back later.
