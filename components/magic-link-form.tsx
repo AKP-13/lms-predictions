@@ -24,7 +24,7 @@ export function MagicLinkForm({
       className="flex flex-col gap-4"
     >
       <EmailInput />
-      <Button type="submit" variant={variant} className="w-full">
+      <Button type="submit" variant={variant} size="lg" className="w-full">
         {label}
       </Button>
     </form>

@@ -1,20 +1,22 @@
 import useTileData from 'app/hooks/useTileData';
 import {
-  ArrowUpWideNarrowIcon,
-  AngryIcon,
-  BadgePlusIcon,
-  BadgeXIcon,
+  ChevronRight,
+  CircleX,
+  Flag,
+  Frown,
   Hash,
-  HouseIcon,
-  Loader,
-  SignpostIcon,
-  ThumbsDownIcon,
+  House,
   Info,
+  Repeat,
+  ThumbsDown,
+  Trophy,
   X,
   LucideIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { memo, useState } from 'react';
+import { toneClasses, type Tone } from '@/components/ui/tones';
+import { cn } from '@/lib/utils';
 
 type TileType =
   | 'gamesPlayed'
@@ -31,16 +33,32 @@ type TileVariant = 'success' | 'error' | 'default';
 /** Caption that indicates user has never been knocked out; used for variant logic. */
 const CAPTION_NEVER_KNOCKED_OUT = 'Yet to be knocked out!';
 
-const iconMap: Record<TileType | 'loading', LucideIcon> = {
+const iconMap: Record<TileType, LucideIcon> = {
   gamesPlayed: Hash,
-  mostSelected: ArrowUpWideNarrowIcon,
-  mostSuccessful: BadgePlusIcon,
-  leastSuccessful: BadgeXIcon,
-  bogeyTeam: AngryIcon,
-  homeSuccess: HouseIcon,
-  awaySuccess: SignpostIcon,
-  bogeyRound: ThumbsDownIcon,
-  loading: Loader
+  mostSelected: Repeat,
+  mostSuccessful: Trophy,
+  leastSuccessful: CircleX,
+  bogeyTeam: Frown,
+  homeSuccess: House,
+  awaySuccess: Flag,
+  bogeyRound: ThumbsDown
+};
+
+const iconTones: Record<TileType, Tone> = {
+  gamesPlayed: 'accent',
+  mostSelected: 'tint',
+  mostSuccessful: 'success',
+  leastSuccessful: 'destructive',
+  bogeyTeam: 'destructive',
+  homeSuccess: 'accent',
+  awaySuccess: 'accent',
+  bogeyRound: 'destructive'
+};
+
+const captionTones: Record<TileVariant, string> = {
+  success: 'text-success',
+  error: 'text-destructive',
+  default: 'text-muted-foreground'
 };
 
 const infoDescriptions: Record<TileType, string> = {
@@ -59,7 +77,7 @@ const infoDescriptions: Record<TileType, string> = {
     'The round(s) in which you have been knocked out most frequently across all games.'
 };
 
-/** Shorter labels for mobile so titles fit without truncation. */
+/** Shorter labels for the narrow desktop columns below xl. */
 const shortTitles: Record<TileType, string> = {
   gamesPlayed: 'Games',
   mostSelected: 'Most picked',
@@ -81,31 +99,31 @@ const TILE_CONFIGS: Array<{
   dataKey: TileDataKey;
   getVariant: (slice: TileDataSlice) => TileVariant;
 }> = [
-  { type: 'gamesPlayed', title: 'Games Played', dataKey: 'gamesPlayed', getVariant: () => 'success' },
+  { type: 'gamesPlayed', title: 'Games played', dataKey: 'gamesPlayed', getVariant: () => 'success' },
   {
     type: 'bogeyRound',
-    title: 'Bogey Round',
+    title: 'Bogey round',
     dataKey: 'bogeyRoundNumber',
     getVariant: (s) => (s.caption === CAPTION_NEVER_KNOCKED_OUT ? 'success' : 'error')
   },
   { type: 'mostSelected', title: 'Most picked team', dataKey: 'mostSelected', getVariant: () => 'success' },
-  { type: 'mostSuccessful', title: 'Most Successful Pick', dataKey: 'mostSuccessful', getVariant: () => 'success' },
-  { type: 'leastSuccessful', title: 'Least Successful Pick', dataKey: 'leastSuccessful', getVariant: () => 'error' },
+  { type: 'mostSuccessful', title: 'Most successful pick', dataKey: 'mostSuccessful', getVariant: () => 'success' },
+  { type: 'leastSuccessful', title: 'Least successful pick', dataKey: 'leastSuccessful', getVariant: () => 'error' },
   {
     type: 'bogeyTeam',
-    title: 'Bogey Team',
+    title: 'Bogey team',
     dataKey: 'bogeyTeam',
     getVariant: (s) => (s.caption === CAPTION_NEVER_KNOCKED_OUT ? 'success' : 'error')
   },
   {
     type: 'homeSuccess',
-    title: 'Home Pick Success',
+    title: 'Home pick success',
     dataKey: 'homeSuccess',
     getVariant: (s) => (s.value === 'N/A' ? 'error' : 'success')
   },
   {
     type: 'awaySuccess',
-    title: 'Away Pick Success',
+    title: 'Away pick success',
     dataKey: 'awaySuccess',
     getVariant: (s) => (s.value === 'N/A' ? 'error' : 'success')
   }
@@ -114,41 +132,68 @@ const TILE_CONFIGS: Array<{
 /** Tiles shown when user has no games played (subset, same order as design). */
 const EMPTY_STATE_TILE_TYPES: TileType[] = ['gamesPlayed', 'mostSelected', 'bogeyRound', 'bogeyTeam'];
 
+const TILE_CLASSES =
+  'flex min-w-0 flex-col gap-2 rounded-[1.25rem] bg-card p-3.5 shadow-card max-md:flex-[0_0_10rem] max-md:snap-start md:p-2.5 lg:p-3.5';
+
 export default function TileWrapper({
   refreshTrigger
 }: {
   refreshTrigger: number;
 }) {
   const { data, isLoading } = useTileData({ refreshTrigger });
-  const isEmpty = data.gamesPlayed.value === 0;
+  const isEmpty = !isLoading && data.gamesPlayed.value === 0;
 
   const configs = isEmpty
     ? TILE_CONFIGS.filter((c) => EMPTY_STATE_TILE_TYPES.includes(c.type))
     : TILE_CONFIGS;
 
   return (
-    <div className="grid gap-6 grid-cols-4">
-      {configs.map(({ type, title, dataKey, getVariant }) => {
-        const slice = data[dataKey];
-        return (
-          <Tile
-            key={type}
-            caption={isEmpty ? 'Insufficient data' : slice.caption}
-            isLoading={isLoading}
-            title={title}
-            type={type}
-            value={isLoading ? '...' : slice.value}
-            variant={isEmpty ? 'default' : getVariant(slice)}
-          />
-        );
-      })}
-    </div>
+    <section aria-labelledby="season-heading">
+      <div className="flex items-center justify-between gap-3 px-1">
+        <h2
+          id="season-heading"
+          className="text-[0.9375rem] font-extrabold leading-5 md:text-base"
+        >
+          Your season
+        </h2>
+        <p className="flex items-center gap-1 text-[0.8125rem] font-semibold leading-[1.125rem] text-muted-foreground md:hidden">
+          Swipe for more
+          <ChevronRight aria-hidden="true" className="size-3.5" strokeWidth={2.5} />
+        </p>
+      </div>
+
+      {/* On a phone the row bleeds to the screen edges and scrolls sideways. */}
+      <div
+        className={cn(
+          'max-md:-mx-4 max-md:flex max-md:snap-x max-md:snap-mandatory max-md:gap-2.5 max-md:overflow-x-auto max-md:scroll-px-4 max-md:px-4 max-md:pb-1.5 max-md:pt-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+          'md:mt-2.5 md:grid md:gap-2 lg:gap-3',
+          configs.length === TILE_CONFIGS.length
+            ? 'md:grid-cols-8'
+            : 'md:grid-cols-4'
+        )}
+      >
+        {configs.map(({ type, title, dataKey, getVariant }) => {
+          const slice = data[dataKey];
+          return isLoading ? (
+            <SkeletonTile key={type} />
+          ) : (
+            <Tile
+              key={type}
+              caption={isEmpty ? 'Insufficient data' : slice.caption}
+              title={title}
+              type={type}
+              value={slice.value}
+              variant={isEmpty ? 'default' : getVariant(slice)}
+            />
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
 export interface TileProps {
   caption?: string;
-  isLoading: boolean;
   title: string;
   type: TileType;
   value: number | string;
@@ -157,65 +202,52 @@ export interface TileProps {
 
 function TileComponent({
   caption,
-  isLoading,
   title,
   type,
   value,
   variant = 'default'
 }: TileProps) {
   const [showInfo, setShowInfo] = useState(false);
-  const Icon = iconMap[isLoading ? 'loading' : type];
+  const Icon = iconMap[type];
 
-  const color =
-    variant === 'error'
-      ? 'text-red-400'
-      : variant === 'success'
-        ? 'text-green-400'
-        : 'text-gray-400';
-
-  return isLoading ? (
-    <SkeletonTile />
-  ) : (
-    <div className="rounded-xl bg-white p-2 shadow-sm grid col-span-2 md:col-span-1 content-between border-2 border-transparent transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-md hover:border-blue-200 overflow-hidden min-w-0">
-      {/* Label row: short title on mobile so it fits; full title on desktop */}
-      <div className="flex p-2 md:p-4 items-center justify-between gap-2 border-b border-gray-100 min-h-0 min-w-0">
-        <div className="flex items-center min-w-0 flex-1 overflow-hidden">
-          {Icon ? (
-            <Icon className="h-4 w-4 md:h-5 md:w-5 text-blue-300 flex-shrink-0" />
-          ) : null}
-          <h3 className="ml-1.5 md:ml-2 text-xs md:text-sm font-medium text-gray-500 md:text-gray-900 truncate min-w-0">
-            <span className="md:hidden">{shortTitles[type]}</span>
-            <span className="hidden md:inline">{title}</span>
-          </h3>
-        </div>
+  return (
+    <div className={TILE_CLASSES}>
+      <div className="flex items-center justify-between gap-1">
+        <span
+          className={cn(
+            'flex size-[1.875rem] shrink-0 items-center justify-center rounded-full',
+            toneClasses[iconTones[type]]
+          )}
+        >
+          <Icon aria-hidden="true" className="size-4" strokeWidth={2.25} />
+        </span>
         <button
           type="button"
           onClick={() => setShowInfo(!showInfo)}
-          className="flex-shrink-0 p-1 rounded-full hover:bg-gray-100 transition-colors"
-          aria-label={showInfo ? 'Hide info' : 'Show info'}
+          className="flex size-6 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-chip focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label={showInfo ? `Hide info about ${title}` : `Show info about ${title}`}
+          aria-expanded={showInfo}
         >
           {showInfo ? (
-            <X className="h-3.5 w-3.5 md:h-4 md:w-4 text-gray-500" />
+            <X aria-hidden="true" className="size-3.5" strokeWidth={2.5} />
           ) : (
-            <Info className="h-3.5 w-3.5 md:h-4 md:w-4 text-gray-400" />
+            <Info aria-hidden="true" className="size-3.5" strokeWidth={2.5} />
           )}
         </button>
       </div>
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait" initial={false}>
         {showInfo ? (
-          <motion.div
+          <motion.p
             key="info"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="px-2 md:px-4 py-2 md:py-4"
+            className="text-xs font-semibold leading-4 text-muted-foreground"
           >
-            <p className="text-sm text-gray-700 leading-relaxed">
-              {infoDescriptions[type]}
-            </p>
-          </motion.div>
+            {infoDescriptions[type]}
+          </motion.p>
         ) : (
           <motion.div
             key="data"
@@ -223,17 +255,26 @@ function TileComponent({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="px-2 md:px-4 py-3 md:py-4 min-w-0 overflow-hidden"
+            className="flex min-w-0 flex-col gap-2"
           >
+            <h3 className="line-clamp-2 min-h-8 text-xs font-bold leading-4 text-muted-foreground">
+              <span className="md:hidden xl:inline">{title}</span>
+              <span className="hidden md:inline xl:hidden">
+                {shortTitles[type]}
+              </span>
+            </h3>
             <p
-              className="text-2xl font-semibold text-gray-900 text-left md:text-center truncate"
-              title={typeof value === 'string' ? value : String(value)}
+              className="line-clamp-2 break-words text-[1.375rem] font-extrabold leading-[1.625rem] md:text-[0.9375rem] md:leading-5 lg:text-lg lg:leading-6 xl:text-[1.375rem] xl:leading-[1.625rem]"
+              title={String(value)}
             >
               {value}
             </p>
             {caption && (
               <p
-                className={`mt-0.5 text-xs md:text-sm italic text-left md:text-center truncate ${color}`}
+                className={cn(
+                  'line-clamp-2 text-xs font-bold leading-4',
+                  captionTones[variant]
+                )}
                 title={caption}
               >
                 {caption}
@@ -250,15 +291,12 @@ function TileComponent({
 export const Tile = memo(TileComponent);
 
 function SkeletonTile() {
-  const Icon = iconMap.loading;
   return (
-    <div className="rounded-xl bg-white p-2 shadow-sm grid col-span-2 md:col-span-1 animate-pulse">
-      <div className="flex p-4">
-        <Icon className="h-5 w-5 text-blue-300 animate-spin" />
-        <div className="ml-2 h-4 w-24 bg-gray-300 rounded" />
-      </div>
-      <div className="h-8 w-3/4 bg-gray-300 rounded mx-auto my-2" />
-      <div className="h-4 w-1/2 bg-gray-200 rounded mx-auto my-2" />
+    <div aria-hidden="true" className={cn(TILE_CLASSES, 'animate-pulse')}>
+      <div className="size-[1.875rem] rounded-full bg-chip" />
+      <div className="h-4 w-3/4 rounded-full bg-chip" />
+      <div className="h-6 w-full rounded-full bg-chip" />
+      <div className="h-4 w-1/2 rounded-full bg-chip" />
     </div>
   );
 }

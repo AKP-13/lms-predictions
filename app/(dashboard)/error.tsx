@@ -1,6 +1,11 @@
 'use client';
 
 import { useEffect } from 'react';
+import { TriangleAlert } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { toneClasses } from '@/components/ui/tones';
+import { cn } from '@/lib/utils';
 
 export default function Error({
   error,
@@ -15,32 +20,29 @@ export default function Error({
   }, [error]);
 
   return (
-    <main className="p-4 md:p-6">
-      <div className="mb-8 space-y-4">
-        <h1 className="font-semibold text-lg md:text-2xl">
-          Please complete setup
-        </h1>
-        <p>
-          Inside the Vercel Postgres dashboard, create a table based on the
-          schema defined in this repository.
-        </p>
-        <pre className="my-4 px-3 py-4 bg-black text-white rounded-lg max-w-2xl overflow-scroll flex text-wrap">
-          <code>
-            {`CREATE TABLE users (
-  id SERIAL PRIMARY KEY,
-  email VARCHAR(255) NOT NULL,
-  name VARCHAR(255),
-  username VARCHAR(255)
-);`}
-          </code>
-        </pre>
-        <p>Insert a row for testing:</p>
-        <pre className="my-4 px-3 py-4 bg-black text-white rounded-lg max-w-2xl overflow-scroll flex text-wrap">
-          <code>
-            {`INSERT INTO users (id, email, name, username) VALUES (1, 'me@site.com', 'Me', 'username');`}
-          </code>
-        </pre>
-      </div>
-    </main>
+    <div className="mx-auto w-full max-w-md md:pt-4">
+      <Card className="flex flex-col items-center gap-4 p-7 text-center md:p-9">
+        <span
+          aria-hidden
+          className={cn(
+            'flex size-14 items-center justify-center rounded-full',
+            toneClasses.destructive
+          )}
+        >
+          <TriangleAlert className="size-6" strokeWidth={2.25} />
+        </span>
+        <div className="space-y-1.5">
+          <h1 className="text-[1.625rem] font-extrabold leading-[1.875rem]">
+            Something went wrong
+          </h1>
+          <p className="text-[0.9375rem] font-semibold leading-5 text-muted-foreground">
+            This page did not load. Try again, or come back in a few minutes.
+          </p>
+        </div>
+        <Button size="lg" className="mt-2 w-full" onClick={reset}>
+          Try again
+        </Button>
+      </Card>
+    </div>
   );
 }

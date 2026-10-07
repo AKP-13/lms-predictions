@@ -24,7 +24,8 @@ const useResults = ({ refreshTrigger }: { refreshTrigger: number }) => {
 
     if (session) {
       fetchData();
-    } else {
+    } else if (session === null) {
+      // The session is undefined while it loads, so stay in the loading state.
       setIsLoadingResults(false);
     }
   }, [refreshTrigger, session]);

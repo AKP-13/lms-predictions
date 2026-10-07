@@ -1,9 +1,8 @@
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
-import { CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { FormError } from '@/components/form-error';
+import { FormError, FormMessage } from '@/components/form-error';
 import { PasswordInput } from '@/components/password-input';
 import { MIN_PASSWORD_LENGTH } from '@/lib/credentials';
 import type { SetPasswordFormState } from '@/lib/form-state';
@@ -46,15 +45,16 @@ export function SetPasswordForm() {
       />
       <FormError message={edited ? null : state.error} />
       {!edited && state.done && (
-        <p
-          role="status"
-          className="flex items-center gap-2 rounded-md bg-green-50 p-3 text-sm font-medium text-green-700"
-        >
-          <CheckCircle2 className="h-4 w-4 shrink-0" />
+        <FormMessage tone="success">
           Your password is set. You can sign in with it from now on.
-        </p>
+        </FormMessage>
       )}
-      <Button type="submit" className="w-full" disabled={pending}>
+      <Button
+        type="submit"
+        size="lg"
+        className="mt-1 w-full"
+        disabled={pending}
+      >
         {pending ? 'Saving…' : 'Set password'}
       </Button>
     </form>

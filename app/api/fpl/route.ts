@@ -1,8 +1,8 @@
+import { FPL_BOOTSTRAP_URL } from '@/lib/constants';
+
 export async function GET() {
   try {
-    const apiRes = await fetch(
-      'https://fantasy.premierleague.com/api/bootstrap-static/'
-    );
+    const apiRes = await fetch(FPL_BOOTSTRAP_URL);
 
     if (!apiRes.ok) {
       return new Response(

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Loader } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
@@ -9,7 +10,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      'rounded-lg border bg-card text-card-foreground shadow-sm',
+      'rounded-3xl bg-card text-card-foreground shadow-card',
       className
     )}
     {...props}
@@ -36,7 +37,7 @@ const CardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      'text-2xl font-semibold leading-none tracking-tight',
+      'text-lg font-extrabold leading-6 md:text-xl md:leading-[1.625rem]',
       className
     )}
     {...props}
@@ -44,13 +45,39 @@ const CardTitle = React.forwardRef<
 ));
 CardTitle.displayName = 'CardTitle';
 
+// A card title with a spinner while the card loads.
+function CardTitleWithSpinner({
+  isLoading,
+  className,
+  children
+}: {
+  isLoading: boolean;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <CardTitle className={cn('flex items-center gap-2', className)}>
+      {children}
+      {isLoading && (
+        <Loader
+          className="size-5 animate-spin text-muted-foreground"
+          aria-hidden="true"
+        />
+      )}
+    </CardTitle>
+  );
+}
+
 const CardDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn('text-sm text-muted-foreground', className)}
+    className={cn(
+      'text-[0.8125rem] font-semibold leading-[1.125rem] text-muted-foreground',
+      className
+    )}
     {...props}
   />
 ));
@@ -81,6 +108,7 @@ export {
   CardHeader,
   CardFooter,
   CardTitle,
+  CardTitleWithSpinner,
   CardDescription,
   CardContent
 };

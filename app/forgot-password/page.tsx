@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { textLinkClassName } from '@/components/ui/button';
 import { AuthCard } from '@/components/auth-card';
 import { MagicLinkForm } from '@/components/magic-link-form';
 import { FORGOTTEN_PASSWORD_DESTINATION } from '@/lib/credentials';
@@ -9,9 +10,9 @@ export default function ForgotPasswordPage() {
       title="Forgot your password?"
       description="We email you a link. It signs you in and takes you to the form where you choose a new password."
       footer={
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm font-semibold text-muted-foreground">
           Remembered it?{' '}
-          <Link href="/login" className="underline">
+          <Link href="/login" className={textLinkClassName}>
             Sign in
           </Link>
         </p>

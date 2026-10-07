@@ -1,6 +1,13 @@
 import './globals.css';
 
+import { Nunito } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/react';
+
+const nunito = Nunito({
+  subsets: ['latin'],
+  weight: ['400', '600', '700', '800'],
+  variable: '--font-nunito'
+});
 
 export const metadata = {
   title: 'Next.js App Router + NextAuth + Tailwind CSS',
@@ -14,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={nunito.variable}>
       <body className="flex min-h-screen w-full flex-col">{children}</body>
       <Analytics />
     </html>

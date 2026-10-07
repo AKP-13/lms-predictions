@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import TileWrapper from '@/components/ui/tiles';
 import CurrentGame from './current-game-results';
 import FixturesResults from './fixtures-results';
@@ -22,37 +22,19 @@ import useLeagueInfo from 'app/hooks/useLeagueInfo';
 import useCurrentGameData from 'app/hooks/useCurrentGameData';
 import Injuries from './injuries';
 import { HomeTabs, type HomeTab } from './home-tabs';
+import { ResultsTable } from './results-table';
 
 const Page = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [numWeeks, setNumWeeks] = useState<number>(() => {
-    try {
-      const v =
-        typeof window !== 'undefined'
-          ? localStorage.getItem('pickPlanner:numWeeks')
-          : null;
-      return v ? Number(v) : 5;
-    } catch {
-      return 5;
-    }
-  });
+  const [numWeeks, setNumWeeks] = useState(5);
 
-  // persist selection
-  useEffect(() => {
-    try {
-      localStorage.setItem('pickPlanner:numWeeks', String(numWeeks));
-    } catch {
-      // ignore
-    }
-  }, [numWeeks]);
-
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
   const searchParams = useSearchParams();
 
   // A push, not a replace, so the back button returns to the previous tab.
   const changeTab = (tab: HomeTab) => {
     const params = new URLSearchParams(searchParams);
-    if (tab === 'this-week') {
+    if (tab === 'home') {
       params.delete('tab');
     } else {
       params.set('tab', tab);
@@ -123,40 +105,16 @@ const Page = () => {
 
   return (
     <main>
-      <div className="rounded-xl bg-gray-300 p-4 shadow-sm grid col-span-2 md:col-span-1 my-6">
-        <h1 className="text-4xl font-bold text-center mb-2 flex items-center justify-center gap-2">
-          Last Player Standing
-        </h1>
-
-        <p className="rounded-xl px-4 py-4 text-center text-xl font-light italic">
-          <strong className="font-bold">Submit predictions</strong>,{' '}
-          <strong className="font-bold">plan picks</strong>,{' '}
-          <strong className="font-bold">view results</strong>, and{' '}
-          <strong className="font-bold">analyse performance</strong>.
-        </p>
-      </div>
+      <h1 className="sr-only">Last Player Standing</h1>
 
       <HomeTabs
         tab={searchParams.get('tab')}
         onTabChange={changeTab}
-        thisWeek={
-          <>
-            {session === null || session === undefined ? null : (
-              <div className="my-6">
-                <TileWrapper refreshTrigger={refreshTrigger} />
-              </div>
-            )}
-
-            <div className="grid gap-6 grid-cols-1 md:grid-cols-4 my-6">
-              <div className="w-full grid md:col-span-3">
-                <CurrentGame
-                  currentGameResults={currentGameResults}
-                  leagueName={leagueName}
-                  isLoading={isLoadingLeagueName || isLoadingCurrentGameData}
-                />
-              </div>
-
-              <div className="w-full md:col-span-1">
+        home={
+          <div className="flex flex-col gap-6 md:gap-5">
+            {/* The pick comes first. From lg it sits on the right. */}
+            <div className="grid grid-cols-1 gap-6 md:gap-5 lg:grid-cols-[7fr_5fr]">
+              <div className="min-w-0 lg:col-start-2 lg:row-start-1 lg:*:h-full">
                 <Predictions
                   session={session}
                   teamsArr={teamsArr}
@@ -171,8 +129,28 @@ const Page = () => {
                   currentGameId={currentGameId}
                 />
               </div>
+
+              <div className="min-w-0 lg:col-start-1 lg:row-start-1 lg:*:h-full">
+                <CurrentGame
+                  currentGameResults={currentGameResults}
+                  leagueName={leagueName}
+                  isLoading={
+                    sessionStatus === 'loading' ||
+                    isLoadingLeagueName ||
+                    isLoadingCurrentGameData
+                  }
+                  isSignedIn={sessionStatus === 'authenticated'}
+                />
+              </div>
             </div>
-          </>
+
+            {session === null || session === undefined ? null : (
+              // On a phone the season tiles sit above the pick.
+              <div className="max-md:order-first">
+                <TileWrapper refreshTrigger={refreshTrigger} />
+              </div>
+            )}
+          </div>
         }
         fixtures={
           <FixturesResults
@@ -201,6 +179,13 @@ const Page = () => {
             results={results || {}}
             session={session}
             currentGameId={currentGameId}
+          />
+        }
+        results={
+          <ResultsTable
+            results={results}
+            isSignedIn={sessionStatus === 'authenticated'}
+            isLoading={sessionStatus === 'loading' || isLoadingResults}
           />
         }
       />

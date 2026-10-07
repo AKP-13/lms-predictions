@@ -1,19 +1,50 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table';
-import { Loader } from 'lucide-react';
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitleWithSpinner
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Injury } from '@/lib/definitions';
+import { parseInjuryNews } from '@/lib/injuries';
+import { cn } from '@/lib/utils';
 
 const PAGE_SIZE = 10;
+
+const ROW_CLASSES =
+  'flex min-h-[3.125rem] items-center gap-2.5 border-t border-border py-1.5';
+const PAGER_BUTTON_CLASSES =
+  'flex h-8 items-center gap-1.5 rounded-full bg-chip px-3 text-[0.8125rem] font-extrabold transition-colors hover:bg-secondary/80 disabled:cursor-not-allowed disabled:opacity-45';
+
+const InjuryRow = ({ injury }: { injury: Injury }) => {
+  const news = parseInjuryNews(injury.news);
+  const details = [injury.team_name, news.injury].filter(Boolean).join(' · ');
+
+  return (
+    <li className={ROW_CLASSES}>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-[0.9375rem] font-bold leading-[1.375rem]">
+          {injury.web_name}
+        </p>
+        {details && (
+          <p className="truncate text-xs font-semibold text-muted-foreground">
+            {details}
+          </p>
+        )}
+      </div>
+      {news.expectedBack ? (
+        <Badge variant="accent">Back {news.expectedBack}</Badge>
+      ) : (
+        <Badge variant="secondary">No date</Badge>
+      )}
+    </li>
+  );
+};
 
 const Injuries = ({
   data,
@@ -28,154 +59,81 @@ const Injuries = ({
 
   return (
     <Card
-      className={`rounded-xl bg-white p-2 shadow-sm ${isLoading ? 'animate-pulse' : ''} h-full flex flex-col min-h-0`}
+      className={cn(
+        'flex h-full min-h-0 flex-col',
+        isLoading && 'animate-pulse'
+      )}
       aria-busy={isLoading}
       aria-live="polite"
     >
-      <CardHeader className="flex flex-row items-center p-2 md:p-6">
-        <CardTitle className="text-2xl font-bold">Injuries</CardTitle>
-        {isLoading && (
-          <Loader className="animate-spin mx-2" aria-hidden="true" />
+      <CardHeader className="flex-row items-center justify-between gap-3 space-y-0 p-5 pb-2 md:p-6 md:pb-2">
+        <CardTitleWithSpinner isLoading={isLoading}>
+          Injuries
+        </CardTitleWithSpinner>
+        {!isLoading && data.length > 0 && (
+          <CardDescription>{data.length} players</CardDescription>
         )}
       </CardHeader>
 
-      <CardContent className="p-2 md:p-6 md:pt-0 flex-1 flex flex-col min-h-0 overflow-hidden">
-        <div className="flex-1 min-h-0 overflow-auto">
-          <Table>
-            <TableHeader>
-              <TableRow
-                style={{ display: 'flex', justifyContent: 'space-between' }}
-              >
-                <TableHead
-                  style={{
-                    flex: 1,
-                    textAlign: 'center',
-                    alignContent: 'center'
-                  }}
-                >
-                  Name
-                </TableHead>
-                <TableHead
-                  style={{
-                    flex: 1,
-                    textAlign: 'center',
-                    alignContent: 'center'
-                  }}
-                >
-                  Team
-                </TableHead>
-                <TableHead
-                  style={{
-                    flex: 1,
-                    textAlign: 'center',
-                    alignContent: 'center'
-                  }}
-                >
-                  Probability of playing
-                </TableHead>
-                <TableHead
-                  style={{
-                    flex: 1,
-                    textAlign: 'center',
-                    alignContent: 'center'
-                  }}
-                >
-                  News
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                Array.from({ length: PAGE_SIZE }).map((_, idx) => (
-                  <TableRow
-                    key={idx}
-                    className="border-b border-gray-100 last:border-0 animate-pulse"
-                  >
-                    <TableCell className="flex text-center px-1 py-1 md:p-4 gap-1 justify-center">
-                      <div className="mx-auto rounded bg-gray-200 h-5 w-1/2" />
-                      <div className="mx-auto rounded bg-gray-200 h-5 w-1/2" />
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : Array.isArray(data) && data.length === 0 ? (
-                <TableRow>
-                  <TableCell className="table-cell w-full px-2 text-center">
-                    The site is being updated. Please check back later.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                paginatedData.map((injury) => {
-                  return (
-                    <TableRow
-                      key={injury.web_name}
-                      className="border-b border-gray-100 last:border-0"
-                    >
-                      <TableCell className="table-cell w-full px-2">
-                        <div className="grid grid-cols-12 items-center gap-2">
-                          <div className="col-span-3 flex flex-col xl:flex-row items-center gap-2">
-                            <span className="flex-1 text-center xl:text-right">
-                              {injury.web_name}
-                            </span>
-                          </div>
-                          <div className="col-span-3 flex flex-col xl:flex-row items-center gap-2">
-                            <span className="flex-1 text-center xl:text-right">
-                              {injury.team_name}
-                            </span>
-                          </div>
-
-                          <div className="col-span-2 flex flex-col items-center justify-center">
-                            <div
-                              className={`min-w-[80px] text-center ${
-                                injury.chance_of_playing_next_round
-                                  ? 'font-bold'
-                                  : 'font-normal'
-                              }`}
-                            >
-                              {injury.chance_of_playing_next_round}
-                            </div>
-                          </div>
-
-                          <div className="col-span-4 flex flex-col xl:flex-row items-center gap-2">
-                            <span className="flex-1 text-center xl:text-left">
-                              {injury.news}
-                            </span>
-                          </div>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              )}
-            </TableBody>
-          </Table>
+      <CardContent className="flex min-h-0 flex-1 flex-col p-5 pt-0 md:p-6 md:pt-0">
+        <div className="min-h-0 flex-1 overflow-auto">
+          {isLoading ? (
+            <ul aria-hidden="true">
+              {Array.from({ length: PAGE_SIZE }).map((_, idx) => (
+                <li key={idx} className={ROW_CLASSES}>
+                  <div className="flex-1 space-y-1.5">
+                    <div className="h-4 w-24 rounded-full bg-chip" />
+                    <div className="h-3 w-36 rounded-full bg-chip" />
+                  </div>
+                  <div className="h-7 w-20 rounded-full bg-chip" />
+                </li>
+              ))}
+            </ul>
+          ) : data.length === 0 ? (
+            <p className="text-center text-muted-foreground">
+              The site is being updated. Please check back later.
+            </p>
+          ) : (
+            <ul>
+              {paginatedData.map((injury) => (
+                <InjuryRow key={injury.web_name} injury={injury} />
+              ))}
+            </ul>
+          )}
         </div>
 
         {!isLoading && data.length > PAGE_SIZE && (
-          <div className="mt-auto pt-4 flex items-center justify-between">
+          <div className="mt-auto flex items-center justify-between pt-3.5">
             <button
+              type="button"
               aria-label="Previous page"
               disabled={page === 0}
               onClick={() => setPage((p) => p - 1)}
-              style={{
-                cursor: page === 0 ? 'not-allowed' : 'pointer'
-              }}
-              className="text-sm disabled:opacity-40"
+              className={PAGER_BUTTON_CLASSES}
             >
+              <ChevronLeft
+                aria-hidden="true"
+                className="size-3.5"
+                strokeWidth={2.5}
+              />
               Previous
             </button>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-[0.8125rem] font-semibold text-muted-foreground">
               Page {page + 1} of {totalPages}
             </span>
             <button
+              type="button"
               aria-label="Next page"
               disabled={page >= totalPages - 1}
               onClick={() => setPage((p) => p + 1)}
-              style={{
-                cursor: page >= totalPages - 1 ? 'not-allowed' : 'pointer'
-              }}
-              className="text-sm disabled:opacity-40"
+              className={PAGER_BUTTON_CLASSES}
             >
               Next
+              <ChevronRight
+                aria-hidden="true"
+                className="size-3.5"
+                strokeWidth={2.5}
+              />
             </button>
           </div>
         )}

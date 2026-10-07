@@ -1,7 +1,6 @@
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
-import { CurrentGameResults, Results, TeamLocation } from '@/lib/definitions';
 
 const Table = React.forwardRef<
   HTMLTableElement,
@@ -106,56 +105,6 @@ const TableCaption = React.forwardRef<
 ));
 TableCaption.displayName = 'TableCaption';
 
-const TeamName = ({
-  prediction,
-  location
-}: {
-  prediction: Results | CurrentGameResults;
-  location: TeamLocation;
-}) => {
-  const isHomeTeamPredicted = prediction.team_selected_location === 'Home';
-  const isAwayTeamPredicted = prediction.team_selected_location === 'Away';
-
-  const teamName =
-    location === 'Home'
-      ? isHomeTeamPredicted
-        ? prediction.team_selected
-        : prediction.team_opposing
-      : isHomeTeamPredicted
-        ? prediction.team_opposing
-        : prediction.team_selected;
-
-  return (
-    <span
-      className={`font-${(location === 'Home' && isHomeTeamPredicted) || (location === 'Away' && isAwayTeamPredicted) ? 'semibold' : 'normal'}`}
-    >
-      {teamName}
-    </span>
-  );
-};
-
-const TeamScore = ({
-  prediction,
-  location
-}: {
-  prediction: Results | CurrentGameResults;
-  location: TeamLocation;
-}) => {
-  const isHomeTeamPredicted = prediction.team_selected_location === 'Home';
-  const isAwayTeamPredicted = prediction.team_selected_location === 'Away';
-
-  const teamScore =
-    location === 'Home'
-      ? isHomeTeamPredicted
-        ? prediction.team_selected_score
-        : prediction.team_opposing_score
-      : isHomeTeamPredicted
-        ? prediction.team_opposing_score
-        : prediction.team_selected_score;
-
-  return <span className="font-thin">{teamScore}</span>;
-};
-
 export {
   Table,
   TableHeader,
@@ -164,7 +113,5 @@ export {
   TableHead,
   TableRow,
   TableCell,
-  TableCaption,
-  TeamName,
-  TeamScore
+  TableCaption
 };
