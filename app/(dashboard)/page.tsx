@@ -153,7 +153,12 @@ const Page = () => {
                 <CurrentGame
                   currentGameResults={currentGameResults}
                   leagueName={leagueName}
-                  isLoading={isLoadingLeagueName || isLoadingCurrentGameData}
+                  isLoading={
+                    sessionStatus === 'loading' ||
+                    isLoadingLeagueName ||
+                    isLoadingCurrentGameData
+                  }
+                  isSignedIn={sessionStatus === 'authenticated'}
                 />
               </div>
             </div>

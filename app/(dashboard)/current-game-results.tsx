@@ -1,6 +1,4 @@
-import { Fragment } from 'react';
-import { useSession } from 'next-auth/react';
-import { Loader } from 'lucide-react';
+import { X } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -14,166 +12,136 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
-  TeamName,
-  TeamScore
+  TableRow
 } from '@/components/ui/table';
 import { CurrentGameResults } from '@/lib/definitions';
+import { cn } from '@/lib/utils';
+import {
+  COLUMN_HEADER_CLASSES,
+  MatchLines,
+  OUTCOMES,
+  ROW_CLASSES
+} from './results-table';
+
+const MESSAGE_CLASSES = 'px-3 py-2 text-[0.9375rem] leading-[1.375rem]';
+
+const editHref = `mailto:${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS}?subject=Last%20Player%20Standing%20Prediction%20&body=I%20would%20like%20to%20edit%20my%20prediction%20to...`;
+
+function RoundCell({ pick }: { pick: CurrentGameResults }) {
+  const outcome =
+    pick.correct === true
+      ? OUTCOMES.safe
+      : pick.correct === false
+        ? OUTCOMES.out
+        : undefined;
+
+  return (
+    <TableCell
+      className={cn(
+        'space-y-0.5 rounded-[0.875rem] px-3 py-2 align-top',
+        outcome ? outcome.cellClasses : 'bg-chip'
+      )}
+    >
+      <MatchLines pick={pick} outcome={outcome} />
+      {!outcome && (
+        <p className="flex items-center justify-between gap-2 pt-0.5 text-xs font-bold leading-4">
+          <span className="text-muted-foreground">Pending</span>
+          <a
+            href={editHref}
+            className="text-primary underline-offset-4 hover:underline"
+          >
+            Edit
+          </a>
+        </p>
+      )}
+    </TableCell>
+  );
+}
 
 const CurrentGame = ({
   currentGameResults,
   leagueName,
-  isLoading
+  isLoading,
+  isSignedIn
 }: {
   currentGameResults: CurrentGameResults[];
   leagueName: null | string | { error: string };
   isLoading: boolean;
+  isSignedIn: boolean;
 }) => {
-  const { data: session } = useSession();
-
-  const isLoadingCombined = isLoading;
+  const isOut = currentGameResults.some((pick) => pick.correct === false);
 
   return (
     <Card
-      className={`p-2 overflow-auto ${isLoadingCombined ? 'animate-pulse' : ''}`}
-      aria-busy={isLoadingCombined}
+      className={cn(isLoading && 'animate-pulse')}
+      aria-busy={isLoading}
       aria-live="polite"
     >
-      <CardHeader className="p-2 md:p-6">
-        <CardTitle className="flex flex-col md:flex-row md:items-center">
-          <span>Current Game</span>
-          {isLoadingCombined ? (
-            <Loader className="animate-spin mx-2" aria-hidden="true" />
-          ) : typeof leagueName === 'string' ? (
-            <span style={{ fontStyle: 'italic' }} className="md:ml-1">
-              <span className="hidden md:inline"> - </span>
-              {leagueName}
-            </span>
-          ) : (
-            ''
-          )}
-        </CardTitle>
+      <CardHeader className="space-y-0.5 p-5 pb-1.5 md:p-7 md:pb-1.5">
+        <CardTitle>Current game</CardTitle>
         <CardDescription>
           {`Your results from this game ${currentGameResults.length === 0 ? 'will be displayed here.' : ''}`}
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="p-2 md:p-6 md:pt-0">
-        {isLoadingCombined ? (
-          // Loading skeleton
-          <div>
-            {[0, 1, 2].map((rowIdx) => (
-              <div className="flex" key={`skeleton-row-${rowIdx}`}>
-                {[...Array(5)].map((_, colIdx) => (
-                  <div
-                    key={`skeleton-cell-${rowIdx}-${colIdx}`}
-                    className={`my-2 rounded-full bg-gray-200 ${
-                      rowIdx === 0 ? 'h-10' : 'h-5'
-                    } w-1/5`}
-                  />
-                ))}
-              </div>
+      <CardContent className="px-3 pb-3 md:px-5 md:pb-5">
+        {isLoading ? (
+          <div aria-hidden="true" className="flex gap-2 overflow-hidden p-2">
+            {[0, 1, 2].map((idx) => (
+              <div
+                key={idx}
+                className="h-[3.25rem] w-40 shrink-0 rounded-[0.875rem] bg-chip"
+              />
             ))}
           </div>
-        ) : session === null || session === undefined ? (
-          // Sign in prompt
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
+        ) : !isSignedIn ? (
+          <p className={cn(MESSAGE_CLASSES, 'text-center')}>
             <a
-              style={{ color: 'blue', fontWeight: 600, textAlign: 'center' }}
+              className="font-bold text-primary underline-offset-4 hover:underline"
               href="/login"
             >
               Sign in to get started
             </a>
-          </div>
+          </p>
         ) : leagueName === null ? (
-          // Join league prompt
-          'Join a league to get started.'
+          <p className={MESSAGE_CLASSES}>Join a league to get started.</p>
         ) : currentGameResults.length === 0 ? (
-          // Submit prediction prompt
-          'Submit a prediction to begin seeing results here.'
+          <p className={MESSAGE_CLASSES}>
+            Submit a prediction to begin seeing results here.
+          </p>
         ) : (
-          // Current game table
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {currentGameResults.map((_, round) => (
-                  <TableHead
-                    key={`gw-headcell-${round + 1}`}
-                  >{`Round ${round + 1}`}</TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow>
-                {currentGameResults.map((prediction, gameIdx) => (
-                  <Fragment key={`gw-fragment-${gameIdx}`}>
-                    <TableCell
-                      className={`table-cell ${prediction.correct === true ? 'bg-green-200' : prediction.correct === false ? 'bg-red-200' : 'bg-gray-200'}`}
-                    >
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          textAlign: 'center',
-                          minWidth: '4rem',
-                          maxWidth: '9rem'
-                        }}
-                      >
-                        <div>
-                          <TeamName location="Home" prediction={prediction} /> v{' '}
-                          <TeamName location="Away" prediction={prediction} />
-                        </div>
-                        {prediction.correct === null ? (
-                          <a
-                            href={`mailto:${process.env.NEXT_PUBLIC_MY_EMAIL_ADDRESS}?subject=Last%20Player%20Standing%20Prediction%20&body=I%20would%20like%20to%20edit%20my%20prediction%20to...`}
-                            style={{
-                              color: 'blue',
-                              textDecoration: 'underline',
-                              fontWeight: 600
-                            }}
-                          >
-                            Edit
-                          </a>
-                        ) : (
-                          <div>
-                            <TeamScore
-                              location="Home"
-                              prediction={prediction}
-                            />{' '}
-                            <span className="font-thin">v</span>{' '}
-                            <TeamScore
-                              location="Away"
-                              prediction={prediction}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    {prediction.correct === false && (
-                      <TableCell
-                        key={`gw-cell-lost-${gameIdx}`}
-                        className="table-cell"
-                      >
-                        <div
-                          style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            textAlign: 'center',
-                            width: '100%'
-                          }}
-                        >
-                          <span>
-                            You are eliminated and will get an email when the
-                            new game starts.
-                          </span>
-                        </div>
-                      </TableCell>
-                    )}
-                  </Fragment>
-                ))}
-              </TableRow>
-            </TableBody>
-          </Table>
+          <>
+            <Table
+              className="w-auto table-fixed border-separate border-spacing-2"
+              // Each round keeps about 168 px, so a narrow card scrolls sideways.
+              style={{ width: `${currentGameResults.length * 10.5}rem` }}
+            >
+              <TableHeader className="[&_tr]:border-0">
+                <TableRow className={ROW_CLASSES}>
+                  {currentGameResults.map((pick) => (
+                    <TableHead
+                      key={pick.round_number}
+                      className={COLUMN_HEADER_CLASSES}
+                    >{`Round ${pick.round_number}`}</TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow className={ROW_CLASSES}>
+                  {currentGameResults.map((pick) => (
+                    <RoundCell key={pick.round_number} pick={pick} />
+                  ))}
+                </TableRow>
+              </TableBody>
+            </Table>
+            {isOut && (
+              <p className="mx-2 mt-1 flex items-center gap-2.5 rounded-2xl bg-destructive-bg px-3.5 py-3 text-sm font-bold leading-[1.1875rem] text-destructive">
+                <X aria-hidden="true" className="size-4 shrink-0" strokeWidth={3} />
+                You are eliminated and will get an email when the new game
+                starts.
+              </p>
+            )}
+          </>
         )}
       </CardContent>
     </Card>

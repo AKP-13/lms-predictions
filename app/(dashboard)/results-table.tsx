@@ -18,12 +18,12 @@ import {
 import { Results } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
 
-const ROW_CLASSES = 'border-0 hover:bg-transparent';
-const COLUMN_HEADER_CLASSES =
+export const ROW_CLASSES = 'border-0 hover:bg-transparent';
+export const COLUMN_HEADER_CLASSES =
   'h-auto px-1 align-bottom text-[0.8125rem] font-semibold';
 const GAME_COLUMN_CLASSES = 'w-11 px-0 md:w-[3.25rem] md:pl-1';
 
-const OUTCOMES = {
+export const OUTCOMES = {
   safe: {
     label: 'Safe',
     Icon: Check,
@@ -42,6 +42,15 @@ const OUTCOMES = {
 
 type Outcome = (typeof OUTCOMES)[keyof typeof OUTCOMES];
 
+type Match = Pick<
+  Results,
+  | 'team_selected'
+  | 'team_opposing'
+  | 'team_selected_location'
+  | 'team_selected_score'
+  | 'team_opposing_score'
+>;
+
 function TeamLine({
   name,
   score,
@@ -51,7 +60,7 @@ function TeamLine({
   name: string;
   score: number;
   isPicked: boolean;
-  outcome: Outcome;
+  outcome?: Outcome;
 }) {
   const Name = isPicked ? 'strong' : 'span';
 
@@ -65,7 +74,7 @@ function TeamLine({
       )}
     >
       <Name className="min-w-0 flex-1 truncate">{name}</Name>
-      {isPicked && (
+      {isPicked && outcome && (
         <outcome.Icon
           role="img"
           aria-label={outcome.label}
@@ -73,14 +82,21 @@ function TeamLine({
           strokeWidth={3}
         />
       )}
-      <span className="min-w-2.5 text-right font-extrabold">{score}</span>
+      {outcome && (
+        <span className="min-w-2.5 text-right font-extrabold">{score}</span>
+      )}
     </div>
   );
 }
 
-function ResultCell({ pick }: { pick: Results }) {
-  // Bug #48: a pending pick has no result yet, but it shows as out.
-  const outcome = pick.correct ? OUTCOMES.safe : OUTCOMES.out;
+/** Shows the home team above the away team. Without an outcome, it hides the scores. */
+export function MatchLines({
+  pick,
+  outcome
+}: {
+  pick: Match;
+  outcome?: Outcome;
+}) {
   const picked = {
     name: pick.team_selected,
     score: pick.team_selected_score,
@@ -96,6 +112,15 @@ function ResultCell({ pick }: { pick: Results }) {
       ? [picked, opposing]
       : [opposing, picked];
 
+  return [home, away].map((team) => (
+    <TeamLine key={team.name} {...team} outcome={outcome} />
+  ));
+}
+
+function ResultCell({ pick }: { pick: Results }) {
+  // Bug #48: a pending pick has no result yet, but it shows as out.
+  const outcome = pick.correct ? OUTCOMES.safe : OUTCOMES.out;
+
   return (
     <TableCell
       className={cn(
@@ -103,9 +128,7 @@ function ResultCell({ pick }: { pick: Results }) {
         outcome.cellClasses
       )}
     >
-      {[home, away].map((team) => (
-        <TeamLine key={team.name} {...team} outcome={outcome} />
-      ))}
+      <MatchLines pick={pick} outcome={outcome} />
     </TableCell>
   );
 }
