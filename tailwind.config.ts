@@ -2,7 +2,8 @@ import type { Config } from 'tailwindcss';
 import { fontFamily } from 'tailwindcss/defaultTheme';
 
 export default {
-  darkMode: ['class'],
+  // A dark: class ignores .light-only. Use the tokens in globals.css instead.
+  darkMode: 'media',
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
@@ -23,7 +24,8 @@ export default {
         sans: ['var(--font-nunito)', ...fontFamily.sans]
       },
       boxShadow: {
-        card: 'var(--shadow-card)'
+        card: 'var(--shadow-card)',
+        sheet: 'var(--shadow-sheet)'
       },
       colors: {
         border: 'hsl(var(--border))',
@@ -49,6 +51,7 @@ export default {
           bg: 'hsl(var(--success-bg))'
         },
         tint: 'hsl(var(--tint))',
+        scrim: 'var(--scrim)',
         chip: 'hsl(var(--chip))',
         muted: {
           DEFAULT: 'hsl(var(--muted))',

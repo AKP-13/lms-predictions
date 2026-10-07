@@ -5,6 +5,8 @@
 @layer base {
   /* Floodlights light theme. Each comment gives the hex value. */
   :root {
+    color-scheme: light;
+
     --background: 257.1 46.7% 97.1%; /* #F6F4FB */
     --foreground: 255.5 42.5% 14.3%; /* #1D1534 */
 
@@ -42,6 +44,8 @@
     --ring: 256.8 77.1% 57.3%;
 
     --shadow-card: 0 6px 20px rgba(29, 21, 52, 0.08);
+    --scrim: rgba(29, 21, 52, 0.45);
+    --shadow-sheet: 0 12px 40px rgba(0, 0, 0, 0.18);
 
     --radius: 0.5rem;
 
@@ -56,34 +60,50 @@
     --difficulty-hardest-foreground: 353.5 78.7% 9.2%; /* #2A0509 */
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+  /* Floodlights dark theme, from the device setting. A page inside .light-only stays light. */
+  @media (prefers-color-scheme: dark) {
+    :root:not(:has(.light-only)) {
+      color-scheme: dark;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+      --background: 252.9 31.8% 8.6%; /* #120F1D */
+      --foreground: 256.4 52.4% 95.9%; /* #F2EFFA */
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+      --card: 250.4 31.5% 14.3%; /* #1D1930 */
+      --card-foreground: 256.4 52.4% 95.9%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+      --popover: 250.4 31.5% 14.3%;
+      --popover-foreground: 256.4 52.4% 95.9%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+      --primary: 254.8 100% 74.5%; /* #9D7DFF */
+      --primary-foreground: 253.5 50.8% 12%; /* #160F2E */
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+      --secondary: 252.5 24.5% 19.2%; /* #2A253D, the chip */
+      --secondary-foreground: 256.4 52.4% 95.9%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+      --muted: 252.5 24.5% 19.2%;
+      --muted-foreground: 252.7 21.3% 69.6%; /* #A8A1C2 */
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+      --accent: 191.8 81.3% 64.3%; /* #5AD1EE */
+      --accent-foreground: 253.5 50.8% 12%;
+      --accent-bg: 216.9 33.3% 22.9%; /* #27364E */
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+      --destructive: 354.6 100% 73.9%; /* #FF7A86 */
+      --destructive-foreground: 253.5 50.8% 12%;
+      --destructive-bg: 315 25% 22%; /* #462A3F */
+
+      --success: 141.9 69.2% 58%; /* #4ADE80 */
+      --success-bg: 189.6 25.8% 19%; /* #24393D */
+
+      --tint: 254.2 36.5% 20.4%; /* #2A2147 */
+      --chip: 252.5 24.5% 19.2%; /* #2A253D */
+
+      --border: 253.3 24.3% 21.8%; /* #302A45, the line */
+      --input: 253.3 24.3% 21.8%;
+      --ring: 254.8 100% 74.5%;
+
+      --shadow-card: none;
+      --scrim: rgba(5, 3, 12, 0.62);
+    }
   }
 }
 
