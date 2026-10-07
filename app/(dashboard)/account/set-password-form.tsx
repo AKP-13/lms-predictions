@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
-import { CheckCircle2 } from 'lucide-react';
+import { CircleCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FormError } from '@/components/form-error';
 import { PasswordInput } from '@/components/password-input';
@@ -48,13 +48,22 @@ export function SetPasswordForm() {
       {!edited && state.done && (
         <p
           role="status"
-          className="flex items-center gap-2 rounded-md bg-green-50 p-3 text-sm font-medium text-green-700"
+          className="flex items-center gap-2.5 rounded-2xl bg-success-bg px-3.5 py-3 text-sm font-bold leading-[1.1875rem] text-success"
         >
-          <CheckCircle2 className="h-4 w-4 shrink-0" />
+          <CircleCheck
+            className="size-[1.125rem] shrink-0"
+            strokeWidth={2.5}
+            aria-hidden
+          />
           Your password is set. You can sign in with it from now on.
         </p>
       )}
-      <Button type="submit" className="w-full" disabled={pending}>
+      <Button
+        type="submit"
+        size="lg"
+        className="mt-1 w-full"
+        disabled={pending}
+      >
         {pending ? 'Saving…' : 'Set password'}
       </Button>
     </form>
