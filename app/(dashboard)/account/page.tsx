@@ -9,11 +9,13 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import { toneClasses, type Tone } from '@/components/ui/tones';
+import { isAdminEmail } from '@/lib/admin';
 import { auth } from '@/lib/auth';
 import { MIN_PASSWORD_LENGTH } from '@/lib/credentials';
 import { initialsFor } from '@/lib/initials';
 import { hasPassword } from '@/lib/users';
 import { cn } from '@/lib/utils';
+import { AdminLink } from './admin-link';
 import { SetPasswordForm } from './set-password-form';
 
 const PASSWORD_TIPS = [
@@ -119,6 +121,8 @@ export default async function AccountPage() {
           <SetPasswordForm />
         </CardContent>
       </Card>
+
+      {isAdminEmail(email) && <AdminLink />}
     </div>
   );
 }
