@@ -1,4 +1,5 @@
 import { auth } from '@/lib/auth';
+import { USER_LEAGUE_ID_SQL } from '@/lib/leagues';
 import { sql } from '@vercel/postgres';
 import { Resend } from 'resend';
 
@@ -35,14 +36,7 @@ export async function POST(request: Request) {
         , league_id
         , game_number
       FROM games_numbered
-      WHERE league_id = (
-        SELECT
-            league_id
-        FROM user_leagues
-        WHERE user_id = ($1)
-        ORDER BY league_id
-        LIMIT 1
-      )
+      WHERE league_id = ${USER_LEAGUE_ID_SQL}
       ORDER BY game_id DESC
       LIMIT 1;
       `,

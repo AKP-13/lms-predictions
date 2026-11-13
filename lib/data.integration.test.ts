@@ -2,7 +2,11 @@
 import { randomUUID } from 'node:crypto';
 import { sql } from '@vercel/postgres';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { fetchLeagueHeading } from './data';
+import {
+  fetchCurrentGameData,
+  fetchLeagueHeading,
+  fetchLeagueInfo
+} from './data';
 
 // Needs a real database. vitest.config.ts loads the URLs from .env and .env.local.
 const hasDatabase = Boolean(
@@ -112,6 +116,17 @@ describe.runIf(hasDatabase)('fetchLeagueHeading against the database', () => {
     expect(
       await fetchLeagueHeading({ userId: twoLeagues, gameweek: 12 })
     ).toEqual({ leagueName, week: { round: 3, gameweek: 12 } });
+  });
+
+  it('gives fetchLeagueInfo the same lowest league', async () => {
+    expect(await fetchLeagueInfo({ userId: twoLeagues })).toBe(leagueName);
+  });
+
+  it('gives fetchCurrentGameData no game for a user with no league', async () => {
+    expect(await fetchCurrentGameData({ userId: noLeague })).toEqual({
+      latestGameResults: [],
+      latestGameId: null
+    });
   });
 
   async function createUser(name: string) {
