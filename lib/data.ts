@@ -1,4 +1,5 @@
 import { sql } from '@vercel/postgres';
+import { USER_LEAGUE_ID_SQL } from './leagues';
 import {
   CurrentGameId,
   CurrentGameResults,
@@ -58,20 +59,13 @@ export async function fetchCurrentGameData({
 }) {
   try {
     const leagueIdQuery = await sql.query<{ league_id: number | undefined }>(
-      `
-        SELECT
-            league_id
-        FROM user_leagues
-        WHERE user_id = ($1)
-        ORDER BY league_id
-        LIMIT 1;
-      `,
+      `SELECT ${USER_LEAGUE_ID_SQL} AS league_id;`,
       [userId]
     );
 
     const leagueId = leagueIdQuery?.rows?.[0]?.league_id;
 
-    if (leagueId === undefined) {
+    if (leagueId == null) {
       return {
         latestGameResults: [],
         latestGameId: null
@@ -376,14 +370,7 @@ export async function fetchLeagueInfo({
         SELECT
             league_name
         FROM leagues
-        WHERE id = (
-            SELECT
-                league_id
-            FROM user_leagues
-            WHERE user_id = ($1)
-            ORDER BY league_id
-            LIMIT 1
-        );
+        WHERE id = ${USER_LEAGUE_ID_SQL};
       `,
       [userId]
     );
@@ -413,12 +400,7 @@ export async function fetchLeagueHeading({
     }>(
       `
         WITH user_league AS (
-            SELECT
-                league_id
-            FROM user_leagues
-            WHERE user_id = ($1)
-            ORDER BY league_id
-            LIMIT 1
+            SELECT ${USER_LEAGUE_ID_SQL} AS league_id
         ), latest_game AS (
             SELECT
                 MAX(id) AS id
