@@ -139,8 +139,12 @@ export function PickCell({
 }
 
 function ResultCell({ pick }: { pick: Results }) {
-  // Bug #48: a pending pick has no result yet, but it shows as out.
-  const result = pick.correct ? PICK_RESULTS.safe : PICK_RESULTS.out;
+  const result =
+    pick.correct === true
+      ? PICK_RESULTS.safe
+      : pick.correct === false
+        ? PICK_RESULTS.out
+        : undefined;
 
   return <PickCell pick={pick} result={result} />;
 }

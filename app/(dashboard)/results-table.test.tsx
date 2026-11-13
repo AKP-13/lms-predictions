@@ -101,6 +101,24 @@ describe('ResultsTable', () => {
     expect(within(lastOutCell).getByRole('img', { name: 'Out' })).toBeVisible();
   });
 
+  it('shows a pick with no result as neutral, not safe and not out', () => {
+    const pending = pick(3, 1, {
+      team_selected: 'Arsenal',
+      team_opposing: 'Spurs',
+      correct: null as unknown as boolean,
+      team_selected_score: null as unknown as number,
+      team_opposing_score: null as unknown as number
+    });
+    render(<ResultsTable results={{ 3: [pending] }} isSignedIn />);
+
+    const cell = within(bodyRows()[0]).getAllByRole('cell')[0];
+    expect(cell).toHaveTextContent(/^Arsenal\s*Spurs$/);
+    expect(within(cell).queryByRole('img', { name: 'Out' })).toBeNull();
+    expect(within(cell).queryByRole('img', { name: 'Safe' })).toBeNull();
+    expect(cell).toHaveClass('bg-chip');
+    expect(cell).not.toHaveClass('bg-destructive-bg');
+  });
+
   it('explains the labels in a Safe and Out key', () => {
     render(<ResultsTable results={results} isSignedIn />);
 
