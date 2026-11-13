@@ -27,7 +27,7 @@ export const resolveResultsGameweek = (
 
 export const SUBMISSION_DEADLINE_OFFSET_MS = 2 * 60 * 60 * 1000; // 2 hours
 
-// Assumes fixtures[0] is the earliest kickoff; #46 makes that always true.
+// The fixtures can come in any order, so take the earliest kickoff.
 export const returnSubmissionDeadline = ({
   predictionWeekFixtures
 }: {
@@ -37,8 +37,12 @@ export const returnSubmissionDeadline = ({
     return null;
   }
 
-  const firstFixtureDate = predictionWeekFixtures[0]?.kickoff_time;
-  return new Date(firstFixtureDate).getTime() - SUBMISSION_DEADLINE_OFFSET_MS;
+  const firstKickoff = Math.min(
+    ...predictionWeekFixtures.map(({ kickoff_time }) =>
+      new Date(kickoff_time).getTime()
+    )
+  );
+  return firstKickoff - SUBMISSION_DEADLINE_OFFSET_MS;
 };
 
 export const returnIsPastSubmissionDeadline = ({
