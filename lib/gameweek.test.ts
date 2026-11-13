@@ -163,16 +163,15 @@ describe('returnIsPastSubmissionDeadline', () => {
     );
   });
 
-  it('uses the first fixture in the array, not the earliest kickoff', () => {
-    // Known limitation: /api/fixtures is passed through unsorted, so a later
-    // fixture sitting at index 0 pushes the deadline out
+  it('uses the earliest kickoff when the fixtures are not in kickoff order', () => {
+    // Earliest kickoff 13:00, deadline 11:00, now 12:00
     const predictionWeekFixtures = [
       createMockFixture({ id: 1, kickoff_time: '2026-08-21T18:00:00Z' }),
       createMockFixture({ id: 2, kickoff_time: '2026-08-21T13:00:00Z' })
     ];
 
     expect(returnIsPastSubmissionDeadline({ predictionWeekFixtures })).toBe(
-      false
+      true
     );
   });
 });
@@ -190,6 +189,38 @@ describe('returnSubmissionDeadline', () => {
     expect(returnSubmissionDeadline({ predictionWeekFixtures })).toBe(
       new Date('2026-08-21T12:00:00Z').getTime()
     );
+  });
+
+  it('returns two hours before the earliest kickoff when the fixtures are not in kickoff order', () => {
+    const predictionWeekFixtures = [
+      createMockFixture({ id: 1, kickoff_time: '2026-08-22T16:30:00Z' }),
+      createMockFixture({ id: 2, kickoff_time: '2026-08-21T19:00:00Z' }),
+      createMockFixture({ id: 3, kickoff_time: '2026-08-22T14:00:00Z' })
+    ];
+
+    expect(returnSubmissionDeadline({ predictionWeekFixtures })).toBe(
+      new Date('2026-08-21T17:00:00Z').getTime()
+    );
+  });
+
+  it('ignores a fixture with a missing or invalid kickoff', () => {
+    const predictionWeekFixtures = [
+      createMockFixture({ id: 1, kickoff_time: '2026-08-21T19:00:00Z' }),
+      createMockFixture({ id: 2, kickoff_time: null as unknown as string }),
+      createMockFixture({ id: 3, kickoff_time: 'not a date' })
+    ];
+
+    expect(returnSubmissionDeadline({ predictionWeekFixtures })).toBe(
+      new Date('2026-08-21T17:00:00Z').getTime()
+    );
+  });
+
+  it('returns null when no fixture has a valid kickoff', () => {
+    const predictionWeekFixtures = [
+      createMockFixture({ kickoff_time: null as unknown as string })
+    ];
+
+    expect(returnSubmissionDeadline({ predictionWeekFixtures })).toBeNull();
   });
 });
 

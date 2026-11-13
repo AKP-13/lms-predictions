@@ -27,18 +27,22 @@ export const resolveResultsGameweek = (
 
 export const SUBMISSION_DEADLINE_OFFSET_MS = 2 * 60 * 60 * 1000; // 2 hours
 
-// Assumes fixtures[0] is the earliest kickoff; #46 makes that always true.
+// The fixtures can come in any order, so take the earliest kickoff.
 export const returnSubmissionDeadline = ({
   predictionWeekFixtures
 }: {
   predictionWeekFixtures: FixturesData[];
 }): number | null => {
-  if (predictionWeekFixtures.length === 0) {
+  // A missing kickoff parses as 1970 and an invalid one as NaN, so drop both.
+  const kickoffs = predictionWeekFixtures
+    .filter(({ kickoff_time }) => kickoff_time)
+    .map(({ kickoff_time }) => new Date(kickoff_time).getTime())
+    .filter((kickoff) => !Number.isNaN(kickoff));
+  if (kickoffs.length === 0) {
     return null;
   }
 
-  const firstFixtureDate = predictionWeekFixtures[0]?.kickoff_time;
-  return new Date(firstFixtureDate).getTime() - SUBMISSION_DEADLINE_OFFSET_MS;
+  return Math.min(...kickoffs) - SUBMISSION_DEADLINE_OFFSET_MS;
 };
 
 export const returnIsPastSubmissionDeadline = ({
