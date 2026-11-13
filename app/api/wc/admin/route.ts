@@ -9,7 +9,7 @@ import { isAdminEmail } from '@/lib/admin';
 //
 // A pick is correct if the picked team won (higher score after 90 min).
 // Draws = everyone who picked either team is incorrect (only wins count).
-// Auth: WC_ADMIN_SECRET header (curl) or a signed-in admin session (/admin UI).
+// Auth: WC_ADMIN_SECRET header (curl) or a signed-in admin session (/admin/wc UI).
 
 export async function PATCH(request: Request) {
   const secret = request.headers.get('x-admin-secret');

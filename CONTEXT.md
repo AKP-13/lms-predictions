@@ -28,6 +28,14 @@ _Avoid_: This week
 The signed-in page at `/account` where a user manages their own account. Today it holds the set-password form. It needs a session and nothing else.
 _Avoid_: Profile, settings page
 
+**Admin**:
+The one user who runs the game. The app knows the admin by the email address in the admin email setting (`NEXT_PUBLIC_MY_EMAIL_ADDRESS`). The Account page shows the admin a link to the **Admin page**.
+_Avoid_: Owner, superuser
+
+**Admin page**:
+The page at `/admin` where the admin runs the Premier League game. Any other user, and a visitor with no session, goes to the **Home page**. The World Cup admin pages are separate: they live at `/admin/wc` and `/admin/wc/knockout`.
+_Avoid_: Admin dashboard, admin panel
+
 **Set password**:
 The act of choosing a password for an account that already exists. One form covers both the first password and every later one. It never asks for the current password: the session is the authorization. This is how a magic-link user adds a password.
 _Avoid_: Change password, update password, reset password
