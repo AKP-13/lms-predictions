@@ -33,16 +33,16 @@ export const returnSubmissionDeadline = ({
 }: {
   predictionWeekFixtures: FixturesData[];
 }): number | null => {
-  if (predictionWeekFixtures.length === 0) {
+  // A missing kickoff parses as 1970 and an invalid one as NaN, so drop both.
+  const kickoffs = predictionWeekFixtures
+    .filter(({ kickoff_time }) => kickoff_time)
+    .map(({ kickoff_time }) => new Date(kickoff_time).getTime())
+    .filter((kickoff) => !Number.isNaN(kickoff));
+  if (kickoffs.length === 0) {
     return null;
   }
 
-  const firstKickoff = Math.min(
-    ...predictionWeekFixtures.map(({ kickoff_time }) =>
-      new Date(kickoff_time).getTime()
-    )
-  );
-  return firstKickoff - SUBMISSION_DEADLINE_OFFSET_MS;
+  return Math.min(...kickoffs) - SUBMISSION_DEADLINE_OFFSET_MS;
 };
 
 export const returnIsPastSubmissionDeadline = ({

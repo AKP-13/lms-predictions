@@ -202,6 +202,26 @@ describe('returnSubmissionDeadline', () => {
       new Date('2026-08-21T17:00:00Z').getTime()
     );
   });
+
+  it('ignores a fixture with a missing or invalid kickoff', () => {
+    const predictionWeekFixtures = [
+      createMockFixture({ id: 1, kickoff_time: '2026-08-21T19:00:00Z' }),
+      createMockFixture({ id: 2, kickoff_time: null as unknown as string }),
+      createMockFixture({ id: 3, kickoff_time: 'not a date' })
+    ];
+
+    expect(returnSubmissionDeadline({ predictionWeekFixtures })).toBe(
+      new Date('2026-08-21T17:00:00Z').getTime()
+    );
+  });
+
+  it('returns null when no fixture has a valid kickoff', () => {
+    const predictionWeekFixtures = [
+      createMockFixture({ kickoff_time: null as unknown as string })
+    ];
+
+    expect(returnSubmissionDeadline({ predictionWeekFixtures })).toBeNull();
+  });
 });
 
 describe('formatCountdown', () => {
